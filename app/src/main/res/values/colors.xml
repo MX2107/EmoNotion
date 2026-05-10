@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Основные цвета из макета -->
+    <color name="background">#FFF9F0</color>
+    <color name="foreground">#2D3436</color>
+    <color name="card">#FFFFFF</color>
+    <color name="muted">#F8F9FA</color>
+    <color name="muted_foreground">#636E72</color>
+    <color name="border">#E5E7EB</color>
+    
+    <!-- Основные брендовые цвета -->
+    <color name="primary">#FF6B6B</color>
+    <color name="primary_foreground">#FFFFFF</color>
+    <color name="secondary">#00D2FF</color>
+    <color name="secondary_foreground">#FFFFFF</color>
+    <color name="accent">#FFC400</color>
+    <color name="accent_foreground">#2D3436</color>
+    
+    <!-- Цвета настроений -->
+    <color name="mood_great">#00D98C</color>
+    <color name="mood_good">#00D2FF</color>
+    <color name="mood_neutral">#FFC400</color>
+    <color name="mood_bad">#FF9234</color>
+    <color name="mood_terrible">#FF3838</color>
+    
+    <!-- Дополнительные цвета -->
+    <color name="color_coral">#FF6B6B</color>
+    <color name="color_sky">#00D2FF</color>
+    <color name="color_sunny">#FFC400</color>
+    <color name="color_mint">#00D98C</color>
+    <color name="color_purple">#A855F7</color>
+    <color name="color_pink">#FF6BE4</color>
+    <color name="color_orange">#FF9234</color>
+    <color name="color_red">#FF3838</color>
+    <color name="color_blue">#3B82F6</color>
+    <color name="color_teal">#14B8A6</color>
+    
+    <!-- Стандартные цвета Android -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
