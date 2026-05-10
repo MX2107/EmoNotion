@@ -1,15 +1,38 @@
+# Сборка и временные файлы Gradle
+.gradle/
+build/
+/*/build/
+/build/
+
+# Настройки IDE
+.idea/
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+*.iws
+*.ipr
+out/
+
+# Локальные конфигурации и ключи
 local.properties
+.signing/
+*.keystore
+*.jks
+*.p12
+google-services.json
+
+# Файлы операционной системы
+.DS_Store
+Thumbs.db
+*.swp
+
+# Логи и результаты профилирования
+*.log
+captures/
+*.hprof
+
+# Настройки Native сборки
+.externalNativeBuild/
+.cxx/
+.ndk/
+
+# Кэш Kotlin
+.kotlin/
