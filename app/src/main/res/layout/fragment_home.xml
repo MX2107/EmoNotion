@@ -262,7 +262,7 @@
                 android:layout_columnWeight="1"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/analytics_button_background"
+                android:background="@drawable/analytics_button_gradient_background"
                 android:gravity="center"
                 android:orientation="vertical"
                 android:padding="24dp">
@@ -302,13 +302,13 @@
                     android:layout_height="28dp"
                     android:layout_marginBottom="12dp"
                     android:src="@drawable/ic_notes"
-                    app:tint="@color/accent_foreground" />
+                    app:tint="?android:attr/windowBackgroundFallback" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/nav_notes"
-                    android:textColor="@color/accent_foreground"
+                    android:textColor="?android:attr/windowBackgroundFallback"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 

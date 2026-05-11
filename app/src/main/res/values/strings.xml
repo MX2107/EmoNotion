@@ -5,6 +5,7 @@
     <string name="nav_home">Главная</string>
     <string name="nav_calendar">Календарь</string>
     <string name="nav_notes">Заметки</string>
+    <string name="nav_profile">Профиль</string>
     
     <!-- Главный экран -->
     <string name="app_subtitle">Ваш личный эмоциональный дневник</string>
@@ -64,6 +65,44 @@
     <string name="most_frequent_day">Самый частый день:</string>
     <string name="export">Экспорт</string>
     <string name="export_data">Экспорт данных будет доступен в следующей версии</string>
+    
+    <!-- Профиль -->
+    <string name="profile">Профиль</string>
+    <string name="user_profile">Профиль пользователя</string>
+    <string name="edit_profile">Редактировать профиль</string>
+    <string name="name">Имя</string>
+    <string name="email">Email</string>
+    <string name="avatar">Аватар</string>
+    <string name="change_avatar">Изменить аватар</string>
+    <string name="statistics">Статистика</string>
+    <string name="total_entries_count">Всего записей: %d</string>
+    <string name="current_streak_count">Текущая серия: %d дней</string>
+    <string name="longest_streak_count">Самая длинная серия: %d дней</string>
+    <string name="average_mood_value">Среднее настроение: %.1f</string>
+    <string name="member_since">Пользователь с: %s</string>
+    
+    <!-- Настройки -->
+    <string name="settings">Настройки</string>
+    <string name="data_management">Управление данными</string>
+    <string name="export_all_data">Экспортировать все данные</string>
+    <string name="import_data">Импортировать данные</string>
+    <string name="sync_settings">Синхронизация</string>
+    <string name="gmail_sync">Синхронизация через Gmail</string>
+    <string name="enable_gmail_sync">Включить синхронизацию</string>
+    <string name="sync_frequency">Частота синхронизации</string>
+    <string name="sync_now">Синхронизировать сейчас</string>
+    <string name="last_sync">Последняя синхронизация: %s</string>
+    <string name="auto_backup">Автоматическое резервное копирование</string>
+    <string name="backup_frequency">Частота резервного копирования</string>
+    <string name="backup_daily">Ежедневно</string>
+    <string name="backup_weekly">Еженедельно</string>
+    <string name="backup_monthly">Ежемесячно</string>
+    <string name="backup_never">Никогда</string>
+    <string name="privacy">Конфиденциальность</string>
+    <string name="local_storage_only">Только локальное хранение</string>
+    <string name="about">О приложении</string>
+    <string name="version">Версия: %s</string>
+    <string name="app_description">EmoNotion - ваш личный эмоциональный дневник</string>
     
     <!-- Сообщения об ошибках -->
     <string name="please_select_mood">Пожалуйста, выберите настроение</string>

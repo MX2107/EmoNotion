@@ -35,4 +35,16 @@
         android:label="@string/analytics"
         tools:layout="@layout/fragment_analytics" />
 
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="com.emonotion.app.ui.profile.ProfileFragment"
+        android:label="@string/nav_profile"
+        tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.emonotion.app.ui.settings.SettingsFragment"
+        android:label="@string/settings"
+        tools:layout="@layout/fragment_settings" />
+
 </navigation>

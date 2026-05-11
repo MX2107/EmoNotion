@@ -20,10 +20,8 @@ class MainActivity : AppCompatActivity() {
             val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
             if (navHostFragment != null) {
                 val navController = navHostFragment.navController
-                // Убеждаемся, что навигационный граф настроен
-                if (navController.graph == null) {
-                    navController.setGraph(R.navigation.nav_graph)
-                }
+                // Настраиваем навигационный граф
+                navController.setGraph(R.navigation.nav_graph)
                 binding.bottomNavigation.setupWithNavController(navController)
             } else {
                 // Fallback если NavHostFragment не найден

@@ -15,6 +15,7 @@
     <color name="secondary_foreground">#FFFFFF</color>
     <color name="accent">#FFC400</color>
     <color name="accent_foreground">#2D3436</color>
+    <color name="accent_light">#FFF3CD</color>
     
     <!-- Цвета настроений -->
     <color name="mood_great">#00D98C</color>
