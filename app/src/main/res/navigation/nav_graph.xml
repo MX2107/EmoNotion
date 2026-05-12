@@ -13,7 +13,7 @@
         
         <action
             android:id="@+id/action_homeFragment_to_dailyEntryFragment"
-            app:destination="@id/navigation_calendar" />
+            app:destination="@id/dailyEntryFragment" />
         
         <action
             android:id="@+id/action_homeFragment_to_notesFragment"
@@ -44,7 +44,7 @@
         
         <action
             android:id="@+id/action_calendarFragment_to_dailyEntryFragment"
-            app:destination="@id/navigation_calendar" />
+            app:destination="@id/dailyEntryFragment" />
     </fragment>
 
     <fragment
@@ -57,7 +57,16 @@
         android:id="@+id/navigation_profile"
         android:name="com.emonotion.app.presentation.profile.ProfileFragment"
         android:label="Профиль"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile">
+        
+        <action
+            android:id="@+id/action_profileFragment_to_analyticsFragment"
+            app:destination="@id/analyticsFragment" />
+            
+        <action
+            android:id="@+id/action_profileFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/dailyEntryFragment"

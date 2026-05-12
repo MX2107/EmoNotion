@@ -53,8 +53,13 @@ class ProfileFragment : Fragment() {
             }
             
             // Кнопка настроек
-            settingsButton?.setOnClickListener {
-                findNavController().navigate(com.emonotion.app.R.id.settingsFragment)
+            settingsButton.setOnClickListener {
+                findNavController().navigate(com.emonotion.app.R.id.action_profileFragment_to_settingsFragment)
+            }
+            
+            // Кнопка аналитики
+            analyticsButton.setOnClickListener {
+                findNavController().navigate(com.emonotion.app.R.id.action_profileFragment_to_analyticsFragment)
             }
         }
     }
@@ -100,6 +105,10 @@ class ProfileFragment : Fragment() {
     
     private fun updateEditingUI(isEditing: Boolean) {
         // TODO: Обновить UI для режима редактирования когда будут готовы элементы
+        // Заглушка для предотвращения предупреждения о неиспользуемом параметре
+        if (isEditing) {
+            // Будет реализовано позже
+        }
     }
     
     override fun onDestroyView() {
