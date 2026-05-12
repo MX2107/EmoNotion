@@ -485,19 +485,19 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:fontFamily="monospace"
                             android:text="/storage/emulated/0/Android/data/com.emonotion.app/files"
                             android:textColor="@color/foreground"
-                            android:textSize="14sp"
                             android:textIsSelectable="true"
-                            android:fontFamily="monospace" />
+                            android:textSize="14sp" />
 
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_marginStart="12dp"
-                            android:src="@drawable/ic_copy"
                             android:background="@drawable/settings_icon_background"
                             android:padding="4dp"
+                            android:src="@drawable/ic_copy"
                             app:tint="@color/accent" />
 
                     </LinearLayout>
