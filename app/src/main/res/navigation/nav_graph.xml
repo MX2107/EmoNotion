@@ -7,44 +7,92 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.emonotion.app.ui.home.HomeFragment"
-        android:label="@string/nav_home"
-        tools:layout="@layout/fragment_home" />
+        android:name="com.emonotion.app.presentation.home.HomeFragment"
+        android:label="Главная"
+        tools:layout="@layout/fragment_home">
+        
+        <action
+            android:id="@+id/action_homeFragment_to_dailyEntryFragment"
+            app:destination="@id/navigation_calendar" />
+        
+        <action
+            android:id="@+id/action_homeFragment_to_notesFragment"
+            app:destination="@id/navigation_notes" />
+        
+        <action
+            android:id="@+id/action_homeFragment_to_calendarFragment"
+            app:destination="@id/navigation_calendar" />
+        
+        <action
+            android:id="@+id/action_homeFragment_to_profileFragment"
+            app:destination="@id/navigation_profile" />
+        
+        <action
+            android:id="@+id/action_homeFragment_to_analyticsFragment"
+            app:destination="@id/analyticsFragment" />
+        
+        <action
+            android:id="@+id/action_homeFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_calendar"
-        android:name="com.emonotion.app.ui.calendar.CalendarFragment"
-        android:label="@string/nav_calendar"
-        tools:layout="@layout/fragment_calendar" />
+        android:name="com.emonotion.app.presentation.calendar.CalendarFragment"
+        android:label="Календарь"
+        tools:layout="@layout/fragment_calendar">
+        
+        <action
+            android:id="@+id/action_calendarFragment_to_dailyEntryFragment"
+            app:destination="@id/navigation_calendar" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_notes"
-        android:name="com.emonotion.app.ui.notes.NotesFragment"
-        android:label="@string/nav_notes"
+        android:name="com.emonotion.app.presentation.notes.NotesFragment"
+        android:label="Заметки"
         tools:layout="@layout/fragment_notes" />
 
     <fragment
-        android:id="@+id/navigation_entry"
-        android:name="com.emonotion.app.ui.entry.DailyEntryFragment"
-        android:label="@string/diary"
-        tools:layout="@layout/fragment_daily_entry" />
-
-    <fragment
-        android:id="@+id/navigation_analytics"
-        android:name="com.emonotion.app.ui.analytics.AnalyticsFragment"
-        android:label="@string/analytics"
-        tools:layout="@layout/fragment_analytics" />
-
-    <fragment
         android:id="@+id/navigation_profile"
-        android:name="com.emonotion.app.ui.profile.ProfileFragment"
-        android:label="@string/nav_profile"
+        android:name="com.emonotion.app.presentation.profile.ProfileFragment"
+        android:label="Профиль"
         tools:layout="@layout/fragment_profile" />
 
     <fragment
-        android:id="@+id/navigation_settings"
-        android:name="com.emonotion.app.ui.settings.SettingsFragment"
-        android:label="@string/settings"
-        tools:layout="@layout/fragment_settings" />
+        android:id="@+id/dailyEntryFragment"
+        android:name="com.emonotion.app.presentation.dailyentry.DailyEntryFragment"
+        android:label="Дневная запись"
+        tools:layout="@layout/fragment_daily_entry">
+        
+        <argument
+            android:name="date"
+            android:defaultValue=""
+            app:nullable="true"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/analyticsFragment"
+        android:name="com.emonotion.app.presentation.analytics.AnalyticsFragment"
+        android:label="Аналитика"
+        tools:layout="@layout/fragment_analytics" />
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.emonotion.app.presentation.settings.SettingsFragment"
+        android:label="Настройки"
+        tools:layout="@layout/fragment_settings">
+        
+        <action
+            android:id="@+id/action_settingsFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.emonotion.app.presentation.profile.EditProfileFragment"
+        android:label="Редактировать профиль"
+        tools:layout="@layout/fragment_edit_profile" />
 
 </navigation>

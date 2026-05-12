@@ -39,4 +39,5 @@
     <!-- Стандартные цвета Android -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-</resources>
+    
+    </resources>
