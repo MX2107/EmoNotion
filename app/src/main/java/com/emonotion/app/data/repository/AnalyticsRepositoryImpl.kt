@@ -1,6 +1,7 @@
 package com.emonotion.app.data.repository
 
 import com.emonotion.app.domain.model.Analytics
+import com.emonotion.app.domain.model.UserStats
 import com.emonotion.app.domain.repository.AnalyticsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -29,6 +30,22 @@ class AnalyticsRepositoryImpl @Inject constructor() : AnalyticsRepository {
     override fun getAnalyticsFlow(): Flow<Analytics> {
         return flow {
             emit(getAnalytics())
+        }
+    }
+    
+    override fun getUserStats(): Flow<UserStats> {
+        return flow {
+            // TODO: Реализовать получение реальной статистики
+            emit(
+                UserStats(
+                    totalEntries = 0,
+                    currentStreak = 0,
+                    longestStreak = 0,
+                    averageMood = 0f,
+                    mostFrequentMood = null,
+                    totalDaysTracked = 0
+                )
+            )
         }
     }
 }

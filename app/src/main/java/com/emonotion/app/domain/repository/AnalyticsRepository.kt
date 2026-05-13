@@ -1,6 +1,7 @@
 package com.emonotion.app.domain.repository
 
 import com.emonotion.app.domain.model.Analytics
+import com.emonotion.app.domain.model.UserStats
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -9,4 +10,5 @@ import kotlinx.coroutines.flow.Flow
 interface AnalyticsRepository {
     suspend fun getAnalytics(): Analytics
     fun getAnalyticsFlow(): Flow<Analytics>
+    fun getUserStats(): Flow<UserStats>
 }

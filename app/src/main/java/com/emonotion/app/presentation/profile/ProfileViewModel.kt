@@ -2,6 +2,8 @@ package com.emonotion.app.presentation.profile
 
 import androidx.lifecycle.viewModelScope
 import com.emonotion.app.domain.model.UserProfile
+import com.emonotion.app.domain.model.UserStats
+import com.emonotion.app.domain.usecase.analytics.GetUserStatsUseCase
 import com.emonotion.app.domain.usecase.profile.GetUserProfileUseCase
 import com.emonotion.app.domain.usecase.profile.UpdateUserProfileUseCase
 import com.emonotion.app.presentation.common.BaseViewModel
@@ -20,7 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val getUserProfileUseCase: GetUserProfileUseCase,
-    private val updateUserProfileUseCase: UpdateUserProfileUseCase
+    private val updateUserProfileUseCase: UpdateUserProfileUseCase,
+    private val getUserStatsUseCase: GetUserStatsUseCase
 ) : BaseViewModel() {
     
     // Состояния UI
@@ -48,6 +51,9 @@ class ProfileViewModel @Inject constructor(
     private val _editedAvatar = MutableStateFlow("")
     val editedAvatar: StateFlow<String> = _editedAvatar.asStateFlow()
     
+    private val _userStats = MutableStateFlow(UserStats())
+    val userStats: StateFlow<UserStats> = _userStats.asStateFlow()
+    
     /**
      * Загружает профиль пользователя
      */
@@ -65,6 +71,20 @@ class ProfileViewModel @Inject constructor(
                         _editedAvatar.value = it.avatar ?: ""
                     }
                 }
+            }
+        }
+        
+        // Загружаем статистику пользователя
+        loadUserStats()
+    }
+    
+    /**
+     * Загружает статистику пользователя
+     */
+    private fun loadUserStats() {
+        viewModelScope.launch {
+            getUserStatsUseCase().collect { stats ->
+                _userStats.value = stats
             }
         }
     }

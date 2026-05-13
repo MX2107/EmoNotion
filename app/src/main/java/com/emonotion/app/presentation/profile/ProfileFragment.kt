@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.emonotion.app.R
 import com.emonotion.app.databinding.FragmentProfileBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -86,6 +87,12 @@ class ProfileFragment : Fragment() {
                 }
             }
         }
+        
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.userStats.collect { stats ->
+                updateStatsDisplay(stats)
+            }
+        }
     }
     
     private fun updateProfileDisplay(profile: com.emonotion.app.domain.model.UserProfile?) {
@@ -100,6 +107,24 @@ class ProfileFragment : Fragment() {
             } else {
                 // TODO: Показать состояние пустого профиля когда будут готовы элементы
             }
+        }
+    }
+    
+    private fun updateStatsDisplay(stats: com.emonotion.app.domain.model.UserStats) {
+        binding.apply {
+            // Обновляем счетчики статистики
+            totalEntriesText.text = stats.totalEntries.toString()
+            
+            // Находим другие TextView для статистики и обновляем их
+            binding.root.findViewById<android.widget.TextView>(R.id.current_streak_text)?.text = 
+                "${stats.currentStreak} дней"
+            
+            binding.root.findViewById<android.widget.TextView>(R.id.longest_streak_text)?.text = 
+                "${stats.longestStreak} дней"
+            
+            // Используем average_mood_text для отображения totalDaysTracked
+            binding.root.findViewById<android.widget.TextView>(R.id.average_mood_text)?.text = 
+                "${stats.totalDaysTracked} дней"
         }
     }
     
