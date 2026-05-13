@@ -50,4 +50,17 @@ abstract class RepositoryModule {
     abstract fun bindAnalyticsRepository(
         analyticsRepositoryImpl: AnalyticsRepositoryImpl
     ): AnalyticsRepository
-}
+    
+    @Binds
+    @Singleton
+    abstract fun bindCustomMoodRepository(
+        customMoodRepositoryImpl: CustomMoodRepositoryImpl
+    ): CustomMoodRepository
+    
+    @Binds
+    @Singleton
+    abstract fun bindCustomActivityRepository(
+        customActivityRepositoryImpl: CustomActivityRepositoryImpl
+    ): CustomActivityRepository
+    
+    }

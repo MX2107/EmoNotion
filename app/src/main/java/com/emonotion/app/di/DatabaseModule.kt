@@ -59,6 +59,17 @@ object DatabaseModule {
     }
     
     @Provides
+    fun provideCustomMoodDao(database: AppDatabase): CustomMoodDao {
+        return database.customMoodDao()
+    }
+    
+    @Provides
+    fun provideCustomActivityDao(database: AppDatabase): CustomActivityDao {
+        return database.customActivityDao()
+    }
+    
+        
+    @Provides
     @Singleton
     fun provideConverters(): Converters {
         return Converters()
