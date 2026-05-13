@@ -33,11 +33,16 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/date_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textColor="@color/muted_foreground"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:padding="8dp" />
 
         </LinearLayout>
 
@@ -66,20 +71,19 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:alpha="0.5"
-                android:background="@drawable/mood_item_background"
                 android:gravity="center"
-                android:orientation="vertical"
-                android:padding="0dp">
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_mood_terrible"
+                    android:tint="@color/mood_terrible" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=""
-                    android:textSize="32sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:text="@string/mood_terrible"
                     android:textColor="@color/foreground"
                     android:textSize="10sp" />
@@ -92,20 +96,19 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:alpha="0.5"
-                android:background="@drawable/mood_item_background"
                 android:gravity="center"
-                android:orientation="vertical"
-                android:padding="0dp">
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_mood_bad"
+                    android:tint="@color/mood_bad" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=""
-                    android:textSize="32sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:text="@string/mood_bad"
                     android:textColor="@color/foreground"
                     android:textSize="10sp" />
@@ -118,20 +121,19 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:alpha="0.5"
-                android:background="@drawable/mood_item_background"
                 android:gravity="center"
-                android:orientation="vertical"
-                android:padding="0dp">
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_mood_neutral"
+                    android:tint="@color/mood_neutral" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=""
-                    android:textSize="32sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:text="@string/mood_neutral"
                     android:textColor="@color/foreground"
                     android:textSize="10sp" />
@@ -144,20 +146,19 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:alpha="0.5"
-                android:background="@drawable/mood_item_background"
                 android:gravity="center"
-                android:orientation="vertical"
-                android:padding="0dp">
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_mood_good"
+                    android:tint="@color/mood_good" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=""
-                    android:textSize="32sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:text="@string/mood_good"
                     android:textColor="@color/foreground"
                     android:textSize="10sp" />
@@ -170,20 +171,19 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:alpha="0.5"
-                android:background="@drawable/mood_item_background"
                 android:gravity="center"
-                android:orientation="vertical"
-                android:padding="0dp">
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_mood_great"
+                    android:tint="@color/mood_great" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=""
-                    android:textSize="32sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:text="@string/mood_great"
                     android:textColor="@color/foreground"
                     android:textSize="10sp" />
@@ -225,14 +225,35 @@
             tools:text="" />
 
         <!-- Эмоции -->
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:text="@string/what_do_you_feel"
-            android:textColor="@color/foreground"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/what_do_you_feel"
+                android:textColor="@color/foreground"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/add_emotion_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/tab_switcher_background"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:text="+ Добавить"
+                android:textColor="@color/primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -247,7 +268,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/tag_emotion_радость"
+                    android:id="@+id/tag_emotion_joy"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
@@ -260,7 +281,7 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tag_emotion_тревога"
+                    android:id="@+id/tag_emotion_anxiety"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
@@ -273,7 +294,7 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tag_emotion_спокойствие"
+                    android:id="@+id/tag_emotion_calm"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
@@ -294,7 +315,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/tag_emotion_грусть"
+                    android:id="@+id/tag_emotion_sadness"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
@@ -307,7 +328,7 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tag_emotion_волнение"
+                    android:id="@+id/tag_emotion_excitement"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
@@ -320,7 +341,7 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tag_emotion_стресс"
+                    android:id="@+id/tag_emotion_stress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
@@ -340,7 +361,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/tag_emotion_благодарность"
+                    android:id="@+id/tag_emotion_gratitude"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
@@ -353,7 +374,7 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tag_emotion_одиночество"
+                    android:id="@+id/tag_emotion_loneliness"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
@@ -367,17 +388,47 @@
 
             </LinearLayout>
 
+            <!-- Контейнер для пользовательских эмоций -->
+            <LinearLayout
+                android:id="@+id/custom_emotions_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:visibility="gone" />
+
         </LinearLayout>
 
         <!-- Активности -->
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:text="@string/what_did_you_do"
-            android:textColor="@color/foreground"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/what_did_you_do"
+                android:textColor="@color/foreground"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/add_activity_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/tab_switcher_background"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:text="+ Добавить"
+                android:textColor="@color/primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -392,7 +443,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/tag_activity_работа"
+                    android:id="@+id/tag_activity_work"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
@@ -405,7 +456,7 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tag_activity_спорт"
+                    android:id="@+id/tag_activity_sport"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
@@ -418,7 +469,7 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tag_activity_друзья"
+                    android:id="@+id/tag_activity_friends"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
@@ -439,7 +490,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/tag_activity_отдых"
+                    android:id="@+id/tag_activity_rest"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
@@ -452,7 +503,7 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tag_activity_семья"
+                    android:id="@+id/tag_activity_family"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
@@ -465,7 +516,7 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tag_activity_хобби"
+                    android:id="@+id/tag_activity_hobby"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
@@ -485,7 +536,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/tag_activity_медитация"
+                    android:id="@+id/tag_activity_meditation"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
@@ -498,7 +549,7 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tag_activity_чтение"
+                    android:id="@+id/tag_activity_reading"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
@@ -511,6 +562,15 @@
                     android:textSize="12sp" />
 
             </LinearLayout>
+
+            <!-- Контейнер для пользовательских активностей -->
+            <LinearLayout
+                android:id="@+id/custom_activities_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:visibility="gone" />
 
         </LinearLayout>
 
@@ -530,13 +590,18 @@
             android:layout_height="120dp"
             android:layout_marginBottom="32dp"
             android:background="@drawable/note_background"
-            android:gravity="top"
+            android:gravity="top|start"
             android:hint="Расскажите подробнее о своем дне..."
-            android:inputType="textMultiLine"
+            android:inputType="textMultiLine|textCapSentences"
             android:padding="16dp"
+            android:scrollbars="vertical"
             android:textColor="@color/foreground"
             android:textColorHint="@color/muted_foreground"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:imeOptions="flagNoExtractUi"
+            android:maxLines="8"
+            android:minLines="3"
+            android:windowSoftInputMode="adjustResize" />
 
         <!-- Кнопки -->
         <LinearLayout
@@ -545,6 +610,16 @@
             android:layout_marginBottom="80dp"
             android:gravity="end"
             android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/delete_button"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Удалить"
+                android:textColor="@color/color_red"
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/cancel_button"
