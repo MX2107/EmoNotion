@@ -5,6 +5,7 @@ import com.emonotion.app.domain.model.MoodEntry
 import com.emonotion.app.domain.model.Note
 import com.emonotion.app.domain.model.Task
 import com.emonotion.app.domain.usecase.mood.GetTodayMoodUseCase
+import com.emonotion.app.domain.usecase.mood.GetMoodByDateUseCase
 import com.emonotion.app.domain.usecase.note.GetNotesUseCase
 import com.emonotion.app.domain.usecase.task.GetTasksUseCase
 import com.emonotion.app.presentation.common.BaseViewModel
@@ -24,15 +25,22 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getTodayMoodUseCase: GetTodayMoodUseCase,
+    private val getMoodByDateUseCase: GetMoodByDateUseCase,
     private val getNotesUseCase: GetNotesUseCase,
     private val getTasksUseCase: GetTasksUseCase
 ) : BaseViewModel() {
     
-    private val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+    val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
     
     // Состояния UI
+    private val _selectedDate = MutableStateFlow(today)
+    val selectedDate: StateFlow<String> = _selectedDate.asStateFlow()
+    
     private val _todayMood = MutableStateFlow<MoodEntry?>(null)
     val todayMood: StateFlow<MoodEntry?> = _todayMood.asStateFlow()
+    
+    private val _selectedDateMood = MutableStateFlow<MoodEntry?>(null)
+    val selectedDateMood: StateFlow<MoodEntry?> = _selectedDateMood.asStateFlow()
     
     private val _todayNotes = MutableStateFlow<List<Note>>(emptyList())
     val todayNotes: StateFlow<List<Note>> = _todayNotes.asStateFlow()
@@ -42,6 +50,27 @@ class HomeViewModel @Inject constructor(
     
     private val _incompleteTasksCount = MutableStateFlow(0)
     val incompleteTasksCount: StateFlow<Int> = _incompleteTasksCount.asStateFlow()
+    
+    /**
+     * Устанавливает выбранную дату
+     */
+    fun setSelectedDate(date: String) {
+        _selectedDate.value = date
+        loadMoodForSelectedDate()
+    }
+    
+    /**
+     * Загружает запись о настроении для выбранной даты
+     */
+    private fun loadMoodForSelectedDate() {
+        executeWithLoading {
+            viewModelScope.launch {
+                getMoodByDateUseCase(_selectedDate.value).collect { mood ->
+                    _selectedDateMood.value = mood
+                }
+            }
+        }
+    }
     
     /**
      * Загружает данные для главного экрана
@@ -62,6 +91,9 @@ class HomeViewModel @Inject constructor(
                     _todayTasks.value = tasks.filter { it.date == today }
                     _incompleteTasksCount.value = tasks.size
                 }
+                
+                // Загружаем запись для выбранной даты
+                loadMoodForSelectedDate()
             }
         }
     }

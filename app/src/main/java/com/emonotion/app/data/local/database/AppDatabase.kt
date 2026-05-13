@@ -19,9 +19,11 @@ import com.emonotion.app.data.local.entities.*
         NoteEntity::class,
         TaskEntity::class,
         UserProfileEntity::class,
-        AppSettingsEntity::class
+        AppSettingsEntity::class,
+        CustomMoodEntity::class,
+        CustomActivityEntity::class
     ],
-    version = 1,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -31,6 +33,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
     abstract fun userDao(): UserDao
     abstract fun settingsDao(): SettingsDao
+    abstract fun customMoodDao(): CustomMoodDao
+    abstract fun customActivityDao(): CustomActivityDao
     
     companion object {
         const val DATABASE_NAME = "emonotion_database"
@@ -55,8 +59,50 @@ abstract class AppDatabase : RoomDatabase() {
         
         private fun getAllMigrations(): Array<Migration> {
             return arrayOf(
-                // Здесь будут миграции в будущем
-                // MigrationFrom1To2, MigrationFrom2To3 и т.д.
+                // Миграция с версии 1 на 2 - добавляем таблицу пользовательских настроений
+                object : Migration(1, 2) {
+                    override fun migrate(db: SupportSQLiteDatabase) {
+                        // Создаем таблицу для пользовательских настроений
+                        db.execSQL(
+                            """
+                            CREATE TABLE IF NOT EXISTS custom_moods (
+                                id TEXT NOT NULL PRIMARY KEY,
+                                name TEXT NOT NULL,
+                                color TEXT,
+                                icon TEXT,
+                                isActive INTEGER NOT NULL DEFAULT 1,
+                                createdAt INTEGER NOT NULL,
+                                updatedAt INTEGER NOT NULL
+                            )
+                            """.trimIndent()
+                        )
+                    }
+                },
+                // Миграция с версии 2 на 3 - добавляем поле emotions и таблицу custom_activities
+                object : Migration(2, 3) {
+                    override fun migrate(db: SupportSQLiteDatabase) {
+                        // Добавляем поле emotions в таблицу mood_entries
+                        db.execSQL(
+                            "ALTER TABLE mood_entries ADD COLUMN emotions TEXT NOT NULL DEFAULT ''"
+                        )
+                        
+                        // Создаем таблицу для пользовательских активностей
+                        db.execSQL(
+                            """
+                            CREATE TABLE IF NOT EXISTS custom_activities (
+                                id TEXT NOT NULL PRIMARY KEY,
+                                name TEXT NOT NULL,
+                                category TEXT,
+                                color TEXT,
+                                icon TEXT,
+                                isActive INTEGER NOT NULL DEFAULT 1,
+                                createdAt INTEGER NOT NULL,
+                                updatedAt INTEGER NOT NULL
+                            )
+                            """.trimIndent()
+                        )
+                    }
+                }
             )
         }
     }

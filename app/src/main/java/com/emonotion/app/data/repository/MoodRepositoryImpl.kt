@@ -23,8 +23,10 @@ class MoodRepositoryImpl @Inject constructor(
         }
     }
     
-    override suspend fun getMoodByDate(date: String): MoodEntry? {
-        return moodDao.getMoodByDate(date)?.toDomain()
+    override fun getMoodByDate(date: String): Flow<MoodEntry?> {
+        return moodDao.getMoodByDateFlow(date).map { entity ->
+            entity?.toDomain()
+        }
     }
     
     override suspend fun getMoodsByDateRange(from: Long, to: Long): Flow<List<MoodEntry>> {

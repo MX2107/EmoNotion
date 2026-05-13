@@ -25,6 +25,12 @@ abstract class BaseViewModel : ViewModel() {
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
     
     /**
+     * Состояние успешного выполнения
+     */
+    protected val _successMessage = MutableStateFlow<String?>(null)
+    val successMessage: StateFlow<String?> = _successMessage.asStateFlow()
+    
+    /**
      * Выполняет асинхронную операцию с обработкой ошибок и состоянием загрузки
      */
     protected fun executeWithLoading(
@@ -34,6 +40,7 @@ abstract class BaseViewModel : ViewModel() {
             try {
                 _isLoading.value = true
                 _errorMessage.value = null
+                _successMessage.value = null
                 operation()
             } catch (e: Exception) {
                 _errorMessage.value = e.message ?: "Произошла ошибка"
@@ -55,6 +62,7 @@ abstract class BaseViewModel : ViewModel() {
             try {
                 _isLoading.value = true
                 _errorMessage.value = null
+                _successMessage.value = null
                 
                 val result = operation()
                 result.fold(
@@ -82,5 +90,12 @@ abstract class BaseViewModel : ViewModel() {
      */
     fun clearError() {
         _errorMessage.value = null
+    }
+    
+    /**
+     * Очищает сообщение об успешном выполнении
+     */
+    fun clearSuccess() {
+        _successMessage.value = null
     }
 }

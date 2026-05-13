@@ -16,6 +16,9 @@ interface MoodDao {
     @Query("SELECT * FROM mood_entries WHERE date = :date LIMIT 1")
     suspend fun getMoodByDate(date: String): MoodEntryEntity?
     
+    @Query("SELECT * FROM mood_entries WHERE date = :date LIMIT 1")
+    fun getMoodByDateFlow(date: String): Flow<MoodEntryEntity?>
+    
     @Query("SELECT * FROM mood_entries WHERE timestamp BETWEEN :from AND :to ORDER BY timestamp DESC")
     fun getMoodsByDateRange(from: Long, to: Long): Flow<List<MoodEntryEntity>>
     

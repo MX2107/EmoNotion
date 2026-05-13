@@ -13,7 +13,8 @@ data class MoodEntryEntity(
     val id: String,
     val mood: String, // enum MoodType.toString()
     val intensity: Int, // 1-5
-    val activities: String, // JSON строка вместо List<String>
+    val emotions: String, // JSON строка для эмоций
+    val activities: String, // JSON строка для активностей
     val notes: String?,
     val timestamp: Long,
     val date: String // yyyy-MM-dd
@@ -24,6 +25,7 @@ data class MoodEntryEntity(
                 id = moodEntry.id,
                 mood = moodEntry.mood.name,
                 intensity = moodEntry.intensity,
+                emotions = moodEntry.emotions.joinToString(","),
                 activities = moodEntry.activities.joinToString(","),
                 notes = moodEntry.notes,
                 timestamp = moodEntry.timestamp,
@@ -37,6 +39,7 @@ data class MoodEntryEntity(
             id = id,
             mood = MoodType.valueOf(mood),
             intensity = intensity,
+            emotions = if (emotions.isEmpty()) emptyList() else emotions.split(","),
             activities = if (activities.isEmpty()) emptyList() else activities.split(","),
             notes = notes,
             timestamp = timestamp,

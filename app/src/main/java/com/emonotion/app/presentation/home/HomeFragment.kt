@@ -11,6 +11,8 @@ import androidx.navigation.fragment.findNavController
 import com.emonotion.app.databinding.FragmentHomeBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 
 /**
@@ -42,14 +44,20 @@ class HomeFragment : Fragment() {
     
     private fun setupUI() {
         binding.apply {
-            // Кнопка добавления настроения
+            // Кнопка добавления настроения (только для создания новой записи)
             addMoodButton.setOnClickListener {
-                findNavController().navigate(com.emonotion.app.R.id.dailyEntryFragment)
+                val bundle = Bundle().apply {
+                    putString("date", viewModel.today)
+                }
+                findNavController().navigate(com.emonotion.app.R.id.dailyEntryFragment, bundle)
             }
             
             // Кнопка дневника
             diaryButton.setOnClickListener {
-                findNavController().navigate(com.emonotion.app.R.id.dailyEntryFragment)
+                val bundle = Bundle().apply {
+                    putString("date", viewModel.today)
+                }
+                findNavController().navigate(com.emonotion.app.R.id.dailyEntryFragment, bundle)
             }
             
             // Кнопка календаря
@@ -76,6 +84,7 @@ class HomeFragment : Fragment() {
             }
         }
         
+                
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.todayNotes.collect { notes ->
                 updateNotesDisplay(notes)
@@ -89,13 +98,13 @@ class HomeFragment : Fragment() {
         }
         
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.incompleteTasksCount.collect { count ->
+            viewModel.incompleteTasksCount.collect { _ ->
                 // Обновляем счетчик задач (можно добавить в layout)
             }
         }
         
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.isLoading.collect { isLoading ->
+            viewModel.isLoading.collect { _ ->
                 // Обновляем состояние загрузки (можно добавить ProgressBar в layout)
             }
         }
@@ -115,8 +124,29 @@ class HomeFragment : Fragment() {
                 // Показываем карточку настроения
                 moodCard.visibility = View.VISIBLE
                 addMoodButton.visibility = View.GONE
-                moodText.text = mood.mood.name
-                // Можно добавить эмодзи в зависимости от настроения
+                moodText.text = mood.mood.displayName
+                
+                // Устанавливаем эмодзи в зависимости от настроения
+                val emoji = when (mood.mood) {
+                    com.emonotion.app.domain.model.MoodType.GREAT -> "😄"
+                    com.emonotion.app.domain.model.MoodType.GOOD -> "😊"
+                    com.emonotion.app.domain.model.MoodType.NEUTRAL -> "😐"
+                    com.emonotion.app.domain.model.MoodType.BAD -> "😕"
+                    com.emonotion.app.domain.model.MoodType.TERRIBLE -> "😢"
+                    com.emonotion.app.domain.model.MoodType.HAPPY -> "😄"
+                    com.emonotion.app.domain.model.MoodType.SAD -> "😢"
+                    com.emonotion.app.domain.model.MoodType.ANGRY -> "😠"
+                    com.emonotion.app.domain.model.MoodType.ANXIOUS -> "😰"
+                }
+                moodEmoji.text = emoji
+                
+                // Добавляем обработчик клика на карточку настроения
+                moodCard.setOnClickListener {
+                    val bundle = Bundle().apply {
+                        putString("date", mood.date)
+                    }
+                    findNavController().navigate(com.emonotion.app.R.id.dailyEntryFragment, bundle)
+                }
             } else {
                 // Показываем кнопку добавления настроения
                 moodCard.visibility = View.GONE
@@ -125,15 +155,20 @@ class HomeFragment : Fragment() {
         }
     }
     
-    private fun updateNotesDisplay(notes: List<com.emonotion.app.domain.model.Note>) {
+    private fun updateNotesDisplay(_notes: List<com.emonotion.app.domain.model.Note>) {
         // В текущем layout есть статические заметки, можно обновлять их динамически
         // TODO: Реализовать динамическое отображение заметок
+        // Временно используем параметр чтобы убрать предупреждение
+        android.util.Log.d("HomeFragment", "Получено заметок: ${_notes.size}")
     }
     
-    private fun updateTasksDisplay(tasks: List<com.emonotion.app.domain.model.Task>) {
+    private fun updateTasksDisplay(_tasks: List<com.emonotion.app.domain.model.Task>) {
         // TODO: Реализовать отображение задач если нужно
+        // Временно используем параметр чтобы убрать предупреждение
+        android.util.Log.d("HomeFragment", "Получено задач: ${_tasks.size}")
     }
     
+        
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

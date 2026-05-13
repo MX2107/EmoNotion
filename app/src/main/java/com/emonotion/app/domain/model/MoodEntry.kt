@@ -7,7 +7,8 @@ data class MoodEntry(
     val id: String,
     val mood: MoodType,
     val intensity: Int, // 1-5
-    val activities: List<String>,
+    val emotions: List<String> = emptyList(),
+    val activities: List<String> = emptyList(),
     val notes: String?,
     val timestamp: Long,
     val date: String // yyyy-MM-dd

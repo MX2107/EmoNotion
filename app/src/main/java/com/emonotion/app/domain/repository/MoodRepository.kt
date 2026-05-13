@@ -16,7 +16,7 @@ interface MoodRepository {
     /**
      * Получить запись о настроении за конкретную дату
      */
-    suspend fun getMoodByDate(date: String): MoodEntry?
+    fun getMoodByDate(date: String): Flow<MoodEntry?>
     
     /**
      * Получить записи о настроении за период времени
