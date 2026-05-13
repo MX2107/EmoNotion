@@ -1,5 +1,6 @@
 package com.emonotion.app.presentation.calendar
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.emonotion.app.domain.model.MoodEntry
 import com.emonotion.app.domain.usecase.mood.GetMoodsByDateRangeUseCase
@@ -40,6 +41,9 @@ class CalendarViewModel @Inject constructor(
     )
     val currentYear: StateFlow<Int> = _currentYear.asStateFlow()
     
+    // Кэш для загруженных данных
+    private val cachedMoods = mutableMapOf<String, List<MoodEntry>>()
+    
     /**
      * Выбирает дату в календаре
      */
@@ -62,6 +66,16 @@ class CalendarViewModel @Inject constructor(
     }
     
     /**
+     * Обновляет данные календаря (можно вызывать извне)
+     */
+    fun refreshCalendarData() {
+        // Очищаем кэш для текущего месяца при принудительном обновлении
+        val cacheKey = "${_currentYear.value}-${_currentMonth.value}"
+        cachedMoods.remove(cacheKey)
+        loadMoodsForMonth()
+    }
+    
+    /**
      * Переключает на предыдущий месяц
      */
     fun previousMonth() {
@@ -79,19 +93,35 @@ class CalendarViewModel @Inject constructor(
      * Загружает записи о настроении за текущий месяц
      */
     fun loadMoodsForMonth() {
+        val cacheKey = "${_currentYear.value}-${_currentMonth.value}"
+        
+        // Проверяем кэш сначала
+        cachedMoods[cacheKey]?.let { cachedList ->
+            _moods.value = cachedList
+            Log.d("CalendarViewModel", "Использованы кэшированные данные за период: $cacheKey, записей: ${cachedList.size}")
+            return
+        }
+        
         executeWithLoading {
             viewModelScope.launch {
                 val calendar = Calendar.getInstance()
                 calendar.set(_currentYear.value, _currentMonth.value, 1)
                 
                 val firstDay = calendar.timeInMillis
+                val firstDayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(firstDay))
                 
                 calendar.add(Calendar.MONTH, 1)
                 calendar.add(Calendar.DAY_OF_MONTH, -1)
                 val lastDay = calendar.timeInMillis
+                val lastDayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(lastDay))
                 
+                Log.d("CalendarViewModel", "Загрузка данных за период: $firstDayStr - $lastDayStr")
+                
+                // Загружаем данные и кэшируем их
                 getMoodsByDateRangeUseCase(firstDay, lastDay).collect { moodList ->
                     _moods.value = moodList
+                    cachedMoods[cacheKey] = moodList
+                    Log.d("CalendarViewModel", "Загружено и закэшировано записей: ${moodList.size}")
                 }
             }
         }
