@@ -5,6 +5,7 @@ import com.emonotion.app.domain.model.Note
 import com.emonotion.app.domain.usecase.note.AddNoteUseCase
 import com.emonotion.app.domain.usecase.note.DeleteNoteUseCase
 import com.emonotion.app.domain.usecase.note.GetNotesUseCase
+import com.emonotion.app.domain.usecase.note.UpdateNoteUseCase
 import com.emonotion.app.presentation.common.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +23,8 @@ import javax.inject.Inject
 class NotesViewModel @Inject constructor(
     private val getNotesUseCase: GetNotesUseCase,
     private val addNoteUseCase: AddNoteUseCase,
-    private val deleteNoteUseCase: DeleteNoteUseCase
+    private val deleteNoteUseCase: DeleteNoteUseCase,
+    private val updateNoteUseCase: UpdateNoteUseCase
 ) : BaseViewModel() {
     
     private val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
@@ -121,6 +123,20 @@ class NotesViewModel @Inject constructor(
      */
     fun deleteNote(note: Note) {
         deleteNote(note.id)
+    }
+    
+    /**
+     * Обновляет заметку
+     */
+    fun updateNote(note: Note) {
+        executeWithResult(
+            operation = {
+                updateNoteUseCase(note)
+            },
+            onSuccess = {
+                loadNotes()
+            }
+        )
     }
     
     /**
