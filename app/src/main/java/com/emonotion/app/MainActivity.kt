@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.navOptions
-import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.emonotion.app.R
 import com.emonotion.app.databinding.ActivityMainBinding
@@ -26,14 +25,6 @@ class MainActivity : AppCompatActivity() {
             val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
             if (navHostFragment != null) {
                 val navController = navHostFragment.navController
-                
-                // Настраиваем AppBarConfiguration для top-level destinations
-                val appBarConfiguration = AppBarConfiguration.Builder(
-                    R.id.navigation_home,
-                    R.id.navigation_calendar,
-                    R.id.navigation_notes,
-                    R.id.navigation_profile
-                ).build()
                 
                 // Настраиваем навигационный граф
                 navController.setGraph(R.navigation.nav_graph)
@@ -110,14 +101,6 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.executePendingTransactions()
             
             val navController = navHostFragment.navController
-            
-            // Настраиваем AppBarConfiguration для top-level destinations
-            val appBarConfiguration = AppBarConfiguration.Builder(
-                R.id.navigation_home,
-                R.id.navigation_calendar,
-                R.id.navigation_notes,
-                R.id.navigation_profile
-            ).build()
             
             binding.bottomNavigation.setupWithNavController(navController)
             

@@ -7,29 +7,20 @@
     android:orientation="vertical"
     android:padding="28dp">
 
-    <LinearLayout
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Добавить эмоцию"
-            android:textColor="@color/foreground"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-    </LinearLayout>
+        android:text="@string/add_emotion"
+        android:textColor="@color/foreground"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:text="Введите название вашей эмоции:"
+        android:text="@string/add_emotion_hint"
         android:textColor="@color/muted_foreground"
         android:textSize="14sp" />
 
@@ -52,7 +43,6 @@
             android:id="@+id/emotion_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Название эмоции"
             android:inputType="textCapSentences"
             android:maxLength="30"
             android:padding="16dp"
@@ -65,7 +55,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="end"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        style="?android:attr/buttonBarStyle">
 
         <Button
             android:id="@+id/cancel_button"
@@ -73,7 +64,7 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:layout_marginEnd="12dp"
-            android:text="Отмена"
+            android:text="@string/cancel"
             android:textColor="@color/muted_foreground"
             android:textSize="14sp" />
 
@@ -84,7 +75,7 @@
             android:background="@drawable/save_button_background"
             android:minWidth="100dp"
             android:paddingHorizontal="24dp"
-            android:text="Добавить"
+            android:text="@string/add"
             android:textColor="@color/primary_foreground"
             android:textSize="14sp"
             android:textStyle="bold" />

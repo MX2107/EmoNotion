@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.emonotion.app.databinding.FragmentHomeBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -25,6 +26,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     
     private val viewModel: HomeViewModel by viewModels()
+    private lateinit var notesAdapter: com.emonotion.app.presentation.adapter.NotesAdapter
     
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,9 +39,29 @@ class HomeFragment : Fragment() {
     
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupRecyclerView()
         setupUI()
         observeViewModel()
         viewModel.loadHomeData()
+    }
+    
+    private fun setupRecyclerView() {
+        notesAdapter = com.emonotion.app.presentation.adapter.NotesAdapter(
+            onItemClick = { note ->
+                val bundle = Bundle().apply {
+                    putString("noteId", note.id)
+                }
+                findNavController().navigate(com.emonotion.app.R.id.navigation_notes, bundle)
+            },
+            onItemLongClick = { _ ->
+                // Можно добавить диалог с опциями
+            }
+        )
+        
+        binding.notesRecycler.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = notesAdapter
+        }
     }
     
     private fun setupUI() {
@@ -155,11 +177,8 @@ class HomeFragment : Fragment() {
         }
     }
     
-    private fun updateNotesDisplay(_notes: List<com.emonotion.app.domain.model.Note>) {
-        // В текущем layout есть статические заметки, можно обновлять их динамически
-        // TODO: Реализовать динамическое отображение заметок
-        // Временно используем параметр чтобы убрать предупреждение
-        android.util.Log.d("HomeFragment", "Получено заметок: ${_notes.size}")
+    private fun updateNotesDisplay(notes: List<com.emonotion.app.domain.model.Note>) {
+        notesAdapter.submitList(notes.take(3)) // Показываем только последние 3 заметки
     }
     
     private fun updateTasksDisplay(_tasks: List<com.emonotion.app.domain.model.Task>) {

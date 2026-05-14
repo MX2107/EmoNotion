@@ -149,15 +149,14 @@
 
                     <Button
                         android:id="@+id/cancel_note_button"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
-                        android:background="@drawable/cancel_button_background"
                         android:text="@string/cancel"
-                        android:textColor="@color/foreground"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/muted_foreground"
+                        android:textSize="14sp" />
 
                 </LinearLayout>
 
@@ -252,15 +251,14 @@
 
                     <Button
                         android:id="@+id/cancel_task_button"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
-                        android:background="@drawable/cancel_button_background"
                         android:text="@string/cancel"
-                        android:textColor="@color/foreground"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/muted_foreground"
+                        android:textSize="14sp" />
 
                 </LinearLayout>
 
