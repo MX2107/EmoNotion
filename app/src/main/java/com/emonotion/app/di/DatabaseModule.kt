@@ -29,6 +29,7 @@ object DatabaseModule {
             AppDatabase::class.java,
             AppDatabase.DATABASE_NAME
         )
+        .addMigrations(*AppDatabase.getAllMigrations())
         .fallbackToDestructiveMigration()
         .build()
     }
@@ -68,7 +69,11 @@ object DatabaseModule {
         return database.customActivityDao()
     }
     
-        
+    @Provides
+    fun provideCustomTagDao(database: AppDatabase): CustomTagDao {
+        return database.customTagDao()
+    }
+    
     @Provides
     @Singleton
     fun provideConverters(): Converters {

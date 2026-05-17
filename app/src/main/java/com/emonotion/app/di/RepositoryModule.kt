@@ -63,4 +63,10 @@ abstract class RepositoryModule {
         customActivityRepositoryImpl: CustomActivityRepositoryImpl
     ): CustomActivityRepository
     
+    @Binds
+    @Singleton
+    abstract fun bindCustomTagRepository(
+        customTagRepositoryImpl: CustomTagRepositoryImpl
+    ): CustomTagRepository
+    
     }

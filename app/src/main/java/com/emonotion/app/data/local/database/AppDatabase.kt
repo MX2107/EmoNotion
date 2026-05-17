@@ -21,9 +21,10 @@ import com.emonotion.app.data.local.entities.*
         UserProfileEntity::class,
         AppSettingsEntity::class,
         CustomMoodEntity::class,
-        CustomActivityEntity::class
+        CustomActivityEntity::class,
+        CustomTagEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -35,6 +36,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun settingsDao(): SettingsDao
     abstract fun customMoodDao(): CustomMoodDao
     abstract fun customActivityDao(): CustomActivityDao
+    abstract fun customTagDao(): CustomTagDao
     
     companion object {
         const val DATABASE_NAME = "emonotion_database"
@@ -57,7 +59,7 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
         
-        private fun getAllMigrations(): Array<Migration> {
+        fun getAllMigrations(): Array<Migration> {
             return arrayOf(
                 // Миграция с версии 1 на 2 - добавляем таблицу пользовательских настроений
                 object : Migration(1, 2) {
@@ -95,6 +97,24 @@ abstract class AppDatabase : RoomDatabase() {
                                 category TEXT,
                                 color TEXT,
                                 icon TEXT,
+                                isActive INTEGER NOT NULL DEFAULT 1,
+                                createdAt INTEGER NOT NULL,
+                                updatedAt INTEGER NOT NULL
+                            )
+                            """.trimIndent()
+                        )
+                    }
+                },
+                // Миграция с версии 3 на 4 - добавляем таблицу custom_tags
+                object : Migration(3, 4) {
+                    override fun migrate(db: SupportSQLiteDatabase) {
+                        // Создаем таблицу для пользовательских тегов
+                        db.execSQL(
+                            """
+                            CREATE TABLE IF NOT EXISTS custom_tags (
+                                id TEXT NOT NULL PRIMARY KEY,
+                                name TEXT NOT NULL,
+                                color TEXT,
                                 isActive INTEGER NOT NULL DEFAULT 1,
                                 createdAt INTEGER NOT NULL,
                                 updatedAt INTEGER NOT NULL
