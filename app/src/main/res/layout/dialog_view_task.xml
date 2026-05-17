@@ -5,12 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/dialog_background"
-    android:orientation="vertical"
-    android:padding="28dp">
+    android:orientation="vertical">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="28dp"
+        android:layout_marginEnd="28dp"
         android:layout_marginBottom="20dp"
         android:text="@string/view_task"
         android:textColor="@color/foreground"
@@ -21,35 +23,56 @@
         android:id="@+id/task_timestamp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginEnd="28dp"
         android:layout_marginBottom="16dp"
         android:textColor="@color/muted_foreground"
         android:textSize="14sp"
         android:textStyle="bold"
         tools:text="" />
 
-    <TextView
-        android:id="@+id/task_title"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:textColor="@color/foreground"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        tools:text="" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
 
-    <TextView
-        android:id="@+id/task_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:textColor="@color/muted_foreground"
-        android:textSize="14sp"
-        android:visibility="gone"
-        tools:text="" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="28dp">
+
+            <TextView
+                android:id="@+id/task_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:textColor="@color/foreground"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:text="" />
+
+            <TextView
+                android:id="@+id/task_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:textColor="@color/muted_foreground"
+                android:textSize="14sp"
+                android:visibility="gone"
+                tools:text="" />
+
+        </LinearLayout>
+
+    </ScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginEnd="28dp"
+        android:layout_marginBottom="28dp"
         android:gravity="end"
         android:orientation="horizontal"
         style="?android:attr/buttonBarStyle">

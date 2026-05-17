@@ -29,9 +29,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
+            android:ellipsize="end"
+            android:maxLines="2"
             android:textColor="@color/foreground"
             android:textSize="16sp"
             android:textStyle="bold"
+            tools:text="" />
+
+        <TextView
+            android:id="@+id/task_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textColor="@color/muted_foreground"
+            android:textSize="14sp"
+            android:visibility="gone"
             tools:text="" />
 
         <TextView

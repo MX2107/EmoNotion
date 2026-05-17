@@ -29,13 +29,23 @@ class TasksAdapter(
                 taskText.text = task.title
                 taskCheckbox.isChecked = task.isCompleted
                 
+                // Отображение описания задачи
+                if (task.description != null && task.description.isNotBlank()) {
+                    taskDescription.text = task.description
+                    taskDescription.visibility = View.VISIBLE
+                } else {
+                    taskDescription.visibility = View.GONE
+                }
+                
                 // Изменяем внешний вид в зависимости от статуса
                 if (task.isCompleted) {
                     taskText.alpha = 0.6f
                     taskText.paintFlags = taskText.paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
+                    taskDescription.alpha = 0.6f
                 } else {
                     taskText.alpha = 1.0f
                     taskText.paintFlags = taskText.paintFlags and android.graphics.Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                    taskDescription.alpha = 1.0f
                 }
                 
                 // Клик на задачу - детальный просмотр

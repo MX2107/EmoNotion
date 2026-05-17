@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.emonotion.app.R
 import com.emonotion.app.databinding.FragmentHomeBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -48,13 +49,10 @@ class HomeFragment : Fragment() {
     private fun setupRecyclerView() {
         notesAdapter = com.emonotion.app.presentation.adapter.NotesAdapter(
             onItemClick = { note ->
-                val bundle = Bundle().apply {
-                    putString("noteId", note.id)
-                }
-                findNavController().navigate(com.emonotion.app.R.id.navigation_notes, bundle)
+                showNoteDetail(note)
             },
-            onItemLongClick = { _ ->
-                // Можно добавить диалог с опциями
+            onItemLongClick = { note ->
+                deleteNoteDirectly(note)
             }
         )
         
@@ -187,6 +185,56 @@ class HomeFragment : Fragment() {
         android.util.Log.d("HomeFragment", "Получено задач: ${_tasks.size}")
     }
     
+    private fun deleteNoteDirectly(note: com.emonotion.app.domain.model.Note) {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Удалить заметку?")
+            .setMessage("Вы уверены, что хотите удалить эту заметку?")
+            .setPositiveButton("Удалить") { _, _ ->
+                viewModel.deleteNote(note.id)
+            }
+            .setNegativeButton("Отмена", null)
+            .show()
+    }
+
+    private fun showNoteDetail(note: com.emonotion.app.domain.model.Note) {
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_view_note, null)
+
+        val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
+
+        dialogView.findViewById<android.widget.TextView>(R.id.note_timestamp).text =
+            dateFormat.format(Date(note.timestamp))
+
+        dialogView.findViewById<android.widget.TextView>(R.id.note_content).text = note.content
+
+        val tagsView = dialogView.findViewById<android.widget.TextView>(R.id.note_tags)
+        if (note.tags.isNotEmpty()) {
+            tagsView.text = note.tags.joinToString(", ")
+            tagsView.visibility = View.VISIBLE
+        } else {
+            tagsView.visibility = View.GONE
+        }
+
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setView(dialogView as View)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        dialogView.findViewById<android.widget.Button>(R.id.edit_button).setOnClickListener {
+            val bundle = Bundle().apply {
+                putString("noteId", note.id)
+            }
+            findNavController().navigate(com.emonotion.app.R.id.navigation_notes, bundle)
+            dialog.dismiss()
+        }
+
+        dialogView.findViewById<android.widget.Button>(R.id.close_button).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
         
     override fun onDestroyView() {
         super.onDestroyView()

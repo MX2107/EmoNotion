@@ -302,13 +302,13 @@
                     android:layout_height="28dp"
                     android:layout_marginBottom="12dp"
                     android:src="@drawable/ic_notes"
-                    app:tint="?android:attr/windowBackgroundFallback" />
+                    app:tint="@color/secondary_foreground" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/nav_notes"
-                    android:textColor="?android:attr/windowBackgroundFallback"
+                    android:textColor="@color/secondary_foreground"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 

@@ -587,20 +587,19 @@
         <EditText
             android:id="@+id/notes_edit_text"
             android:layout_width="match_parent"
-            android:layout_height="120dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
             android:background="@drawable/note_background"
             android:gravity="top|start"
             android:hint="Расскажите подробнее о своем дне..."
             android:inputType="textMultiLine|textCapSentences"
+            android:minHeight="120dp"
             android:padding="16dp"
             android:scrollbars="vertical"
             android:textColor="@color/foreground"
             android:textColorHint="@color/muted_foreground"
             android:textSize="14sp"
             android:imeOptions="flagNoExtractUi"
-            android:maxLines="8"
-            android:minLines="3"
             android:windowSoftInputMode="adjustResize" />
 
         <!-- Кнопки -->

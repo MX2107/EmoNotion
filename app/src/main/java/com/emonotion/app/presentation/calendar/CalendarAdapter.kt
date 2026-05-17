@@ -26,7 +26,8 @@ class CalendarAdapter(
         val date: String,
         val dayNumber: Int,
         val isCurrentMonth: Boolean,
-        val isToday: Boolean
+        val isToday: Boolean,
+        val isFuture: Boolean = false
     )
     
     class CalendarDayViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -81,19 +82,16 @@ class CalendarAdapter(
             }
         }
         
-        // Устанавливаем прозрачность для дней не текущего месяца
-        holder.dayText.alpha = if (day.isCurrentMonth) 1.0f else 0.3f
-        
-        // Выделяем сегодняшний день
-        if (day.isToday) {
-            holder.dayText.setTextColor(holder.itemView.context.getColor(R.color.primary))
-        } else {
-            holder.dayText.setTextColor(holder.itemView.context.getColor(R.color.foreground))
+        // Устанавливаем прозрачность для дней не текущего месяца и будущих дней
+        holder.dayText.alpha = when {
+            !day.isCurrentMonth -> 0.3f
+            day.isFuture -> 0.5f
+            else -> 1.0f
         }
-        
+
         // Обработчик клика
         holder.itemView.setOnClickListener {
-            if (day.isCurrentMonth) {
+            if (day.isCurrentMonth && !day.isFuture) {
                 onDateClick(day.date)
             }
         }
@@ -152,7 +150,8 @@ class CalendarAdapter(
                 }.time
             )
             val isToday = year == todayYear && month == todayMonth && day == todayDay
-            days.add(CalendarDay(date, day, true, isToday))
+            val isFuture = year > todayYear || (year == todayYear && month > todayMonth) || (year == todayYear && month == todayMonth && day > todayDay)
+            days.add(CalendarDay(date, day, true, isToday, isFuture))
         }
         
         // Добавляем дни следующего месяца для заполнения сетки до 42 дней (6 недель)
@@ -163,7 +162,8 @@ class CalendarAdapter(
                     set(year, month + 1, day)
                 }.time
             )
-            days.add(CalendarDay(date, day, false, false))
+            val isFuture = true // Дни следующего месяца всегда будущие
+            days.add(CalendarDay(date, day, false, false, isFuture))
         }
         
         Log.d("CalendarAdapter", "Сгенерировано дней для календаря $year-${month+1}: ${days.size}")
