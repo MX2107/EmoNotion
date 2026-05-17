@@ -135,9 +135,12 @@
     <string name="edit_note">Редактировать заметку</string>
     <string name="edit_note_hint">Отредактируйте содержимое заметки:</string>
     <string name="note_content_hint">Содержимое заметки</string>
+    <string name="note_title_hint">Название заметки</string>
     <string name="edit_task">Редактировать задачу</string>
-    <string name="edit_task_hint">Отредактируйте название задачи:</string>
+    <string name="edit_task_hint">Название задачи:</string>
     <string name="task_title_hint">Название задачи</string>
+    <string name="task_description_hint">Описание (необязательно):</string>
+    <string name="task_description_placeholder">Добавьте описание задачи…</string>
     <string name="view_note">Заметка</string>
     <string name="view_task">Задача</string>
     <string name="close">Закрыть</string>
@@ -149,4 +152,25 @@
     <string name="add_activity_hint">Чем вы занимались сегодня?</string>
     <string name="activity_name_hint">Название активности</string>
     <string name="add">Добавить</string>
+    
+    <!-- Поиск и фильтрация -->
+    <string name="search_hint">Поиск…</string>
+    <string name="filter_all">Все</string>
+    <string name="filter_active">Активные</string>
+    <string name="filter_completed">Выполненные</string>
+    <string name="sort_newest">Сначала новые</string>
+    <string name="sort_oldest">Сначала старые</string>
+    <string name="sort_alphabetical_asc">По алфавиту (А-Я)</string>
+    <string name="sort_alphabetical_desc">По алфавиту (Я-А)</string>
+    <string name="sort_by_date">По дате</string>
+    <string name="sort_by_alphabet">По алфавиту</string>
+    
+    <!-- Теги -->
+    <string name="select_tags">Выберите теги (необязательно):</string>
+    <string name="tag_work">Работа</string>
+    <string name="tag_personal">Личное</string>
+    <string name="tag_idea">Идея</string>
+    <string name="add_tag">Добавить тег</string>
+    <string name="add_tag_hint">Введите название вашего тега:</string>
+    <string name="tag_name_hint">Название тега</string>
 </resources>
