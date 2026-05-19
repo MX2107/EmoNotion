@@ -69,4 +69,10 @@ abstract class RepositoryModule {
         customTagRepositoryImpl: CustomTagRepositoryImpl
     ): CustomTagRepository
     
+    @Binds
+    @Singleton
+    abstract fun bindAvatarRepository(
+        avatarRepositoryImpl: com.emonotion.app.data.repository.AvatarRepository
+    ): com.emonotion.app.domain.repository.AvatarRepository
+    
     }

@@ -48,4 +48,7 @@ interface MoodDao {
     
     @Query("SELECT COUNT(*) FROM mood_entries WHERE date = :date")
     suspend fun hasMoodForDate(date: String): Boolean
+    
+    @Query("SELECT * FROM mood_entries ORDER BY timestamp DESC")
+    suspend fun getAllMoodsList(): List<MoodEntryEntity>
 }
