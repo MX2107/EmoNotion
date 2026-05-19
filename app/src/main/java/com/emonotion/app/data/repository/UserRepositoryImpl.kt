@@ -28,7 +28,11 @@ class UserRepositoryImpl @Inject constructor(
     }
     
     override suspend fun updateProfile(profile: UserProfile) {
-        userDao.updateUserProfile(UserProfileEntity.fromDomain(profile))
+        android.util.Log.d("UserRepositoryImpl", "updateProfile: profile=$profile")
+        val entity = UserProfileEntity.fromDomain(profile)
+        android.util.Log.d("UserRepositoryImpl", "updateProfile: entity=$entity")
+        userDao.updateUserProfile(entity)
+        android.util.Log.d("UserRepositoryImpl", "updateProfile: completed")
     }
     
     override suspend fun deleteProfile(userId: String) {

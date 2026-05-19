@@ -7,7 +7,10 @@ data class Analytics(
     val period: AnalyticsPeriod,
     val moodDistribution: Map<MoodType, Int>,
     val averageIntensity: Float,
+    val averageMood: Float,
     val totalEntries: Int,
+    val currentStreak: Int,
+    val longestStreak: Int,
     val mostCommonActivities: List<String>,
     val improvementTrend: TrendDirection
 )
@@ -17,9 +20,8 @@ data class Analytics(
  */
 enum class AnalyticsPeriod {
     WEEK,
-    MONTH,
-    QUARTER,
-    YEAR
+    TWO_WEEKS,
+    MONTH
 }
 
 /**

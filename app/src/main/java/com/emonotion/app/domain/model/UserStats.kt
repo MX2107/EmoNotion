@@ -9,5 +9,7 @@ data class UserStats(
     val longestStreak: Int = 0,
     val averageMood: Float = 0f,
     val mostFrequentMood: MoodType? = null,
-    val totalDaysTracked: Int = 0
+    val totalDaysTracked: Int = 0,
+    /** Есть запись в дневнике за сегодня (yyyy-MM-dd). */
+    val hasEntryToday: Boolean = false
 )

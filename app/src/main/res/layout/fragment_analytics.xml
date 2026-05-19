@@ -10,6 +10,7 @@
     android:paddingBottom="24dp">
 
     <LinearLayout
+        android:id="@+id/content_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="80dp"
@@ -201,6 +202,7 @@
                     android:textSize="14sp" />
 
                 <TextView
+                    android:id="@+id/total_entries_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="9"
@@ -225,6 +227,7 @@
                     android:textSize="14sp" />
 
                 <TextView
+                    android:id="@+id/average_mood_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="3.4/5"
@@ -249,6 +252,7 @@
                     android:textSize="14sp" />
 
                 <TextView
+                    android:id="@+id/current_streak_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="7 дней"
@@ -272,6 +276,7 @@
                     android:textSize="14sp" />
 
                 <TextView
+                    android:id="@+id/most_frequent_day_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Пятница"

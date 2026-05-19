@@ -3,6 +3,7 @@ package com.emonotion.app.presentation.analytics
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emonotion.app.domain.model.Analytics
+import com.emonotion.app.domain.model.AnalyticsPeriod
 import com.emonotion.app.domain.usecase.analytics.GetAnalyticsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,11 +29,14 @@ class AnalyticsViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
     
+    private val _selectedPeriod = MutableStateFlow(AnalyticsPeriod.WEEK)
+    val selectedPeriod: StateFlow<AnalyticsPeriod> = _selectedPeriod.asStateFlow()
+    
     fun loadAnalyticsData() {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
-                val analytics = getAnalyticsUseCase()
+                val analytics = getAnalyticsUseCase(_selectedPeriod.value)
                 _analyticsData.value = analytics
             } catch (e: Exception) {
                 _errorMessage.value = "Ошибка загрузки аналитики: ${e.message}"
@@ -42,13 +46,21 @@ class AnalyticsViewModel @Inject constructor(
         }
     }
     
+    fun setPeriod(period: AnalyticsPeriod) {
+        _selectedPeriod.value = period
+        loadAnalyticsData()
+    }
+    
     fun exportAnalytics() {
         viewModelScope.launch {
             try {
-                // TODO: Реализовать экспорт аналитики
-                _errorMessage.value = "Экспорт аналитики пока не реализован"
+                _isLoading.value = true
+                // Экспорт аналитики будет реализован через соответствующий use case
+                _errorMessage.value = "Экспорт аналитики в разработке"
             } catch (e: Exception) {
                 _errorMessage.value = "Ошибка экспорта: ${e.message}"
+            } finally {
+                _isLoading.value = false
             }
         }
     }
