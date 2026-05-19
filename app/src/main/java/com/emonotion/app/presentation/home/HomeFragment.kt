@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.emonotion.app.R
 import com.emonotion.app.databinding.FragmentHomeBinding
+import com.emonotion.app.utils.StreakUiHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -103,7 +104,6 @@ class HomeFragment : Fragment() {
                 updateMoodDisplay(mood)
             }
         }
-        
                 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.todayNotes.collect { notes ->
@@ -114,6 +114,12 @@ class HomeFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.todayTasks.collect { tasks ->
                 updateTasksDisplay(tasks)
+            }
+        }
+        
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.userStats.collect { stats ->
+                updateStreakDisplay(stats)
             }
         }
         
@@ -179,10 +185,29 @@ class HomeFragment : Fragment() {
         notesAdapter.submitList(notes.take(3)) // Показываем только последние 3 заметки
     }
     
-    private fun updateTasksDisplay(_tasks: List<com.emonotion.app.domain.model.Task>) {
-        // TODO: Реализовать отображение задач если нужно
-        // Временно используем параметр чтобы убрать предупреждение
-        android.util.Log.d("HomeFragment", "Получено задач: ${_tasks.size}")
+    private fun updateTasksDisplay(tasks: List<com.emonotion.app.domain.model.Task>) {
+        // Отображение задач будет реализовано в будущей версии
+        android.util.Log.d("HomeFragment", "Получено задач: ${tasks.size}")
+    }
+    
+    private fun updateStreakDisplay(stats: com.emonotion.app.domain.model.UserStats) {
+        android.util.Log.d(
+            "HomeFragment",
+            "updateStreakDisplay: streak=${stats.currentStreak}, hasEntryToday=${stats.hasEntryToday}"
+        )
+        val streakContainer = binding.root.findViewById<android.widget.LinearLayout>(R.id.streak_container)
+        val streakText = binding.root.findViewById<android.widget.TextView>(R.id.streak_text)
+        val streakFlame = binding.root.findViewById<android.widget.ImageView>(R.id.streak_flame_icon)
+
+        if (!StreakUiHelper.shouldShowStreakBadge(stats)) {
+            streakContainer?.visibility = View.GONE
+            return
+        }
+
+        streakContainer?.visibility = View.VISIBLE
+        streakText?.text = stats.currentStreak.toString()
+        val activeToday = StreakUiHelper.isStreakActiveToday(stats)
+        StreakUiHelper.applyHomeStreak(streakContainer, streakFlame, streakText, activeToday)
     }
     
     private fun deleteNoteDirectly(note: com.emonotion.app.domain.model.Note) {
@@ -204,8 +229,15 @@ class HomeFragment : Fragment() {
 
         dialogView.findViewById<android.widget.TextView>(R.id.note_timestamp).text =
             dateFormat.format(Date(note.timestamp))
+        dialogView.findViewById<android.widget.TextView>(R.id.note_title).text = note.title
 
-        dialogView.findViewById<android.widget.TextView>(R.id.note_content).text = note.content
+        val contentView = dialogView.findViewById<android.widget.TextView>(R.id.note_content)
+        if (note.content.isNotBlank()) {
+            contentView.text = note.content
+            contentView.visibility = View.VISIBLE
+        } else {
+            contentView.visibility = View.GONE
+        }
 
         val tagsView = dialogView.findViewById<android.widget.TextView>(R.id.note_tags)
         if (note.tags.isNotEmpty()) {

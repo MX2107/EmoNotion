@@ -48,6 +48,7 @@
             tools:visibility="visible">
 
             <LinearLayout
+                android:id="@+id/streak_icon_container"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:layout_marginEnd="16dp"
@@ -55,6 +56,7 @@
                 android:gravity="center">
 
                 <ImageView
+                    android:id="@+id/streak_flame_icon"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:src="@drawable/ic_flame"
@@ -69,23 +71,37 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/streak_label_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
+                    android:layout_marginBottom="2dp"
                     android:text="@string/streak_days"
                     android:textColor="@android:color/white"
-                    android:textSize="14sp"
+                    android:textSize="12sp"
                     android:textStyle="bold"
-                    android:alpha="0.9" />
+                    android:alpha="0.8"
+                    android:letterSpacing="0.05" />
 
                 <TextView
                     android:id="@+id/streak_count_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="32sp"
                     android:textStyle="bold"
-                    tools:text="0 дней подряд!" />
+                    android:letterSpacing="0.02"
+                    tools:text="7" />
+
+                <TextView
+                    android:id="@+id/streak_message_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@android:color/white"
+                    android:textSize="11sp"
+                    android:alpha="0.7"
+                    android:letterSpacing="0.03"
+                    tools:text="Продолжай в том же духе!" />
 
             </LinearLayout>
 

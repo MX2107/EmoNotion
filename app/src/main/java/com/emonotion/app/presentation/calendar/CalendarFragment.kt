@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.emonotion.app.R
 import com.emonotion.app.databinding.FragmentCalendarBinding
+import com.emonotion.app.utils.StreakUiHelper
 import com.emonotion.app.domain.model.MoodType
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -99,6 +100,12 @@ class CalendarFragment : Fragment() {
             }
         }
         
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.userStats.collect { stats ->
+                updateStreakDisplay(stats)
+            }
+        }
+        
         // Инициализируем календарь при запуске
         updateCalendarGrid(viewModel.moods.value)
     }
@@ -128,8 +135,42 @@ class CalendarFragment : Fragment() {
     private fun updateSelectedDateDisplay(date: String) {
         // Обновляем выбранную дату в UI - можно выделить выбранную дату в календаре
         // Убрали всплывающее уведомление по требованию пользователя
-        // TODO: Выделить выбранную дату в календаре визуально
+        // Визуальное выделение выбранной даты будет реализовано в будущей версии
         android.util.Log.d("CalendarFragment", "Выбрана дата: $date")
+    }
+    
+    private fun updateStreakDisplay(stats: com.emonotion.app.domain.model.UserStats) {
+        android.util.Log.d(
+            "CalendarFragment",
+            "updateStreakDisplay: streak=${stats.currentStreak}, hasEntryToday=${stats.hasEntryToday}"
+        )
+        val streakCard = binding.root.findViewById<android.widget.LinearLayout>(R.id.streak_card)
+        val streakIconContainer = binding.root.findViewById<android.widget.LinearLayout>(R.id.streak_icon_container)
+        val streakLabelText = binding.root.findViewById<android.widget.TextView>(R.id.streak_label_text)
+        val streakCountText = binding.root.findViewById<android.widget.TextView>(R.id.streak_count_text)
+        val streakMessageText = binding.root.findViewById<android.widget.TextView>(R.id.streak_message_text)
+        val streakFlame = binding.root.findViewById<android.widget.ImageView>(R.id.streak_flame_icon)
+
+        if (!StreakUiHelper.shouldShowStreakBadge(stats)) {
+            streakCard?.visibility = View.GONE
+            return
+        }
+
+        streakCard?.visibility = View.VISIBLE
+        val streak = stats.currentStreak
+        val atRisk = StreakUiHelper.isStreakAtRisk(stats)
+        streakCountText?.text = "${streak} ${StreakUiHelper.dayWord(requireContext(), streak)}"
+        streakMessageText?.text = StreakUiHelper.streakMessage(requireContext(), streak, atRisk)
+        val activeToday = StreakUiHelper.isStreakActiveToday(stats)
+        StreakUiHelper.applyCalendarStreak(
+            streakCard,
+            streakIconContainer,
+            streakFlame,
+            streakLabelText,
+            streakCountText,
+            streakMessageText,
+            activeToday
+        )
     }
     
     private fun openDailyEntry(date: String) {

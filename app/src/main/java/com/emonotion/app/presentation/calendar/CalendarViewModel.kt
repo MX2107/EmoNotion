@@ -3,6 +3,8 @@ package com.emonotion.app.presentation.calendar
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.emonotion.app.domain.model.MoodEntry
+import com.emonotion.app.domain.model.UserStats
+import com.emonotion.app.domain.usecase.analytics.GetUserStatsUseCase
 import com.emonotion.app.domain.usecase.mood.GetMoodsByDateRangeUseCase
 import com.emonotion.app.presentation.common.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +21,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class CalendarViewModel @Inject constructor(
-    private val getMoodsByDateRangeUseCase: GetMoodsByDateRangeUseCase
+    private val getMoodsByDateRangeUseCase: GetMoodsByDateRangeUseCase,
+    private val getUserStatsUseCase: GetUserStatsUseCase
 ) : BaseViewModel() {
     
     // Состояния UI
@@ -41,8 +44,17 @@ class CalendarViewModel @Inject constructor(
     )
     val currentYear: StateFlow<Int> = _currentYear.asStateFlow()
     
+    private val _userStats = MutableStateFlow<UserStats>(UserStats())
+    val userStats: StateFlow<UserStats> = _userStats.asStateFlow()
+    
     // Кэш для загруженных данных
     private val cachedMoods = mutableMapOf<String, List<MoodEntry>>()
+    
+    init {
+        // Инициализация при создании ViewModel
+        loadMoodsForMonth()
+        loadUserStats()
+    }
     
     /**
      * Выбирает дату в календаре
@@ -90,7 +102,7 @@ class CalendarViewModel @Inject constructor(
     }
     
     /**
-     * Загружает записи о настроении за текущий месяц
+     * Загружает записи о настроении за текущий месяц и соседние дни
      */
     fun loadMoodsForMonth() {
         val cacheKey = "${_currentYear.value}-${_currentMonth.value}"
@@ -107,21 +119,47 @@ class CalendarViewModel @Inject constructor(
                 val calendar = Calendar.getInstance()
                 calendar.set(_currentYear.value, _currentMonth.value, 1)
                 
+                // Определяем первый день месяца
+                val firstDayOfMonth = calendar.get(Calendar.DAY_OF_WEEK)
+                
+                // Calendar.DAY_OF_WEEK: 1=Воскресенье, 2=Понедельник, ..., 7=Суббота
+                // Для отображения с понедельника нужно сдвинуть на 1
+                val adjustedFirstDay = if (firstDayOfMonth == Calendar.SUNDAY) 7 else firstDayOfMonth - 1
+                
+                // Откручиваем назад к первому дню предыдущего месяца, который отображается в календаре
+                calendar.add(Calendar.DAY_OF_MONTH, -(adjustedFirstDay - 1))
                 val firstDay = calendar.timeInMillis
                 val firstDayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(firstDay))
                 
+                // Возвращаемся к первому дню текущего месяца
+                calendar.set(_currentYear.value, _currentMonth.value, 1)
+                
+                // Переходим к последнему дню месяца
                 calendar.add(Calendar.MONTH, 1)
                 calendar.add(Calendar.DAY_OF_MONTH, -1)
+                val lastDayOfMonth = calendar.timeInMillis
+                
+                // Добавляем дни до конца недели (до 42 дней = 6 недель)
+                val daysInMonth = calendar.get(Calendar.DAY_OF_MONTH)
+                val totalDaysShown = adjustedFirstDay - 1 + daysInMonth
+                val remainingDays = 42 - totalDaysShown
+                calendar.add(Calendar.DAY_OF_MONTH, remainingDays)
+                
                 val lastDay = calendar.timeInMillis
                 val lastDayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(lastDay))
                 
                 Log.d("CalendarViewModel", "Загрузка данных за период: $firstDayStr - $lastDayStr")
                 
                 // Загружаем данные и кэшируем их
-                getMoodsByDateRangeUseCase(firstDay, lastDay).collect { moodList ->
-                    _moods.value = moodList
-                    cachedMoods[cacheKey] = moodList
-                    Log.d("CalendarViewModel", "Загружено и закэшировано записей: ${moodList.size}")
+                try {
+                    getMoodsByDateRangeUseCase(firstDayStr, lastDayStr).collect { moodList ->
+                        _moods.value = moodList
+                        cachedMoods[cacheKey] = moodList
+                        Log.d("CalendarViewModel", "Загружено и закэшировано записей: ${moodList.size}")
+                    }
+                } catch (e: Exception) {
+                    Log.e("CalendarViewModel", "Ошибка загрузки данных за период: $firstDayStr - $lastDayStr", e)
+                    _moods.value = emptyList()
                 }
             }
         }
@@ -143,5 +181,17 @@ class CalendarViewModel @Inject constructor(
         
         val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
         return dateFormat.format(calendar.time)
+    }
+    
+    /**
+     * Загружает статистику пользователя
+     */
+    private fun loadUserStats() {
+        viewModelScope.launch {
+            getUserStatsUseCase().collect { stats ->
+                android.util.Log.d("CalendarViewModel", "loadUserStats: currentStreak=${stats.currentStreak}, longestStreak=${stats.longestStreak}")
+                _userStats.value = stats
+            }
+        }
     }
 }

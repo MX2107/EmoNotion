@@ -4,6 +4,8 @@ import androidx.lifecycle.viewModelScope
 import com.emonotion.app.domain.model.MoodEntry
 import com.emonotion.app.domain.model.Note
 import com.emonotion.app.domain.model.Task
+import com.emonotion.app.domain.model.UserStats
+import com.emonotion.app.domain.usecase.analytics.GetUserStatsUseCase
 import com.emonotion.app.domain.usecase.mood.GetTodayMoodUseCase
 import com.emonotion.app.domain.usecase.mood.GetMoodByDateUseCase
 import com.emonotion.app.domain.usecase.note.DeleteNoteUseCase
@@ -30,7 +32,8 @@ class HomeViewModel @Inject constructor(
     private val getMoodByDateUseCase: GetMoodByDateUseCase,
     private val getNotesUseCase: GetNotesUseCase,
     private val deleteNoteUseCase: DeleteNoteUseCase,
-    private val getTasksUseCase: GetTasksUseCase
+    private val getTasksUseCase: GetTasksUseCase,
+    private val getUserStatsUseCase: GetUserStatsUseCase
 ) : BaseViewModel() {
 
     val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
@@ -54,11 +57,15 @@ class HomeViewModel @Inject constructor(
     private val _incompleteTasksCount = MutableStateFlow(0)
     val incompleteTasksCount: StateFlow<Int> = _incompleteTasksCount.asStateFlow()
 
+    private val _userStats = MutableStateFlow<UserStats>(UserStats())
+    val userStats: StateFlow<UserStats> = _userStats.asStateFlow()
+
     private var homeDataCollectionJob: kotlinx.coroutines.Job? = null
 
     init {
         // Предварительная загрузка данных при создании ViewModel
         loadHomeData()
+        loadUserStats()
     }
     
     /**
@@ -105,8 +112,8 @@ class HomeViewModel @Inject constructor(
                 getTodayMoodUseCase(),
                 getNotesUseCase(),
                 getTasksUseCase(false)
-            ) { mood, notes, tasks ->
-                Triple(mood, notes, tasks)
+            ) { todayMood, todayNotes, todayTasks ->
+                Triple(todayMood, todayNotes, todayTasks)
             }.collect { (mood, notes, tasks) ->
                 _todayMood.value = mood
                 _todayNotes.value = notes.sortedByDescending { note -> note.timestamp }
@@ -138,5 +145,17 @@ class HomeViewModel @Inject constructor(
                 loadHomeData()
             }
         )
+    }
+    
+    /**
+     * Загружает статистику пользователя
+     */
+    private fun loadUserStats() {
+        viewModelScope.launch {
+            getUserStatsUseCase().collect { stats ->
+                android.util.Log.d("HomeViewModel", "loadUserStats: currentStreak=${stats.currentStreak}, longestStreak=${stats.longestStreak}")
+                _userStats.value = stats
+            }
+        }
     }
 }

@@ -89,6 +89,8 @@ class DailyEntryViewModel @Inject constructor(
                 getCustomMoodsUseCase.getActiveCustomMoods().collect { moods ->
                     _customEmotions.value = moods.map { it.name }
                 }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                android.util.Log.d("DailyEntryViewModel", "Загрузка пользовательских эмоций отменена")
             } catch (e: Exception) {
                 android.util.Log.e("DailyEntryViewModel", "Ошибка загрузки пользовательских эмоций", e)
             }
@@ -100,6 +102,8 @@ class DailyEntryViewModel @Inject constructor(
                 getCustomActivitiesUseCase.getActiveCustomActivities().collect { activities ->
                     _customActivities.value = activities.map { it.name }
                 }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                android.util.Log.d("DailyEntryViewModel", "Загрузка пользовательских активностей отменена")
             } catch (e: Exception) {
                 android.util.Log.e("DailyEntryViewModel", "Ошибка загрузки пользовательских активностей", e)
             }
@@ -165,24 +169,30 @@ class DailyEntryViewModel @Inject constructor(
     private fun loadMoodForDate(date: String) {
         executeWithLoading {
             viewModelScope.launch {
-                getMoodByDateUseCase(date).collect { mood ->
-                    if (mood != null) {
-                        _currentMood.value = mood
-                        _selectedMoodType.value = mood.mood
-                        _selectedIntensity.value = mood.intensity
-                        _emotions.value = mood.emotions
-                        _activities.value = mood.activities
-                        _notes.value = mood.notes ?: ""
-                        _isEditing.value = true
-                    } else {
-                        _currentMood.value = null
-                        _selectedMoodType.value = null
-                        _selectedIntensity.value = 3
-                        _emotions.value = emptyList()
-                        _activities.value = emptyList()
-                        _notes.value = ""
-                        _isEditing.value = false
+                try {
+                    getMoodByDateUseCase(date).collect { mood ->
+                        if (mood != null) {
+                            _currentMood.value = mood
+                            _selectedMoodType.value = mood.mood
+                            _selectedIntensity.value = mood.intensity
+                            _emotions.value = mood.emotions
+                            _activities.value = mood.activities
+                            _notes.value = mood.notes ?: ""
+                            _isEditing.value = true
+                        } else {
+                            _currentMood.value = null
+                            _selectedMoodType.value = null
+                            _selectedIntensity.value = 3
+                            _emotions.value = emptyList()
+                            _activities.value = emptyList()
+                            _notes.value = ""
+                            _isEditing.value = false
+                        }
                     }
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    android.util.Log.d("DailyEntryViewModel", "Загрузка настроения отменена")
+                } catch (e: Exception) {
+                    android.util.Log.e("DailyEntryViewModel", "Ошибка загрузки настроения", e)
                 }
             }
         }
@@ -198,6 +208,14 @@ class DailyEntryViewModel @Inject constructor(
             return
         }
         
+        // Валидация даты - нельзя создавать записи на будущие даты
+        val selectedDate = _selectedDate.value
+        val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        if (selectedDate > today) {
+            _errorMessage.value = "Нельзя создавать записи на будущие даты"
+            return
+        }
+        
         executeWithResult(
             operation = {
                 val moodEntry = MoodEntry(
@@ -208,7 +226,7 @@ class DailyEntryViewModel @Inject constructor(
                     activities = _activities.value,
                     notes = _notes.value.takeIf { it.isNotBlank() },
                     timestamp = System.currentTimeMillis(),
-                    date = _selectedDate.value
+                    date = selectedDate
                 )
                 
                 // Если существует запись - обновляем, иначе добавляем новую

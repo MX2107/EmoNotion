@@ -41,11 +41,10 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingHorizontal="16dp"
-                android:paddingVertical="8dp"
-                android:visibility="gone"
-                tools:visibility="visible">
+                android:paddingVertical="8dp">
 
                 <ImageView
+                    android:id="@+id/streak_flame_icon"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_marginEnd="8dp"
