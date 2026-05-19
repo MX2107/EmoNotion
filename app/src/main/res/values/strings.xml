@@ -28,9 +28,22 @@
     <!-- Календарь -->
     <string name="mood_calendar">Календарь настроения</string>
     <string name="track_emotions">Отслеживайте ваше эмоциональное состояние</string>
-    <string name="streak_days">Серия записей</string>
+    <string name="streak_days">СЕРИЯ</string>
     <string name="days_in_a_row">дней подряд!</string>
     <string name="legend">Легенда</string>
+    
+    <!-- Сообщения серии -->
+    <string name="streak_message_start">Отличный старт!</string>
+    <string name="streak_message_good">Хороший прогресс!</string>
+    <string name="streak_message_great">Продолжай в том же духе!</string>
+    <string name="streak_message_amazing">Невероятно!</string>
+    <string name="streak_message_legend">Ты легенда!</string>
+    <string name="streak_message_at_risk">Запишите настроение сегодня, чтобы сохранить серию!</string>
+    
+    <!-- Формы слова "день" -->
+    <string name="day_singular">день</string>
+    <string name="day_plural_2_4">дня</string>
+    <string name="day_plural_5_20">дней</string>
     
     <!-- Заметки -->
     <string name="notes_and_tasks">Заметки и задачи</string>
@@ -75,6 +88,11 @@
     <string name="avatar">Аватар</string>
     <string name="change_avatar">Изменить аватар</string>
     <string name="statistics">Статистика</string>
+    <string name="profile_subtitle">Управление вашим профилем и статистикой</string>
+    <string name="stat_label_total_entries">Всего записей</string>
+    <string name="stat_label_current_streak">Текущая серия</string>
+    <string name="stat_label_longest_streak">Самая длинная серия</string>
+    <string name="stat_label_average_mood">Среднее настроение</string>
     <string name="total_entries_count">Всего записей: %d</string>
     <string name="current_streak_count">Текущая серия: %d дней</string>
     <string name="longest_streak_count">Самая длинная серия: %d дней</string>

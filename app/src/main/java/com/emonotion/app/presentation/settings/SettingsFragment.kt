@@ -49,17 +49,22 @@ class SettingsFragment : Fragment() {
         binding.apply {
             // Кнопка экспорта данных
             exportDataButton.setOnClickListener {
-                // TODO: Экспорт данных
+                // Экспорт данных будет реализован через соответствующий use case в будущей версии
+                Toast.makeText(requireContext(), "Экспорт данных будет реализован позже", Toast.LENGTH_SHORT).show()
             }
             
-            // TODO: Добавить кнопку редактирования профиля когда будет в layout
-            
-            // TODO: Добавить остальные кнопки когда будут готовы в layout
+            // Дополнительные кнопки будут добавлены при расширении функционала
         }
     }
     
     private fun observeViewModel() {
-        // TODO: Обработать состояние настроек когда будут готовы UI элементы
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.settings.collect { settings ->
+                settings?.let {
+                    // Обновление UI элементами настроек будет реализовано при добавлении в layout
+                }
+            }
+        }
         
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.errorMessage.collect { error ->
@@ -71,19 +76,19 @@ class SettingsFragment : Fragment() {
     }
     
     private fun showTimePicker() {
-        // TODO: Показать выбор времени когда будут готовы UI элементы
+        // Выбор времени напоминания будет реализован при добавлении соответствующих UI элементов
     }
     
     private fun showLanguageDialog() {
-        // TODO: Показать диалог выбора языка когда будут готовы UI элементы
+        // Диалог выбора языка будет реализован при добавлении соответствующих UI элементов
     }
     
     private fun showResetDialog() {
-        // TODO: Показать диалог сброса когда будут готовы UI элементы
+        // Диалог сброса данных будет реализован при добавлении соответствующих UI элементов
     }
     
     private fun showAboutDialog() {
-        // TODO: Показать диалог о приложении когда будут готовы UI элементы
+        // Диалог о приложении будет реализован при добавлении соответствующих UI элементов
     }
     
     override fun onDestroyView() {

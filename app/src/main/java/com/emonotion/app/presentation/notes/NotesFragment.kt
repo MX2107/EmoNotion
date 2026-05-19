@@ -864,10 +864,18 @@ class NotesFragment : Fragment() {
         
         val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
         
-        dialogView.findViewById<android.widget.TextView>(R.id.note_timestamp).text = 
+        dialogView.findViewById<android.widget.TextView>(R.id.note_timestamp).text =
             dateFormat.format(Date(note.timestamp))
-        dialogView.findViewById<android.widget.TextView>(R.id.note_content).text = note.content
-        
+        dialogView.findViewById<android.widget.TextView>(R.id.note_title).text = note.title
+
+        val contentView = dialogView.findViewById<android.widget.TextView>(R.id.note_content)
+        if (note.content.isNotBlank()) {
+            contentView.text = note.content
+            contentView.visibility = View.VISIBLE
+        } else {
+            contentView.visibility = View.GONE
+        }
+
         // Теги
         val tagsTextView = dialogView.findViewById<android.widget.TextView>(R.id.note_tags)
         if (note.tags.isNotEmpty()) {
