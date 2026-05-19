@@ -47,16 +47,33 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/note_background"
-                android:padding="16dp"
-                android:src="@drawable/ic_profile" />
+                android:src="@drawable/ic_profile"
+                android:scaleType="centerCrop" />
 
-            <Button
-                android:id="@+id/change_photo_button"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Изменить фото" />
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <Button
+                    android:id="@+id/change_photo_button"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="Изменить фото" />
+
+                <Button
+                    android:id="@+id/delete_avatar_button"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Удалить фото"
+                    android:textColor="@android:color/holo_red_dark"
+                    android:visibility="gone" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

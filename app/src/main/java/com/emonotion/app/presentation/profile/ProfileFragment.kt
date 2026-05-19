@@ -5,15 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.emonotion.app.R
 import com.emonotion.app.databinding.FragmentProfileBinding
+import com.emonotion.app.utils.ImageHelper
+import com.emonotion.app.utils.StreakUiHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Экран профиля пользователя
@@ -41,26 +43,27 @@ class ProfileFragment : Fragment() {
         observeViewModel()
         viewModel.loadUserProfile()
     }
+
+    override fun onResume() {
+        super.onResume()
+        val avatarPath = viewModel.userProfile.value?.avatar
+        if (!avatarPath.isNullOrEmpty()) {
+            ImageHelper.loadAvatarInto(binding.avatarImage, avatarPath)
+        }
+    }
     
     private fun setupUI() {
         binding.apply {
-            // Кнопка редактирования профиля
             editProfileButton.setOnClickListener {
-                if (viewModel.isEditing.value) {
-                    viewModel.saveProfile()
-                } else {
-                    viewModel.startEditing()
-                }
+                findNavController().navigate(R.id.action_profileFragment_to_editProfileFragment)
             }
             
-            // Кнопка настроек
             settingsButton.setOnClickListener {
-                findNavController().navigate(com.emonotion.app.R.id.action_profileFragment_to_settingsFragment)
+                findNavController().navigate(R.id.action_profileFragment_to_settingsFragment)
             }
             
-            // Кнопка аналитики
             analyticsButton.setOnClickListener {
-                findNavController().navigate(com.emonotion.app.R.id.action_profileFragment_to_analyticsFragment)
+                findNavController().navigate(R.id.action_profileFragment_to_analyticsFragment)
             }
         }
     }
@@ -73,16 +76,18 @@ class ProfileFragment : Fragment() {
         }
         
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.isEditing.collect { isEditing ->
-                updateEditingUI(isEditing)
+            viewModel.errorMessage.collect { error ->
+                error?.let {
+                    android.util.Log.d("ProfileFragment", "errorMessage: $it")
+                    Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                }
             }
         }
         
-        // TODO: Обработать editedName, editedBio, editedAvatar и isLoading когда будут готовы UI элементы
-        
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.errorMessage.collect { error ->
-                error?.let {
+            viewModel.successMessage.collect { message ->
+                message?.let {
+                    android.util.Log.d("ProfileFragment", "successMessage: $it")
                     Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -98,41 +103,59 @@ class ProfileFragment : Fragment() {
     private fun updateProfileDisplay(profile: com.emonotion.app.domain.model.UserProfile?) {
         binding.apply {
             if (profile != null) {
-                // Отображаем данные профиля
                 nameText.text = profile.name
                 emailText.text = profile.email ?: ""
-                
-                // TODO: Настроить аватар и другие элементы когда будут готовы
-                
+
+                if (!profile.avatar.isNullOrEmpty()) {
+                    android.util.Log.d(
+                        "ProfileFragment",
+                        "Загрузка аватара из: ${profile.avatar}, exists=${java.io.File(profile.avatar).exists()}"
+                    )
+                    ImageHelper.loadAvatarInto(avatarImage, profile.avatar)
+                    avatarImage.setOnClickListener {
+                        ImageHelper.openAvatarFullscreen(requireContext(), profile.avatar)
+                    }
+                } else {
+                    android.util.Log.d("ProfileFragment", "Путь к аватару пустой")
+                    ImageHelper.showPlaceholder(avatarImage)
+                    avatarImage.setOnClickListener(null)
+                }
             } else {
-                // TODO: Показать состояние пустого профиля когда будут готовы элементы
+                nameText.text = "Гость"
+                emailText.text = ""
+                ImageHelper.showPlaceholder(avatarImage)
+                avatarImage.setColorFilter(
+                    ResourcesCompat.getColor(resources, R.color.foreground, null)
+                )
+                avatarImage.setOnClickListener(null)
             }
         }
     }
     
     private fun updateStatsDisplay(stats: com.emonotion.app.domain.model.UserStats) {
+        android.util.Log.d("ProfileFragment", "updateStatsDisplay: stats=$stats")
         binding.apply {
-            // Обновляем счетчики статистики
             totalEntriesText.text = stats.totalEntries.toString()
-            
-            // Находим другие TextView для статистики и обновляем их
-            binding.root.findViewById<android.widget.TextView>(R.id.current_streak_text)?.text = 
-                "${stats.currentStreak} дней"
-            
-            binding.root.findViewById<android.widget.TextView>(R.id.longest_streak_text)?.text = 
-                "${stats.longestStreak} дней"
-            
-            // Используем average_mood_text для отображения totalDaysTracked
-            binding.root.findViewById<android.widget.TextView>(R.id.average_mood_text)?.text = 
-                "${stats.totalDaysTracked} дней"
+            currentStreakText.text = stats.currentStreak.toString()
+            StreakUiHelper.applyProfileStreak(
+                currentStreakIconContainer,
+                currentStreakFlameIcon,
+                StreakUiHelper.isStreakActiveToday(stats)
+            )
+            longestStreakText.text = stats.longestStreak.toString()
+            averageMoodText.text = String.format("%.1f", stats.averageMood)
+            averageMoodEmoji.text = getAverageMoodEmoji(stats.averageMood)
         }
     }
-    
-    private fun updateEditingUI(isEditing: Boolean) {
-        // TODO: Обновить UI для режима редактирования когда будут готовы элементы
-        // Заглушка для предотвращения предупреждения о неиспользуемом параметре
-        if (isEditing) {
-            // Будет реализовано позже
+
+    private fun getAverageMoodEmoji(averageMood: Float): String {
+        return when {
+            averageMood >= 4.5f -> "😄"
+            averageMood >= 3.5f -> "😊"
+            averageMood >= 2.5f -> "😐"
+            averageMood >= 1.5f -> "😕"
+            averageMood > 0f -> "😢"
+            else -> "😐"
         }
     }
     

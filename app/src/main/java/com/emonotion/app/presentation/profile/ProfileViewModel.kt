@@ -11,9 +11,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.util.UUID
 import javax.inject.Inject
 
 /**
@@ -53,28 +52,30 @@ class ProfileViewModel @Inject constructor(
     
     private val _userStats = MutableStateFlow(UserStats())
     val userStats: StateFlow<UserStats> = _userStats.asStateFlow()
+
+    private var profileCollectJob: Job? = null
+    private var statsCollectJob: Job? = null
     
     /**
-     * Загружает профиль пользователя
+     * Загружает профиль пользователя (одна подписка на Flow Room)
      */
     fun loadUserProfile() {
-        executeWithLoading {
-            viewModelScope.launch {
-                getUserProfileUseCase().collect { profile ->
-                    _userProfile.value = profile
-                    profile?.let {
-                        _name.value = it.name
-                        _email.value = it.email ?: ""
-                        _avatar.value = it.avatar ?: ""
-                        _editedName.value = it.name
-                        _editedEmail.value = it.email ?: ""
-                        _editedAvatar.value = it.avatar ?: ""
-                    }
+        if (profileCollectJob?.isActive == true) return
+
+        profileCollectJob = viewModelScope.launch {
+            getUserProfileUseCase().collect { profile ->
+                _userProfile.value = profile
+                profile?.let {
+                    _name.value = it.name
+                    _email.value = it.email ?: ""
+                    _avatar.value = it.avatar ?: ""
+                    _editedName.value = it.name
+                    _editedEmail.value = it.email ?: ""
+                    _editedAvatar.value = it.avatar ?: ""
                 }
             }
         }
-        
-        // Загружаем статистику пользователя
+
         loadUserStats()
     }
     
@@ -82,8 +83,11 @@ class ProfileViewModel @Inject constructor(
      * Загружает статистику пользователя
      */
     private fun loadUserStats() {
-        viewModelScope.launch {
+        if (statsCollectJob?.isActive == true) return
+
+        statsCollectJob = viewModelScope.launch {
             getUserStatsUseCase().collect { stats ->
+                android.util.Log.d("ProfileViewModel", "loadUserStats: stats=$stats")
                 _userStats.value = stats
             }
         }
@@ -131,9 +135,11 @@ class ProfileViewModel @Inject constructor(
     }
     
     /**
-     * Устанавливает биографию пользователя
+     * Очищает аватар пользователя
      */
-    // TODO: Добавить функциональность для bio если понадобится
+    fun clearAvatar() {
+        _editedAvatar.value = ""
+    }
     
     /**
      * Устанавливает URL аватара
@@ -151,12 +157,19 @@ class ProfileViewModel @Inject constructor(
             _errorMessage.value = "Имя не может быть пустым"
             return
         }
+
+        val avatar = _editedAvatar.value.ifEmpty {
+            _userProfile.value?.avatar.orEmpty()
+        }
         
+        android.util.Log.d("ProfileViewModel", "saveProfile: name='$name', email='${_editedEmail.value}'")
         val profile = _userProfile.value
+        android.util.Log.d("ProfileViewModel", "saveProfile: currentProfile=$profile")
+        
         if (profile == null) {
-            createProfile(name, _editedEmail.value, _editedAvatar.value)
+            createProfile(name, _editedEmail.value, avatar)
         } else {
-            updateProfile(profile, name, _editedEmail.value, _editedAvatar.value)
+            updateProfile(profile, name, _editedEmail.value, avatar)
         }
     }
     
@@ -164,18 +177,29 @@ class ProfileViewModel @Inject constructor(
         executeWithLoading {
             viewModelScope.launch {
                 val profile = UserProfile(
-                    userId = UUID.randomUUID().toString(),
+                    userId = "current_user",
                     name = name,
                     email = email,
                     avatar = avatar,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
+                android.util.Log.d("ProfileViewModel", "createProfile: profile=$profile")
                 try {
-                    updateUserProfileUseCase(profile)
-                    _userProfile.value = profile
-                    _isEditing.value = false
+                    val result = updateUserProfileUseCase(profile)
+                    android.util.Log.d("ProfileViewModel", "createProfile: result=$result")
+                    if (result.isSuccess) {
+                        _userProfile.value = profile
+                        _isEditing.value = false
+                        _successMessage.value = "Профиль успешно создан"
+                    } else {
+                        _errorMessage.value = "Ошибка создания профиля"
+                        result.exceptionOrNull()?.let { 
+                            android.util.Log.e("ProfileViewModel", "createProfile error", it)
+                        }
+                    }
                 } catch (error: Exception) {
+                    android.util.Log.e("ProfileViewModel", "createProfile exception", error)
                     _errorMessage.value = "Ошибка создания профиля: ${error.message}"
                 }
             }
@@ -191,11 +215,29 @@ class ProfileViewModel @Inject constructor(
                     avatar = avatar,
                     updatedAt = System.currentTimeMillis()
                 )
+                android.util.Log.d("ProfileViewModel", "updateProfile: updatedProfile=$updatedProfile")
                 try {
-                    updateUserProfileUseCase(updatedProfile)
-                    _userProfile.value = updatedProfile
-                    _isEditing.value = false
+                    val result = updateUserProfileUseCase(updatedProfile)
+                    android.util.Log.d("ProfileViewModel", "updateProfile: result=$result")
+                    if (result.isSuccess) {
+                        _userProfile.value = updatedProfile
+                        // Обновляем локальные состояния
+                        _name.value = updatedProfile.name
+                        _email.value = updatedProfile.email ?: ""
+                        _avatar.value = updatedProfile.avatar ?: ""
+                        _editedName.value = updatedProfile.name
+                        _editedEmail.value = updatedProfile.email ?: ""
+                        _editedAvatar.value = updatedProfile.avatar ?: ""
+                        _isEditing.value = false
+                        _successMessage.value = "Профиль успешно обновлен"
+                    } else {
+                        _errorMessage.value = "Ошибка обновления профиля"
+                        result.exceptionOrNull()?.let { 
+                            android.util.Log.e("ProfileViewModel", "updateProfile error", it)
+                        }
+                    }
                 } catch (error: Exception) {
+                    android.util.Log.e("ProfileViewModel", "updateProfile exception", error)
                     _errorMessage.value = "Ошибка обновления профиля: ${error.message}"
                 }
             }
