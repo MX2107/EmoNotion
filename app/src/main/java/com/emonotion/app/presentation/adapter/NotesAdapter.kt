@@ -43,47 +43,22 @@ class NotesAdapter(
                 // Теги
                 if (note.tags.isNotEmpty()) {
                     noteTagsContainer.visibility = View.VISIBLE
-                    val workTag = binding.root.context.getString(com.emonotion.app.R.string.tag_work)
-                    val personalTag = binding.root.context.getString(com.emonotion.app.R.string.tag_personal)
-                    val ideaTag = binding.root.context.getString(com.emonotion.app.R.string.tag_idea)
-                    
-                    binding.noteTagWork.visibility = if (note.tags.contains(workTag)) View.VISIBLE else View.GONE
-                    binding.noteTagPersonal.visibility = if (note.tags.contains(personalTag)) View.VISIBLE else View.GONE
-                    binding.noteTagIdea.visibility = if (note.tags.contains(ideaTag)) View.VISIBLE else View.GONE
-                    
-                    // Отображение кастомных тегов
-                    val customTags = note.tags.filter { 
-                        it != workTag && it != personalTag && it != ideaTag 
-                    }
-                    
-                    // Удаляем старые кастомные теги из контейнера (если есть)
-                    for (i in noteTagsContainer.childCount - 1 downTo 3) {
-                        noteTagsContainer.removeViewAt(i)
-                    }
-                    
-                    // Добавляем кастомные теги
-                    customTags.forEach { tagName ->
-                        val tagView = android.widget.TextView(binding.root.context).apply {
+                    noteTagsContainer.removeAllViews()
+
+                    note.tags.forEach { tagName ->
+                        val chip = com.google.android.material.chip.Chip(binding.root.context).apply {
                             text = tagName
-                            background = binding.root.context.getDrawable(com.emonotion.app.R.drawable.tag_purple_background)
-                            setPadding(
-                                (10 * binding.root.context.resources.displayMetrics.density).toInt(),
-                                (4 * binding.root.context.resources.displayMetrics.density).toInt(),
-                                (10 * binding.root.context.resources.displayMetrics.density).toInt(),
-                                (4 * binding.root.context.resources.displayMetrics.density).toInt()
+                            isCloseIconVisible = false
+                            isCheckable = false
+                            chipBackgroundColor = androidx.core.content.ContextCompat.getColorStateList(
+                                binding.root.context,
+                                com.emonotion.app.R.color.color_purple
                             )
                             setTextColor(binding.root.context.getColor(com.emonotion.app.R.color.white))
-                            textSize = 10f
-                            setTypeface(null, android.graphics.Typeface.BOLD)
-                            
-                            val params = android.widget.LinearLayout.LayoutParams(
-                                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
-                                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
-                            )
-                            params.marginEnd = (6 * binding.root.context.resources.displayMetrics.density).toInt()
-                            layoutParams = params
+                            textSize = 12f
+                            chipStrokeWidth = 0f
                         }
-                        noteTagsContainer.addView(tagView)
+                        noteTagsContainer.addView(chip)
                     }
                 } else {
                     noteTagsContainer.visibility = View.GONE

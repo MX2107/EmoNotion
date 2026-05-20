@@ -172,24 +172,7 @@ class NotesFragment : Fragment() {
                 updateFilterTagText(getString(R.string.filter_all))
                 binding.clearFilterTag.visibility = View.GONE
             }
-            
-            // Теги заметок
-            tagWork.setOnClickListener {
-                toggleTag(getString(R.string.tag_work))
-            }
-            
-            tagPersonal.setOnClickListener {
-                toggleTag(getString(R.string.tag_personal))
-            }
-            
-            binding.tagIdea.setOnClickListener {
-                toggleTag(getString(R.string.tag_idea))
-            }
-            
-            binding.addCustomTagButton.setOnClickListener {
-                showAddCustomTagDialog()
-            }
-            
+
             // Кнопки формы задачи
             saveTaskButton.setOnClickListener {
                 saveTask()
@@ -491,6 +474,7 @@ class NotesFragment : Fragment() {
         binding.addNoteButton.visibility = View.GONE
         binding.addNoteForm.visibility = View.VISIBLE
         binding.noteInput.requestFocus()
+        displayPredefinedTags()
         displayCustomTags()
     }
     
@@ -501,7 +485,7 @@ class NotesFragment : Fragment() {
         binding.noteInput.text?.clear()
         selectedTags.clear()
         // Не очищаем allCustomTags - это глобальный список тегов из базы данных
-        resetTagButtons()
+        binding.predefinedTagsContainer.removeAllViews()
         binding.customTagsContainer.removeAllViews()
         binding.customTagsContainer.visibility = View.GONE
     }
@@ -512,52 +496,40 @@ class NotesFragment : Fragment() {
         } else {
             selectedTags.add(tag)
         }
-        updateTagButtons()
+        displayPredefinedTags()
         displayCustomTags()
     }
-    
-    private fun updateTagButtons() {
-        val workTag = getString(R.string.tag_work)
-        val personalTag = getString(R.string.tag_personal)
-        val ideaTag = getString(R.string.tag_idea)
-        
-        updateTagAppearance(binding.tagWork, selectedTags.contains(workTag))
-        updateTagAppearance(binding.tagPersonal, selectedTags.contains(personalTag))
-        updateTagAppearance(binding.tagIdea, selectedTags.contains(ideaTag))
-    }
-    
-    private fun updateTagAppearance(tagView: android.widget.TextView, isSelected: Boolean) {
-        if (isSelected) {
-            // Выбранный тег - фиолетовый фон с белым текстом
-            tagView.alpha = 1.0f
-            tagView.textSize = 14f
-            tagView.background = ContextCompat.getDrawable(requireContext(), R.drawable.tag_purple_background)
-            tagView.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-            tagView.setPadding(
-                (16 * resources.displayMetrics.density).toInt(),
-                (8 * resources.displayMetrics.density).toInt(),
-                (16 * resources.displayMetrics.density).toInt(),
-                (8 * resources.displayMetrics.density).toInt()
-            )
-        } else {
-            // Невыбранный тег - базовый стиль без цвета
-            tagView.alpha = 0.7f
-            tagView.textSize = 13f
-            tagView.background = ContextCompat.getDrawable(requireContext(), R.drawable.tag_background)
-            tagView.setTextColor(ContextCompat.getColor(requireContext(), R.color.foreground))
-            tagView.setPadding(
-                (14 * resources.displayMetrics.density).toInt(),
-                (6 * resources.displayMetrics.density).toInt(),
-                (14 * resources.displayMetrics.density).toInt(),
-                (6 * resources.displayMetrics.density).toInt()
-            )
+
+    private fun displayPredefinedTags() {
+        val predefinedTags = listOf(
+            getString(R.string.tag_work),
+            getString(R.string.tag_personal),
+            getString(R.string.tag_idea)
+        )
+
+        val predefinedContainer = binding.predefinedTagsContainer
+        predefinedContainer.removeAllViews()
+
+        predefinedTags.forEach { tag ->
+            val chip = createTagChip(tag)
+            predefinedContainer.addView(chip)
         }
-    }
-    
-    private fun resetTagButtons() {
-        updateTagAppearance(binding.tagWork, false)
-        updateTagAppearance(binding.tagPersonal, false)
-        updateTagAppearance(binding.tagIdea, false)
+        // Добавляем кнопку "+" для добавления пользовательских тегов
+        val addChip = com.google.android.material.chip.Chip(requireContext()).apply {
+            text = "+"
+            isCloseIconVisible = false
+            isCheckable = false
+            chipBackgroundColor = ContextCompat.getColorStateList(requireContext(), R.color.muted)
+            setTextColor(ContextCompat.getColor(requireContext(), R.color.foreground))
+            textSize = 16f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            chipStrokeWidth = 0f
+
+            setOnClickListener {
+                showAddCustomTagDialog()
+            }
+        }
+        predefinedContainer.addView(addChip)
     }
     
     private fun showAddCustomTagDialog() {
@@ -627,53 +599,52 @@ class NotesFragment : Fragment() {
             getString(R.string.tag_idea)
         )
         val customTags = allCustomTags.filter { it !in predefinedTags }
-        
+
         val customTagsContainer = binding.customTagsContainer
         customTagsContainer.removeAllViews()
-        
+
         if (customTags.isNotEmpty()) {
             customTagsContainer.visibility = View.VISIBLE
             customTags.forEach { tag ->
-                val tagView = createCustomTag(tag)
-                customTagsContainer.addView(tagView)
+                val chip = createTagChip(tag)
+                customTagsContainer.addView(chip)
             }
         } else {
             customTagsContainer.visibility = View.GONE
         }
     }
-    
-    private fun createCustomTag(name: String): android.widget.TextView {
-        val tagView = android.widget.TextView(requireContext()).apply {
+
+    private fun createTagChip(name: String): com.google.android.material.chip.Chip {
+        val chip = com.google.android.material.chip.Chip(requireContext()).apply {
             text = name
-            setOnClickListener { toggleTag(name) }
-            
-            // Применяем базовый стиль для кастомных тегов
-            background = ContextCompat.getDrawable(requireContext(), R.drawable.tag_background)
-            setPadding(
-                (14 * resources.displayMetrics.density).toInt(),
-                (6 * resources.displayMetrics.density).toInt(),
-                (14 * resources.displayMetrics.density).toInt(),
-                (6 * resources.displayMetrics.density).toInt()
-            )
-            
-            // Устанавливаем цвет текста для кастомных тегов
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.foreground))
-            textSize = 13f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            
-            // Применяем визуальное различие для выбранного/невыбранного состояния
+            isCloseIconVisible = false
+            isCheckable = false
+
+            // Устанавливаем начальное состояние
             val isSelected = selectedTags.contains(name)
-            updateTagAppearance(this, isSelected)
-            
-            val params = android.widget.LinearLayout.LayoutParams(
-                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
-                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            params.marginEnd = (8 * resources.displayMetrics.density).toInt()
-            params.bottomMargin = (4 * resources.displayMetrics.density).toInt()
-            layoutParams = params
+
+            // Применяем стиль в зависимости от состояния
+            updateTagChipAppearance(this, isSelected)
+
+            setOnClickListener {
+                toggleTag(name)
+                val newSelected = selectedTags.contains(name)
+                updateTagChipAppearance(this, newSelected)
+            }
         }
-        return tagView
+        return chip
+    }
+
+    private fun updateTagChipAppearance(chip: com.google.android.material.chip.Chip, isSelected: Boolean) {
+        // Все теги (и предопределённые, и пользовательские) используют одинаковый стиль
+        if (isSelected) {
+            chip.chipBackgroundColor = ContextCompat.getColorStateList(requireContext(), R.color.color_purple)
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+        } else {
+            chip.chipBackgroundColor = ContextCompat.getColorStateList(requireContext(), R.color.muted)
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.foreground))
+        }
+        chip.chipStrokeWidth = 0f
     }
     
     private fun saveNote() {
@@ -906,91 +877,57 @@ class NotesFragment : Fragment() {
     private fun showEditNoteDialog(note: Note) {
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_edit_note, null)
-        
+
         val titleInput = dialogView.findViewById<android.widget.EditText>(R.id.note_title_input)
         val contentInput = dialogView.findViewById<android.widget.EditText>(R.id.note_content_input)
-        
+
         titleInput.setText(note.title)
         contentInput.setText(note.content)
-        
+
         // Теги
         val selectedTags = note.tags.toMutableSet()
         // Используем allCustomTags из фрагмента, который содержит все теги из базы данных
         val allCustomTags = this.allCustomTags.toMutableSet()
-        
-        val tagWork = dialogView.findViewById<android.widget.TextView>(R.id.tag_work)
-        val tagPersonal = dialogView.findViewById<android.widget.TextView>(R.id.tag_personal)
-        val tagIdea = dialogView.findViewById<android.widget.TextView>(R.id.tag_idea)
-        
-        fun updateTagButtons() {
-            val workTag = getString(R.string.tag_work)
-            val personalTag = getString(R.string.tag_personal)
-            val ideaTag = getString(R.string.tag_idea)
-            
-            updateTagAppearance(tagWork, selectedTags.contains(workTag))
-            updateTagAppearance(tagPersonal, selectedTags.contains(personalTag))
-            updateTagAppearance(tagIdea, selectedTags.contains(ideaTag))
-        }
-        
-        fun updateTagAppearance(tagView: android.widget.TextView, isSelected: Boolean) {
-            if (isSelected) {
-                tagView.alpha = 1.0f
-                tagView.textSize = 14f
-                tagView.setPadding(
-                    (16 * resources.displayMetrics.density).toInt(),
-                    (8 * resources.displayMetrics.density).toInt(),
-                    (16 * resources.displayMetrics.density).toInt(),
-                    (8 * resources.displayMetrics.density).toInt()
-                )
-            } else {
-                tagView.alpha = 0.6f
-                tagView.textSize = 13f
-                tagView.setPadding(
-                    (14 * resources.displayMetrics.density).toInt(),
-                    (6 * resources.displayMetrics.density).toInt(),
-                    (14 * resources.displayMetrics.density).toInt(),
-                    (6 * resources.displayMetrics.density).toInt()
-                )
+
+        val predefinedContainer = dialogView.findViewById<com.google.android.material.chip.ChipGroup>(R.id.predefined_tags_container)
+
+        fun displayPredefinedTagsInDialog() {
+            val predefinedTags = listOf(
+                getString(R.string.tag_work),
+                getString(R.string.tag_personal),
+                getString(R.string.tag_idea)
+            )
+
+            predefinedContainer.removeAllViews()
+
+            predefinedTags.forEach { tag ->
+                val chip = createTagChipInDialog(tag, selectedTags)
+                predefinedContainer.addView(chip)
             }
-        }
-        
-        updateTagButtons()
-        
-        tagWork.setOnClickListener {
-            val tag = getString(R.string.tag_work)
-            if (selectedTags.contains(tag)) {
-                selectedTags.remove(tag)
-            } else {
-                selectedTags.add(tag)
+
+            // Добавляем кнопку "+" для добавления пользовательских тегов
+            val addChip = com.google.android.material.chip.Chip(requireContext()).apply {
+                text = "+"
+                isCloseIconVisible = false
+                isCheckable = false
+                chipBackgroundColor = ContextCompat.getColorStateList(requireContext(), R.color.muted)
+                setTextColor(ContextCompat.getColor(requireContext(), R.color.foreground))
+                textSize = 16f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                chipStrokeWidth = 0f
+
+                setOnClickListener {
+                    showAddCustomTagDialogInDialog(dialogView, selectedTags, allCustomTags) {
+                        displayPredefinedTagsInDialog()
+                        displayCustomTagsInDialog(dialogView, selectedTags, allCustomTags)
+                    }
+                }
             }
-            updateTagButtons()
+            predefinedContainer.addView(addChip)
         }
-        
-        tagPersonal.setOnClickListener {
-            val tag = getString(R.string.tag_personal)
-            if (selectedTags.contains(tag)) {
-                selectedTags.remove(tag)
-            } else {
-                selectedTags.add(tag)
-            }
-            updateTagButtons()
-        }
-        
-        tagIdea.setOnClickListener {
-            val tag = getString(R.string.tag_idea)
-            if (selectedTags.contains(tag)) {
-                selectedTags.remove(tag)
-            } else {
-                selectedTags.add(tag)
-            }
-            updateTagButtons()
-        }
-        
-        dialogView.findViewById<android.widget.TextView>(R.id.add_custom_tag_button).setOnClickListener {
-            showAddCustomTagDialogInDialog(dialogView, selectedTags, allCustomTags) { updateTagButtons() }
-        }
-        
-        displayCustomTagsInDialog(dialogView, selectedTags, allCustomTags) { updateTagButtons() }
+
+        displayPredefinedTagsInDialog()
+        displayCustomTagsInDialog(dialogView, selectedTags, allCustomTags)
         
         val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogView)
@@ -1063,7 +1000,7 @@ class NotesFragment : Fragment() {
                 }
                 
                 onUpdateTags()
-                displayCustomTagsInDialog(dialogView, selectedTags, allCustomTags, onUpdateTags)
+                displayCustomTagsInDialog(dialogView, selectedTags, allCustomTags)
                 dialog.dismiss()
             } else {
                 tagInput?.error = "Введите название тега"
@@ -1071,78 +1008,63 @@ class NotesFragment : Fragment() {
         }
     }
     
-    private fun displayCustomTagsInDialog(
-        dialogView: android.view.View,
-        selectedTags: MutableSet<String>,
-        allCustomTags: MutableSet<String>,
-        onUpdateTags: () -> Unit
-    ) {
+    private fun displayCustomTagsInDialog(dialogView: View, selectedTags: MutableSet<String>, allCustomTags: MutableSet<String>) {
         val predefinedTags = setOf(
             getString(R.string.tag_work),
             getString(R.string.tag_personal),
             getString(R.string.tag_idea)
         )
         val customTags = allCustomTags.filter { it !in predefinedTags }
-        
-        val customTagsContainer = dialogView.findViewById<android.widget.LinearLayout>(R.id.custom_tags_container)
-        customTagsContainer?.removeAllViews()
-        
+
+        val customTagsContainer = dialogView.findViewById<com.google.android.material.chip.ChipGroup>(R.id.custom_tags_container)
+        customTagsContainer.removeAllViews()
+
         if (customTags.isNotEmpty()) {
-            customTagsContainer?.visibility = View.VISIBLE
+            customTagsContainer.visibility = View.VISIBLE
             customTags.forEach { tag ->
-                val tagView = createCustomTagInDialog(tag, selectedTags, onUpdateTags)
-                customTagsContainer?.addView(tagView)
+                val chip = createTagChipInDialog(tag, selectedTags)
+                customTagsContainer.addView(chip)
             }
         } else {
-            customTagsContainer?.visibility = View.GONE
+            customTagsContainer.visibility = View.GONE
         }
     }
-    
-    private fun createCustomTagInDialog(
-        name: String,
-        selectedTags: MutableSet<String>,
-        onUpdateTags: () -> Unit
-    ): android.widget.TextView {
-        val tagView = android.widget.TextView(requireContext()).apply {
+
+    private fun createTagChipInDialog(name: String, selectedTags: MutableSet<String>): com.google.android.material.chip.Chip {
+        val chip = com.google.android.material.chip.Chip(requireContext()).apply {
             text = name
+            isCloseIconVisible = false
+            isCheckable = false
+
+            // Устанавливаем начальное состояние
+            val isSelected = selectedTags.contains(name)
+
+            // Применяем стиль в зависимости от состояния
+            updateTagChipAppearanceInDialog(this, isSelected)
+
             setOnClickListener {
                 if (selectedTags.contains(name)) {
                     selectedTags.remove(name)
                 } else {
                     selectedTags.add(name)
                 }
-                onUpdateTags()
-                // Обновляем внешний вид всех кастомных тегов
-                updateTagAppearance(this, selectedTags.contains(name))
+                val newSelected = selectedTags.contains(name)
+                updateTagChipAppearanceInDialog(this, newSelected)
             }
-            
-            // Применяем базовый стиль для кастомных тегов
-            background = ContextCompat.getDrawable(requireContext(), R.drawable.tag_background)
-            setPadding(
-                (14 * resources.displayMetrics.density).toInt(),
-                (6 * resources.displayMetrics.density).toInt(),
-                (14 * resources.displayMetrics.density).toInt(),
-                (6 * resources.displayMetrics.density).toInt()
-            )
-            
-            // Устанавливаем цвет текста для кастомных тегов
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.foreground))
-            textSize = 13f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            
-            // Применяем визуальное различие для выбранного/невыбранного состояния
-            val isSelected = selectedTags.contains(name)
-            updateTagAppearance(this, isSelected)
-            
-            val params = android.widget.LinearLayout.LayoutParams(
-                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
-                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            params.marginEnd = (8 * resources.displayMetrics.density).toInt()
-            params.bottomMargin = (4 * resources.displayMetrics.density).toInt()
-            layoutParams = params
         }
-        return tagView
+        return chip
+    }
+
+    private fun updateTagChipAppearanceInDialog(chip: com.google.android.material.chip.Chip, isSelected: Boolean) {
+        // Все теги (и предопределённые, и пользовательские) используют одинаковый стиль
+        if (isSelected) {
+            chip.chipBackgroundColor = ContextCompat.getColorStateList(requireContext(), R.color.color_purple)
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+        } else {
+            chip.chipBackgroundColor = ContextCompat.getColorStateList(requireContext(), R.color.muted)
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.foreground))
+        }
+        chip.chipStrokeWidth = 0f
     }
     
     override fun onDestroyView() {

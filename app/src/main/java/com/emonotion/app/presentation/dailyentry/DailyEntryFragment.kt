@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -78,87 +79,21 @@ class DailyEntryFragment : Fragment() {
             moodTerrible.setOnClickListener {
                 viewModel.selectMoodType(com.emonotion.app.domain.model.MoodType.TERRIBLE)
             }
-            
+
             moodBad.setOnClickListener {
                 viewModel.selectMoodType(com.emonotion.app.domain.model.MoodType.BAD)
             }
-            
+
             moodNeutral.setOnClickListener {
                 viewModel.selectMoodType(com.emonotion.app.domain.model.MoodType.NEUTRAL)
             }
-            
+
             moodGood.setOnClickListener {
                 viewModel.selectMoodType(com.emonotion.app.domain.model.MoodType.GOOD)
             }
-            
+
             moodGreat.setOnClickListener {
                 viewModel.selectMoodType(com.emonotion.app.domain.model.MoodType.GREAT)
-            }
-            
-            // Обработчики кликов для эмоций
-            binding.tagEmotionJoy.setOnClickListener {
-                toggleEmotionTag("радость")
-            }
-            
-            binding.tagEmotionAnxiety.setOnClickListener {
-                toggleEmotionTag("тревога")
-            }
-            
-            binding.tagEmotionCalm.setOnClickListener {
-                toggleEmotionTag("спокойствие")
-            }
-            
-            binding.tagEmotionSadness.setOnClickListener {
-                toggleEmotionTag("грусть")
-            }
-            
-            binding.tagEmotionExcitement.setOnClickListener {
-                toggleEmotionTag("волнение")
-            }
-            
-            binding.tagEmotionStress.setOnClickListener {
-                toggleEmotionTag("стресс")
-            }
-            
-            binding.tagEmotionGratitude.setOnClickListener {
-                toggleEmotionTag("благодарность")
-            }
-            
-            binding.tagEmotionLoneliness.setOnClickListener {
-                toggleEmotionTag("одиночество")
-            }
-            
-            // Обработчики кликов для активностей
-            binding.tagActivityWork.setOnClickListener {
-                toggleActivityTag("работа")
-            }
-            
-            binding.tagActivitySport.setOnClickListener {
-                toggleActivityTag("спорт")
-            }
-            
-            binding.tagActivityFriends.setOnClickListener {
-                toggleActivityTag("друзья")
-            }
-            
-            binding.tagActivityRest.setOnClickListener {
-                toggleActivityTag("отдых")
-            }
-            
-            binding.tagActivityFamily.setOnClickListener {
-                toggleActivityTag("семья")
-            }
-            
-            binding.tagActivityHobby.setOnClickListener {
-                toggleActivityTag("хобби")
-            }
-            
-            binding.tagActivityMeditation.setOnClickListener {
-                toggleActivityTag("медитация")
-            }
-            
-            binding.tagActivityReading.setOnClickListener {
-                toggleActivityTag("чтение")
             }
             
             // Кнопки добавления пользовательских настроений и активностей
@@ -321,15 +256,8 @@ class DailyEntryFragment : Fragment() {
     
     private fun updateEmotionsUI(emotions: List<String>) {
         binding.apply {
-            // Предопределенные эмоции с улучшенным визуальным выделением
-            updateTagAppearance(tagEmotionJoy, emotions.contains("радость"))
-            updateTagAppearance(tagEmotionAnxiety, emotions.contains("тревога"))
-            updateTagAppearance(tagEmotionCalm, emotions.contains("спокойствие"))
-            updateTagAppearance(tagEmotionSadness, emotions.contains("грусть"))
-            updateTagAppearance(tagEmotionExcitement, emotions.contains("волнение"))
-            updateTagAppearance(tagEmotionStress, emotions.contains("стресс"))
-            updateTagAppearance(tagEmotionGratitude, emotions.contains("благодарность"))
-            updateTagAppearance(tagEmotionLoneliness, emotions.contains("одиночество"))
+            // Отображаем предопределенные эмоции через Chip
+            displayPredefinedEmotions(emotions)
             
             // Отображаем пользовательские эмоции
             displayCustomEmotions()
@@ -338,125 +266,127 @@ class DailyEntryFragment : Fragment() {
     
     private fun updateActivitiesUI(activities: List<String>) {
         binding.apply {
-            // Предопределенные активности с улучшенным визуальным выделением
-            updateTagAppearance(tagActivityWork, activities.contains("работа"))
-            updateTagAppearance(tagActivitySport, activities.contains("спорт"))
-            updateTagAppearance(tagActivityFriends, activities.contains("друзья"))
-            updateTagAppearance(tagActivityRest, activities.contains("отдых"))
-            updateTagAppearance(tagActivityFamily, activities.contains("семья"))
-            updateTagAppearance(tagActivityHobby, activities.contains("хобби"))
-            updateTagAppearance(tagActivityMeditation, activities.contains("медитация"))
-            updateTagAppearance(tagActivityReading, activities.contains("чтение"))
+            // Отображаем предопределенные активности через Chip
+            displayPredefinedActivities(activities)
             
             // Отображаем пользовательские активности
             displayCustomActivities()
         }
     }
     
-    /**
-     * Обновляет внешний вид тега в зависимости от того, выбран он или нет
-     */
-    private fun updateTagAppearance(tagView: android.widget.TextView, isSelected: Boolean) {
-        if (isSelected) {
-            // Выбранный тег - более выразительный стиль
-            tagView.alpha = 1.0f
-            tagView.background = resources.getDrawable(R.drawable.save_button_background, null)
-            tagView.setTextColor(resources.getColor(R.color.primary_foreground, null))
-            tagView.textSize = 13f
-            tagView.setPadding(
-                (16 * resources.displayMetrics.density).toInt(), // 16dp
-                (8 * resources.displayMetrics.density).toInt(),  // 8dp
-                (16 * resources.displayMetrics.density).toInt(), // 16dp
-                (8 * resources.displayMetrics.density).toInt()   // 8dp
-            )
-        } else {
-            // Невыбранный тег - стандартный стиль
-            tagView.alpha = 0.7f
-            tagView.background = resources.getDrawable(R.drawable.tab_switcher_background, null)
-            tagView.setTextColor(resources.getColor(R.color.foreground, null))
-            tagView.textSize = 12f
-            tagView.setPadding(
-                (12 * resources.displayMetrics.density).toInt(), // 12dp
-                (6 * resources.displayMetrics.density).toInt(),  // 6dp
-                (12 * resources.displayMetrics.density).toInt(), // 12dp
-                (6 * resources.displayMetrics.density).toInt()   // 6dp
-            )
+    private fun displayPredefinedEmotions(emotions: List<String>) {
+        val predefinedEmotions = listOf("радость", "тревога", "спокойствие", "грусть", "волнение", "стресс", "благодарность", "одиночество")
+        
+        val predefinedContainer = binding.root.findViewById<com.google.android.material.chip.ChipGroup>(R.id.predefined_emotions_container)
+        predefinedContainer.removeAllViews()
+        
+        predefinedEmotions.forEach { emotion ->
+            val chip = createCustomChip(emotion, isEmotion = true)
+            predefinedContainer.addView(chip)
         }
     }
-    
+
     private fun displayCustomEmotions() {
         val predefinedEmotions = setOf("радость", "тревога", "спокойствие", "грусть", "волнение", "стресс", "благодарность", "одиночество")
         val allCustomEmotions = viewModel.customEmotions.value
-        
+
         // Получаем пользовательские эмоции, которые есть в списке доступных
         val customEmotions = allCustomEmotions.filter { it !in predefinedEmotions }
-        
+
         // Отображаем пользовательские эмоции
-        val emotionsContainer = binding.root.findViewById<android.widget.LinearLayout>(R.id.custom_emotions_container)
+        val emotionsContainer = binding.root.findViewById<com.google.android.material.chip.ChipGroup>(R.id.custom_emotions_container)
         emotionsContainer.removeAllViews()
-        
+
         if (customEmotions.isNotEmpty()) {
             emotionsContainer.visibility = View.VISIBLE
             customEmotions.forEach { emotion ->
-                val tagView = createCustomTag(emotion, isEmotion = true)
-                emotionsContainer.addView(tagView)
+                val chip = createCustomChip(emotion, isEmotion = true)
+                emotionsContainer.addView(chip)
             }
         } else {
             emotionsContainer.visibility = View.GONE
         }
     }
     
+    private fun displayPredefinedActivities(activities: List<String>) {
+        val predefinedActivities = listOf("работа", "спорт", "друзья", "отдых", "семья", "хобби", "медитация", "чтение")
+        
+        val predefinedContainer = binding.root.findViewById<com.google.android.material.chip.ChipGroup>(R.id.predefined_activities_container)
+        predefinedContainer.removeAllViews()
+        
+        predefinedActivities.forEach { activity ->
+            val chip = createCustomChip(activity, isEmotion = false)
+            predefinedContainer.addView(chip)
+        }
+    }
+
     private fun displayCustomActivities() {
         val predefinedActivities = setOf("работа", "спорт", "друзья", "отдых", "семья", "хобби", "медитация", "чтение")
         val allCustomActivities = viewModel.customActivities.value
-        
+
         // Получаем пользовательские активности, которые есть в списке доступных
         val customActivities = allCustomActivities.filter { it !in predefinedActivities }
-        
+
         // Отображаем пользовательские активности
-        val activitiesContainer = binding.root.findViewById<android.widget.LinearLayout>(R.id.custom_activities_container)
+        val activitiesContainer = binding.root.findViewById<com.google.android.material.chip.ChipGroup>(R.id.custom_activities_container)
         activitiesContainer.removeAllViews()
-        
+
         if (customActivities.isNotEmpty()) {
             activitiesContainer.visibility = View.VISIBLE
             customActivities.forEach { activity ->
-                val tagView = createCustomTag(activity, isEmotion = false)
-                activitiesContainer.addView(tagView)
+                val chip = createCustomChip(activity, isEmotion = false)
+                activitiesContainer.addView(chip)
             }
         } else {
             activitiesContainer.visibility = View.GONE
         }
     }
     
-    private fun createCustomTag(name: String, isEmotion: Boolean): android.widget.TextView {
-        val tagView = android.widget.TextView(requireContext()).apply {
+    private fun createCustomChip(name: String, isEmotion: Boolean): com.google.android.material.chip.Chip {
+        val chip = com.google.android.material.chip.Chip(requireContext()).apply {
             text = name
-            setOnClickListener { 
-                if (isEmotion) {
-                    toggleEmotionTag(name)
-                } else {
-                    toggleActivityTag(name)
-                }
-            }
-            
+            isCloseIconVisible = false
+            isCheckable = false
+            chipBackgroundColor = ContextCompat.getColorStateList(requireContext(), R.color.muted)
+            setTextColor(ContextCompat.getColor(requireContext(), R.color.foreground))
+
             // Устанавливаем начальное состояние
             val isSelected = if (isEmotion) {
                 viewModel.emotions.value.contains(name)
             } else {
                 viewModel.activities.value.contains(name)
             }
-            updateTagAppearance(this, isSelected)
-            
-            // Параметры layout
-            val params = android.widget.LinearLayout.LayoutParams(
-                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
-                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            params.marginEnd = (8 * resources.displayMetrics.density).toInt() // 8dp
-            params.bottomMargin = (4 * resources.displayMetrics.density).toInt() // 4dp
-            layoutParams = params
+
+            // Обновляем внешний вид в зависимости от состояния
+            updateChipAppearance(this, isSelected)
+
+            setOnClickListener {
+                if (isEmotion) {
+                    toggleEmotionTag(name)
+                } else {
+                    toggleActivityTag(name)
+                }
+                val newSelected = if (isEmotion) {
+                    viewModel.emotions.value.contains(name)
+                } else {
+                    viewModel.activities.value.contains(name)
+                }
+                updateChipAppearance(this, newSelected)
+            }
         }
-        return tagView
+        return chip
+    }
+
+    private fun updateChipAppearance(chip: com.google.android.material.chip.Chip, isSelected: Boolean) {
+        if (isSelected) {
+            chip.chipBackgroundColor = ContextCompat.getColorStateList(requireContext(), R.color.color_coral)
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            chip.chipStrokeWidth = 0f
+        } else {
+            chip.chipBackgroundColor = ContextCompat.getColorStateList(requireContext(), R.color.muted)
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.foreground))
+            chip.chipStrokeWidth = 0f
+        }
     }
     
     private fun updateMoodTypeSelection(selectedMood: MoodType?) {

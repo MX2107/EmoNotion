@@ -11,6 +11,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.emonotion.app.R
 import com.emonotion.app.databinding.FragmentHomeBinding
+import com.emonotion.app.domain.model.MoodEmoji
+import com.emonotion.app.domain.model.MoodEntry
 import com.emonotion.app.utils.StreakUiHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -153,17 +155,7 @@ class HomeFragment : Fragment() {
                 moodText.text = mood.mood.displayName
                 
                 // Устанавливаем эмодзи в зависимости от настроения
-                val emoji = when (mood.mood) {
-                    com.emonotion.app.domain.model.MoodType.GREAT -> "😄"
-                    com.emonotion.app.domain.model.MoodType.GOOD -> "😊"
-                    com.emonotion.app.domain.model.MoodType.NEUTRAL -> "😐"
-                    com.emonotion.app.domain.model.MoodType.BAD -> "😕"
-                    com.emonotion.app.domain.model.MoodType.TERRIBLE -> "😢"
-                    com.emonotion.app.domain.model.MoodType.HAPPY -> "😄"
-                    com.emonotion.app.domain.model.MoodType.SAD -> "😢"
-                    com.emonotion.app.domain.model.MoodType.ANGRY -> "😠"
-                    com.emonotion.app.domain.model.MoodType.ANXIOUS -> "😰"
-                }
+                val emoji = MoodEmoji.fromMoodType(mood.mood)
                 moodEmoji.text = emoji
                 
                 // Добавляем обработчик клика на карточку настроения

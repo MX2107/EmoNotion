@@ -279,68 +279,17 @@
                             android:textColor="@color/muted_foreground"
                             android:textSize="12sp" />
 
-                        <LinearLayout
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/predefined_tags_container"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="20dp"
-                            android:orientation="horizontal">
+                            android:layout_marginBottom="20dp" />
 
-                            <TextView
-                                android:id="@+id/tag_work"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginEnd="8dp"
-                                android:background="@drawable/tag_background"
-                                android:paddingHorizontal="14dp"
-                                android:paddingVertical="6dp"
-                                android:text="@string/tag_work"
-                                android:textColor="@color/foreground"
-                                android:textSize="13sp" />
-
-                            <TextView
-                                android:id="@+id/tag_personal"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginEnd="8dp"
-                                android:background="@drawable/tag_background"
-                                android:paddingHorizontal="14dp"
-                                android:paddingVertical="6dp"
-                                android:text="@string/tag_personal"
-                                android:textColor="@color/foreground"
-                                android:textSize="13sp" />
-
-                            <TextView
-                                android:id="@+id/tag_idea"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginEnd="8dp"
-                                android:background="@drawable/tag_background"
-                                android:paddingHorizontal="14dp"
-                                android:paddingVertical="6dp"
-                                android:text="@string/tag_idea"
-                                android:textColor="@color/foreground"
-                                android:textSize="13sp" />
-
-                            <TextView
-                                android:id="@+id/add_custom_tag_button"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="@drawable/tag_background"
-                                android:paddingHorizontal="14dp"
-                                android:paddingVertical="6dp"
-                                android:text="+"
-                                android:textColor="@color/foreground"
-                                android:textSize="16sp"
-                                android:textStyle="bold" />
-
-                        </LinearLayout>
-
-                        <LinearLayout
+                        <com.google.android.material.chip.ChipGroup
                             android:id="@+id/custom_tags_container"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="20dp"
-                            android:orientation="horizontal"
                             android:visibility="gone" />
 
                     </LinearLayout>

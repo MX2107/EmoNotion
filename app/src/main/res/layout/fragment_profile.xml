@@ -194,23 +194,14 @@
                         android:layout_gravity="center_horizontal"
                         android:layout_marginBottom="4dp">
 
-                        <LinearLayout
-                            android:id="@+id/current_streak_icon_container"
-                            android:layout_width="64dp"
-                            android:layout_height="64dp"
+                        <ImageView
+                            android:id="@+id/current_streak_flame_icon"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:layout_gravity="center"
-                            android:background="@drawable/streak_icon_frame_active"
-                            android:gravity="center">
-
-                            <ImageView
-                                android:id="@+id/current_streak_flame_icon"
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:contentDescription="@string/stat_label_current_streak"
-                                android:src="@drawable/ic_flame"
-                                app:tint="@color/accent" />
-
-                        </LinearLayout>
+                            android:contentDescription="@string/stat_label_current_streak"
+                            android:src="@drawable/ic_flame"
+                            app:tint="@color/accent" />
 
                     </FrameLayout>
 

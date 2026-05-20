@@ -261,140 +261,18 @@
             android:layout_marginBottom="24dp"
             android:orientation="vertical">
 
-            <LinearLayout
+            <!-- Контейнер для предопределённых эмоций -->
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/predefined_emotions_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tag_emotion_joy"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:background="@drawable/tab_switcher_background"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="радость"
-                    android:textColor="@color/foreground"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/tag_emotion_anxiety"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:background="@drawable/tab_switcher_background"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="тревога"
-                    android:textColor="@color/foreground"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/tag_emotion_calm"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:background="@drawable/tab_switcher_background"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="спокойствие"
-                    android:textColor="@color/foreground"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tag_emotion_sadness"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:background="@drawable/tab_switcher_background"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="грусть"
-                    android:textColor="@color/foreground"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/tag_emotion_excitement"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:background="@drawable/tab_switcher_background"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="волнение"
-                    android:textColor="@color/foreground"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/tag_emotion_stress"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:background="@drawable/tab_switcher_background"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="стресс"
-                    android:textColor="@color/foreground"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tag_emotion_gratitude"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:background="@drawable/tab_switcher_background"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="благодарность"
-                    android:textColor="@color/foreground"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/tag_emotion_loneliness"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:background="@drawable/tab_switcher_background"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="одиночество"
-                    android:textColor="@color/foreground"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
+                android:layout_height="wrap_content" />
 
             <!-- Контейнер для пользовательских эмоций -->
-            <LinearLayout
+            <com.google.android.material.chip.ChipGroup
                 android:id="@+id/custom_emotions_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:orientation="horizontal"
                 android:visibility="gone" />
 
         </LinearLayout>
@@ -436,140 +314,18 @@
             android:layout_marginBottom="24dp"
             android:orientation="vertical">
 
-            <LinearLayout
+            <!-- Контейнер для предопределённых активностей -->
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/predefined_activities_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tag_activity_work"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:background="@drawable/tab_switcher_background"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="работа"
-                    android:textColor="@color/foreground"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/tag_activity_sport"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:background="@drawable/tab_switcher_background"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="спорт"
-                    android:textColor="@color/foreground"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/tag_activity_friends"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:background="@drawable/tab_switcher_background"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="друзья"
-                    android:textColor="@color/foreground"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tag_activity_rest"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:background="@drawable/tab_switcher_background"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="отдых"
-                    android:textColor="@color/foreground"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/tag_activity_family"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:background="@drawable/tab_switcher_background"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="семья"
-                    android:textColor="@color/foreground"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/tag_activity_hobby"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:background="@drawable/tab_switcher_background"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="хобби"
-                    android:textColor="@color/foreground"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tag_activity_meditation"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:background="@drawable/tab_switcher_background"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="медитация"
-                    android:textColor="@color/foreground"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/tag_activity_reading"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:background="@drawable/tab_switcher_background"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="чтение"
-                    android:textColor="@color/foreground"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
+                android:layout_height="wrap_content" />
 
             <!-- Контейнер для пользовательских активностей -->
-            <LinearLayout
+            <com.google.android.material.chip.ChipGroup
                 android:id="@+id/custom_activities_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:orientation="horizontal"
                 android:visibility="gone" />
 
         </LinearLayout>

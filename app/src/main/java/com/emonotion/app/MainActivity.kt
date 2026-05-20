@@ -16,6 +16,7 @@ class MainActivity : AppCompatActivity() {
     private var currentDestinationId: Int = 0
     
     override fun onCreate(savedInstanceState: Bundle?) {
+        com.emonotion.app.utils.ThemeManager.applyFromStorage(this)
         super.onCreate(savedInstanceState)
         try {
             binding = ActivityMainBinding.inflate(layoutInflater)

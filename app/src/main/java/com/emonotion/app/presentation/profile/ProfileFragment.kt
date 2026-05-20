@@ -12,6 +12,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.emonotion.app.R
 import com.emonotion.app.databinding.FragmentProfileBinding
+import com.emonotion.app.domain.model.MoodEmoji
+import com.emonotion.app.domain.model.UserStats
 import com.emonotion.app.utils.ImageHelper
 import com.emonotion.app.utils.StreakUiHelper
 import dagger.hilt.android.AndroidEntryPoint
@@ -137,11 +139,8 @@ class ProfileFragment : Fragment() {
         binding.apply {
             totalEntriesText.text = stats.totalEntries.toString()
             currentStreakText.text = stats.currentStreak.toString()
-            StreakUiHelper.applyProfileStreak(
-                currentStreakIconContainer,
-                currentStreakFlameIcon,
-                StreakUiHelper.isStreakActiveToday(stats)
-            )
+            val activeToday = StreakUiHelper.isStreakActiveToday(stats)
+            StreakUiHelper.applyFlameTint(currentStreakFlameIcon, activeToday)
             longestStreakText.text = stats.longestStreak.toString()
             averageMoodText.text = String.format("%.1f", stats.averageMood)
             averageMoodEmoji.text = getAverageMoodEmoji(stats.averageMood)
@@ -149,14 +148,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun getAverageMoodEmoji(averageMood: Float): String {
-        return when {
-            averageMood >= 4.5f -> "😄"
-            averageMood >= 3.5f -> "😊"
-            averageMood >= 2.5f -> "😐"
-            averageMood >= 1.5f -> "😕"
-            averageMood > 0f -> "😢"
-            else -> "😐"
-        }
+        return MoodEmoji.fromScore(averageMood)
     }
     
     override fun onDestroyView() {
