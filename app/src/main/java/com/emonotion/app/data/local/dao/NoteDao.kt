@@ -12,6 +12,9 @@ interface NoteDao {
     
     @Query("SELECT * FROM notes ORDER BY isPinned DESC, timestamp DESC")
     fun getAllNotes(): Flow<List<NoteEntity>>
+
+    @Query("SELECT * FROM notes ORDER BY timestamp DESC")
+    suspend fun getAllNotesList(): List<NoteEntity>
     
     @Query("SELECT * FROM notes WHERE date = :date ORDER BY isPinned DESC, timestamp DESC")
     fun getNotesByDate(date: String): Flow<List<NoteEntity>>

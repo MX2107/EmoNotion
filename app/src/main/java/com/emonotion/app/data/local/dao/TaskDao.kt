@@ -12,6 +12,9 @@ interface TaskDao {
     
     @Query("SELECT * FROM tasks ORDER BY priority DESC, timestamp ASC")
     fun getAllTasks(): Flow<List<TaskEntity>>
+
+    @Query("SELECT * FROM tasks ORDER BY timestamp ASC")
+    suspend fun getAllTasksList(): List<TaskEntity>
     
     @Query("SELECT * FROM tasks WHERE date = :date ORDER BY priority DESC, timestamp ASC")
     fun getTasksByDate(date: String): Flow<List<TaskEntity>>
