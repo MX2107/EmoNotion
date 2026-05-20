@@ -36,6 +36,12 @@
     <color name="color_blue">#3B82F6</color>
     <color name="color_teal">#14B8A6</color>
     
+    <!-- Цвета иконок тренда -->
+    <color name="trend_improving">#00D98C</color> <!-- Зелёный для улучшения -->
+    <color name="trend_stable">#FFC400</color> <!-- Жёлтый для стабильности -->
+    <color name="trend_declining">#FF3838</color> <!-- Красный для ухудшения -->
+    <color name="trend_volatile">#A855F7</color> <!-- Фиолетовый для волатильности -->
+    
     <!-- Стандартные цвета Android -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>

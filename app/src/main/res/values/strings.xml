@@ -70,12 +70,23 @@
     <string name="period_analysis">Период анализа</string>
     <string name="mood_dynamics">Динамика настроения</string>
     <string name="frequent_emotions">Частые эмоции</string>
+    <string name="emotion_distribution">Распределение эмоций</string>
+    <string name="mood_distribution">Распределение настроения</string>
+    <string name="period_7_days">7 дней</string>
+    <string name="period_14_days">14 дней</string>
+    <string name="period_30_days">30 дней</string>
+    <string name="period_all_time">Всё время</string>
+    <string name="dominant_mood">Преобладающее настроение:</string>
+    <string name="stats_no_data">—</string>
+    <string name="streak_days_format">%1$d дн.</string>
+    <string name="chart_scroll_hint">Проведите по графику, чтобы увидеть все активности</string>
     <string name="activities">Активности</string>
     <string name="overall_statistics">Общая статистика</string>
     <string name="total_entries">Всего записей:</string>
     <string name="average_mood">Среднее настроение:</string>
     <string name="current_streak">Текущая серия:</string>
     <string name="most_frequent_day">Самый частый день:</string>
+    <string name="good_days_percentage">Процент хороших дней:</string>
     <string name="export">Экспорт</string>
     <string name="export_data">Экспорт данных будет доступен в следующей версии</string>
     
@@ -191,4 +202,61 @@
     <string name="add_tag">Добавить тег</string>
     <string name="add_tag_hint">Введите название вашего тега:</string>
     <string name="tag_name_hint">Название тега</string>
+
+    <!-- Analytics -->
+    <string name="export_analytics_title">Экспорт аналитики</string>
+    <string name="export_format_csv">CSV (таблица)</string>
+    <string name="export_format_pdf">PDF (краткий отчёт)</string>
+    <string name="export_saved">Файл сохранён в Загрузки/EmoNotion/Analytics</string>
+    <string name="trend_improving">Тренд: улучшение</string>
+    <string name="trend_stable">Тренд: стабильно</string>
+    <string name="trend_declining">Тренд: снижение</string>
+    <string name="trend_volatile">Тренд: изменчиво</string>
+    <string name="trend_improving_short">Улучшение</string>
+    <string name="trend_stable_short">Стабильно</string>
+    <string name="trend_declining_short">Снижение</string>
+    <string name="trend_volatile_short">Изменчиво</string>
+    <string name="trend_desc_improving">Среднее настроение за период растёт</string>
+    <string name="trend_desc_stable">Настроение держится на одном уровне</string>
+    <string name="trend_desc_declining">Среднее настроение за период снижается</string>
+    <string name="trend_desc_volatile">Сильные перепады — стабильного тренда нет</string>
+    <string name="trend_label">Тренд настроения</string>
+    <string name="trend_icon_description">Иконка тренда</string>
+    <string name="chart_no_data">Нет данных за период</string>
+    <string name="chart_point_mood">Среднее за день: %1$.1f из 5 (%2$s)</string>
+    <string name="chart_point_pie">%1$s: %2$d</string>
+    <string name="chart_point_pie_detail">%1$s: %2$d (%3$d%%)</string>
+    <string name="chart_point_activity">%1$s: %2$.0f</string>
+
+    <!-- Settings actions -->
+    <string name="copy_path">Скопировать путь</string>
+    <string name="path_copied">Путь скопирован</string>
+    <string name="export_data_started">Экспорт данных…</string>
+    <string name="export_data_done">Резервная копия сохранена в Загрузки/EmoNotion/Backup</string>
+    <string name="import_confirm_title">Импорт данных</string>
+    <string name="import_confirm_message">Текущие данные будут дополнены или перезаписаны (по ID). Продолжить?</string>
+    <string name="import_merge">Слияние</string>
+    <string name="invalid_import_file">Не удалось прочитать файл или он пуст</string>
+    <string name="import_replace_title">Полная замена данных</string>
+    <string name="import_replace_message">Все текущие записи будут удалены перед импортом. Продолжить?</string>
+    <string name="import_done">Импорт завершён</string>
+    <string name="reset_settings_title">Сброс настроек</string>
+    <string name="reset_settings_message">Восстановить значения по умолчанию?</string>
+    <string name="about_licenses_title">Лицензии</string>
+    <string name="about_licenses_body">MPAndroidChart (Apache 2.0), Material Components, Android Jetpack.</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Тёмная</string>
+    <string name="theme_system">Как в системе</string>
+    <string name="choose_theme">Тема оформления</string>
+    <string name="never_synced">никогда</string>
+    <string name="data_move_hint">При смене каталога сохраняется ссылка (SAF). Перенос файлов Room в эту папку в этой версии не выполняется — используйте экспорт JSON.</string>
+    <string name="freq_daily">Ежедневно</string>
+    <string name="freq_weekly">Еженедельно</string>
+    <string name="freq_monthly">Ежемесячно</string>
+    <string name="about_details">О приложении</string>
+    <string name="reset_settings">Сбросить настройки</string>
+    <string name="error_generic">Произошла ошибка</string>
+    <string name="sync_done_local">Локальная отметка синхронизации обновлена (без отправки в Gmail).</string>
+    <string name="reset_done">Настройки сброшены</string>
+    <string name="version_label">Версия: %1$s</string>
 </resources>
