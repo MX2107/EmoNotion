@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
@@ -16,7 +17,6 @@
         android:layout_marginBottom="80dp"
         android:orientation="vertical">
 
-        <!-- Заголовок -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -38,17 +38,24 @@
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Экспорт"
+                android:text="@string/export"
                 android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/export_progress"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:visibility="gone" />
 
         </LinearLayout>
 
-        <!-- Выбор периода -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:text="Период анализа"
+            android:text="@string/period_analysis"
             android:textColor="@color/foreground"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -62,119 +69,195 @@
 
             <RadioButton
                 android:id="@+id/radio_7_days"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:checked="true"
-                android:text="7 дней" />
+                android:text="@string/period_7_days"
+                android:textSize="12sp" />
 
             <RadioButton
                 android:id="@+id/radio_14_days"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="14 дней" />
+                android:text="@string/period_14_days"
+                android:textSize="12sp" />
 
             <RadioButton
                 android:id="@+id/radio_30_days"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="30 дней" />
+                android:text="@string/period_30_days"
+                android:textSize="12sp" />
 
+            <RadioButton
+                android:id="@+id/radio_all_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/period_all_time"
+                android:textSize="12sp" />
         </RadioGroup>
 
-        <!-- График настроения -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:id="@+id/trend_icon"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="12dp"
+                    android:contentDescription="@string/trend_icon_description"
+                    android:src="@drawable/ic_trend_stable" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.7"
+                        android:text="@string/trend_label"
+                        android:textColor="@color/foreground"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/trend_direction_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/foreground"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        tools:text="@string/trend_stable" />
+
+                    <TextView
+                        android:id="@+id/trend_description_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:alpha="0.85"
+                        android:textColor="@color/foreground"
+                        android:textSize="13sp"
+                        tools:text="@string/trend_desc_stable" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="Динамика настроения"
+            android:text="@string/mood_dynamics"
             android:textColor="@color/foreground"
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <LinearLayout
-            android:id="@+id/mood_chart_container"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="240dp"
             android:layout_marginBottom="32dp"
             android:background="@drawable/note_background"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="8dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="График настроения"
-                android:textColor="@color/muted_foreground"
-                android:textSize="14sp" />
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/mood_line_chart"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/mood_dynamics" />
+        </FrameLayout>
 
-        </LinearLayout>
-
-        <!-- Статистика эмоций -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="Частые эмоции"
+            android:text="@string/mood_distribution"
             android:textColor="@color/foreground"
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <LinearLayout
-            android:id="@+id/emotion_chart_container"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="300dp"
             android:layout_marginBottom="32dp"
             android:background="@drawable/note_background"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="8dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Статистика эмоций"
-                android:textColor="@color/muted_foreground"
-                android:textSize="14sp" />
+            <com.github.mikephil.charting.charts.PieChart
+                android:id="@+id/mood_pie_chart"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/mood_distribution" />
+        </FrameLayout>
 
-        </LinearLayout>
-
-        <!-- Статистика активности -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="Активности"
+            android:layout_marginBottom="8dp"
+            android:text="@string/activities"
             android:textColor="@color/foreground"
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <LinearLayout
-            android:id="@+id/activity_chart_container"
+        <TextView
+            android:id="@+id/activity_scroll_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:alpha="0.7"
+            android:text="@string/chart_scroll_hint"
+            android:textColor="@color/foreground"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="260dp"
             android:layout_marginBottom="32dp"
             android:background="@drawable/note_background"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="8dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Статистика активностей"
-                android:textColor="@color/muted_foreground"
-                android:textSize="14sp" />
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/activity_bar_chart"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/activities" />
 
-        </LinearLayout>
+            <View
+                android:id="@+id/activity_chart_fade"
+                android:layout_width="36dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                android:background="@drawable/chart_scroll_fade_end"
+                android:clickable="false"
+                android:focusable="false"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </FrameLayout>
 
-        <!-- Общая статистика -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="Общая статистика"
+            android:text="@string/overall_statistics"
             android:textColor="@color/foreground"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -197,7 +280,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Всего записей:"
+                    android:text="@string/total_entries"
                     android:textColor="@color/foreground"
                     android:textSize="14sp" />
 
@@ -205,11 +288,10 @@
                     android:id="@+id/total_entries_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="9"
                     android:textColor="@color/primary"
                     android:textSize="14sp"
-                    android:textStyle="bold" />
-
+                    android:textStyle="bold"
+                    tools:text="9" />
             </LinearLayout>
 
             <LinearLayout
@@ -222,7 +304,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Среднее настроение:"
+                    android:text="@string/average_mood"
                     android:textColor="@color/foreground"
                     android:textSize="14sp" />
 
@@ -230,11 +312,10 @@
                     android:id="@+id/average_mood_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="3.4/5"
                     android:textColor="@color/mood_good"
                     android:textSize="14sp"
-                    android:textStyle="bold" />
-
+                    android:textStyle="bold"
+                    tools:text="3.4/5" />
             </LinearLayout>
 
             <LinearLayout
@@ -247,7 +328,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Текущая серия:"
+                    android:text="@string/current_streak"
                     android:textColor="@color/foreground"
                     android:textSize="14sp" />
 
@@ -255,11 +336,34 @@
                     android:id="@+id/current_streak_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="7 дней"
                     android:textColor="@color/accent"
                     android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:text="7 дн." />
+            </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/dominant_mood"
+                    android:textColor="@color/foreground"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/dominant_mood_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/secondary"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    tools:text="Хорошо" />
             </LinearLayout>
 
             <LinearLayout
@@ -271,19 +375,18 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Самый частый день:"
+                    android:text="@string/good_days_percentage"
                     android:textColor="@color/foreground"
                     android:textSize="14sp" />
 
                 <TextView
-                    android:id="@+id/most_frequent_day_text"
+                    android:id="@+id/good_days_percentage_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Пятница"
                     android:textColor="@color/secondary"
                     android:textSize="14sp"
-                    android:textStyle="bold" />
-
+                    android:textStyle="bold"
+                    tools:text="75%" />
             </LinearLayout>
 
         </LinearLayout>
