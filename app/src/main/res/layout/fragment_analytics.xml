@@ -256,6 +256,52 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/emotions"
+            android:textColor="@color/foreground"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/emotion_scroll_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:alpha="0.7"
+            android:text="@string/chart_scroll_hint"
+            android:textColor="@color/foreground"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="260dp"
+            android:layout_marginBottom="32dp"
+            android:background="@drawable/note_background"
+            android:padding="8dp">
+
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/emotion_bar_chart"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/emotions" />
+
+            <View
+                android:id="@+id/emotion_chart_fade"
+                android:layout_width="36dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                android:background="@drawable/chart_scroll_fade_end"
+                android:clickable="false"
+                android:focusable="false"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:text="@string/overall_statistics"
             android:textColor="@color/foreground"

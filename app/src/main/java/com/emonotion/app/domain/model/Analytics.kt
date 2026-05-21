@@ -31,6 +31,7 @@ data class Analytics(
     val improvementTrend: TrendDirection,
     val moodTrendByDate: List<MoodTrendPoint> = emptyList(),
     val activityCounts: List<NamedCount> = emptyList(),
+    val emotionCounts: List<NamedCount> = emptyList(),
     val goodDaysPercentage: Float = 0f,
     // Дополнительные метрики для комплексного анализа тренда
     val trendStrength: TrendStrength = TrendStrength.MODERATE,

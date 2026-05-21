@@ -217,6 +217,16 @@ class AnalyticsFragment : Fragment() {
         if (scrollable) {
             binding.activityBarChart.moveViewToX(0f)
         }
+
+        val emotionData = analytics.emotionCounts
+        AnalyticsChartsHelper.bindBarChart(binding.emotionBarChart, emotionData)
+
+        val emotionScrollable = AnalyticsChartsHelper.needsHorizontalScroll(emotionData)
+        binding.emotionScrollHint.isVisible = emotionScrollable
+        binding.emotionChartFade.isVisible = emotionScrollable
+        if (emotionScrollable) {
+            binding.emotionBarChart.moveViewToX(0f)
+        }
     }
 
     private fun resolveDominantMoodLabel(analytics: Analytics): String {

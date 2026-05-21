@@ -81,6 +81,7 @@
     <string name="streak_days_format">%1$d дн.</string>
     <string name="chart_scroll_hint">Проведите по графику, чтобы увидеть все активности</string>
     <string name="activities">Активности</string>
+    <string name="emotions">Эмоции</string>
     <string name="overall_statistics">Общая статистика</string>
     <string name="total_entries">Всего записей:</string>
     <string name="average_mood">Среднее настроение:</string>
