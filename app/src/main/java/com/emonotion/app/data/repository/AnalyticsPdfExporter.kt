@@ -51,7 +51,7 @@ internal object AnalyticsPdfExporter {
         var y = drawPageHeader(page1.canvas, analytics)
 
         y = drawSectionTitle(page1.canvas, "Тренд настроения", y)
-        y = drawTrendBlock(page1.canvas, analytics.improvementTrend, y) + 12f
+        y = drawTrendBlock(page1.canvas, analytics.improvementTrend, analytics.stabilityPeriodsList, analytics.trendPeriodsList, y) + 12f
 
         y = drawSectionTitle(page1.canvas, "Общая статистика", y)
         y = drawStatsBlock(page1.canvas, analytics, y) + 16f
@@ -84,16 +84,33 @@ internal object AnalyticsPdfExporter {
 
         y = drawSectionTitle(page2.canvas, "Активности", y)
         val activities = analytics.activityCounts
+        var currentPage = page2
+        var currentPageNum = 2
+        
         if (activities.isNotEmpty()) {
-            val chartH = (activities.size.coerceAtMost(8) * 22 + 48).toFloat().coerceIn(120f, 220f)
-            y = drawChartFrame(page2.canvas, y, chartH) { c, top, h ->
-                drawBarChart(c, activities.take(12), MARGIN + 8f, top, CONTENT_W - 16f, h - 12f)
-            }
+            val (page, pageNum, finalY) = drawBarChartsSplit(doc, activities, "Активности", y, page2, 2)
+            currentPage = page
+            currentPageNum = pageNum
+            y = finalY
         } else {
             drawEmptyChart(page2.canvas, y, 60f)
+            y += 72f
         }
-        drawPageFooter(page2.canvas, 2)
-        doc.finishPage(page2)
+
+        // Добавляем отступ между секциями активностей и эмоций
+        y += 20f
+        
+        y = drawSectionTitle(currentPage.canvas, "Эмоции", y)
+        val emotions = analytics.emotionCounts
+        if (emotions.isNotEmpty()) {
+            val (finalPage, finalPageNum, _) = drawBarChartsSplit(doc, emotions, "Эмоции", y, currentPage, currentPageNum)
+            drawPageFooter(finalPage.canvas, finalPageNum)
+            doc.finishPage(finalPage)
+        } else {
+            drawEmptyChart(currentPage.canvas, y, 60f)
+            drawPageFooter(currentPage.canvas, currentPageNum)
+            doc.finishPage(currentPage)
+        }
 
         doc.writeTo(out)
         doc.close()
@@ -104,17 +121,17 @@ internal object AnalyticsPdfExporter {
             color = COLOR_PRIMARY
             style = Paint.Style.FILL
         }
-        canvas.drawRect(0f, 0f, PAGE_W.toFloat(), 72f, headerPaint)
+        canvas.drawRect(0f, 0f, PAGE_W.toFloat(), 80f, headerPaint)
 
         val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = 0xFFFFFFFF.toInt()
-            textSize = 20f
+            textSize = 22f
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         }
-        canvas.drawText("EmoNotion", MARGIN, 32f, titlePaint)
-        titlePaint.textSize = 13f
+        canvas.drawText("EmoNotion", MARGIN, 36f, titlePaint)
+        titlePaint.textSize = 14f
         titlePaint.typeface = Typeface.DEFAULT
-        canvas.drawText("Отчёт аналитики", MARGIN, 52f, titlePaint)
+        canvas.drawText("Отчёт аналитики", MARGIN, 56f, titlePaint)
 
         val metaPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = 0xFFFFFFFF.toInt()
@@ -123,9 +140,10 @@ internal object AnalyticsPdfExporter {
         }
         val generated = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(Date())
         canvas.drawText("Период: ${periodLabelRu(analytics.period)}", PAGE_W - MARGIN, 36f, metaPaint)
-        canvas.drawText(generated, PAGE_W - MARGIN, 54f, metaPaint)
+        canvas.drawText("Записей: ${analytics.totalEntries}", PAGE_W - MARGIN, 52f, metaPaint)
+        canvas.drawText(generated, PAGE_W - MARGIN, 68f, metaPaint)
 
-        return 88f
+        return 96f
     }
 
     private fun drawSectionTitle(canvas: Canvas, title: String, y: Float): Float {
@@ -138,12 +156,98 @@ internal object AnalyticsPdfExporter {
         return y + 24f
     }
 
-    private fun drawTrendBlock(canvas: Canvas, trend: TrendDirection, top: Float): Float {
-        val cardRect = RectF(MARGIN, top, MARGIN + CONTENT_W, top + 52f)
+    private fun drawTrendBlock(
+        canvas: Canvas,
+        trend: TrendDirection,
+        stabilityPeriods: List<com.emonotion.app.domain.model.StabilityPeriod>,
+        trendPeriods: List<com.emonotion.app.domain.model.TrendPeriod>,
+        top: Float
+    ): Float {
+        val baseDesc = trendDescRu(trend)
+        val periodsInfo = mutableListOf<String>()
+
+        // Функция для форматирования даты
+        fun formatDate(date: String, sameYear: Boolean): String {
+            return if (sameYear) {
+                val month = date.substring(5, 7)
+                val day = date.substring(8, 10)
+                "$day.$month"
+            } else {
+                val year = date.substring(0, 4)
+                val month = date.substring(5, 7)
+                val day = date.substring(8, 10)
+                "$day.$month.$year"
+            }
+        }
+
+        // Периоды стабильности
+        if (stabilityPeriods.isNotEmpty()) {
+            val years = stabilityPeriods.flatMap { listOf(it.startDate.substring(0, 4), it.endDate.substring(0, 4)) }.distinct()
+            val sameYear = years.size == 1
+
+            val stabilityText = stabilityPeriods.joinToString("\n") {
+                val startDateFormatted = formatDate(it.startDate, sameYear)
+                val endDateFormatted = formatDate(it.endDate, sameYear)
+                val levelLabel = when (it.level) {
+                    com.emonotion.app.domain.model.MoodLevel.HIGH -> "высокий"
+                    com.emonotion.app.domain.model.MoodLevel.MEDIUM -> "средний"
+                    com.emonotion.app.domain.model.MoodLevel.LOW -> "низкий"
+                }
+                "$startDateFormatted – $endDateFormatted (${it.duration} дн., $levelLabel)"
+            }
+            periodsInfo.add("Периоды стабильности:\n$stabilityText")
+        }
+
+        // Периоды улучшений и ухудшений
+        if (trendPeriods.isNotEmpty()) {
+            val years = trendPeriods.flatMap { listOf(it.startDate.substring(0, 4), it.endDate.substring(0, 4)) }.distinct()
+            val sameYear = years.size == 1
+
+            val improvements = trendPeriods.filter { it.direction == TrendDirection.IMPROVING }
+            val declines = trendPeriods.filter { it.direction == TrendDirection.DECLINING }
+
+            if (improvements.isNotEmpty()) {
+                val improvementsText = improvements.joinToString("\n") {
+                    val startDateFormatted = formatDate(it.startDate, sameYear)
+                    val endDateFormatted = formatDate(it.endDate, sameYear)
+                    "$startDateFormatted – $endDateFormatted (${it.duration} дн.)"
+                }
+                periodsInfo.add("Периоды улучшений:\n$improvementsText")
+            }
+
+            if (declines.isNotEmpty()) {
+                val declinesText = declines.joinToString("\n") {
+                    val startDateFormatted = formatDate(it.startDate, sameYear)
+                    val endDateFormatted = formatDate(it.endDate, sameYear)
+                    "$startDateFormatted – $endDateFormatted (${it.duration} дн.)"
+                }
+                periodsInfo.add("Периоды ухудшений:\n$declinesText")
+            }
+        }
+
+        val fullDescription = if (periodsInfo.isNotEmpty()) {
+            "$baseDesc\n\n${periodsInfo.joinToString("\n\n")}"
+        } else {
+            baseDesc
+        }
+
+        // Вычисляем высоту карточки на основе количества строк
+        val lines = wrapText(fullDescription, CONTENT_W - 32f, 11f)
+        val cardHeight = (52f + (lines.size - 1) * 14f).coerceAtLeast(52f)
+
+        val cardRect = RectF(MARGIN, top, MARGIN + CONTENT_W, top + cardHeight)
         drawCard(canvas, cardRect)
 
+        // Цветовая индикация тренда
+        val trendColor = when (trend) {
+            TrendDirection.IMPROVING, TrendDirection.STABLE_POSITIVE, TrendDirection.RECOVERING -> 0xFF4CAF50.toInt()
+            TrendDirection.DECLINING, TrendDirection.STABLE_NEGATIVE -> 0xFFF44336.toInt()
+            TrendDirection.STABLE -> 0xFFFFC107.toInt()
+            TrendDirection.VOLATILE, TrendDirection.FLUCTUATING -> 0xFFFF9800.toInt()
+        }
+
         val accent = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = COLOR_PRIMARY
+            color = trendColor
             style = Paint.Style.FILL
         }
         canvas.drawRoundRect(MARGIN + 8f, top + 8f, MARGIN + 12f, top + 44f, 2f, 2f, accent)
@@ -158,8 +262,14 @@ internal object AnalyticsPdfExporter {
             textSize = 11f
         }
         canvas.drawText(trendTitleRu(trend), MARGIN + 20f, top + 24f, titlePaint)
-        canvas.drawText(trendDescRu(trend), MARGIN + 20f, top + 42f, descPaint)
-        return top + 52f
+
+        var descY = top + 42f
+        lines.forEach { line ->
+            canvas.drawText(line, MARGIN + 20f, descY, descPaint)
+            descY += 14f
+        }
+
+        return top + cardHeight
     }
 
     private fun drawStatsBlock(canvas: Canvas, analytics: Analytics, top: Float): Float {
@@ -167,6 +277,7 @@ internal object AnalyticsPdfExporter {
             "Всего записей" to analytics.totalEntries.toString(),
             "Среднее настроение" to "${"%.1f".format(Locale.US, analytics.averageMood)}/5",
             "Текущая серия" to "${analytics.currentStreak} дн.",
+            "Самая длинная серия" to "${analytics.longestStreak} дн.",
             "Преобладающее настроение" to dominantMoodLabel(analytics),
             "Процент хороших дней" to "${analytics.goodDaysPercentage.roundToInt()}%"
         )
@@ -239,6 +350,36 @@ internal object AnalyticsPdfExporter {
             textAlign = Paint.Align.CENTER
         }
         canvas.drawText("EmoNotion · стр. $page", PAGE_W / 2f, PAGE_H - 24f, paint)
+    }
+
+    private fun wrapText(text: String, maxWidth: Float, textSize: Float): List<String> {
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            this.textSize = textSize
+        }
+        val lines = mutableListOf<String>()
+        val paragraphs = text.split("\n")
+
+        for (paragraph in paragraphs) {
+            val words = paragraph.split(" ")
+            var currentLine = ""
+
+            for (word in words) {
+                val testLine = if (currentLine.isEmpty()) word else "$currentLine $word"
+                if (paint.measureText(testLine) <= maxWidth) {
+                    currentLine = testLine
+                } else {
+                    if (currentLine.isNotEmpty()) {
+                        lines.add(currentLine)
+                    }
+                    currentLine = word
+                }
+            }
+            if (currentLine.isNotEmpty()) {
+                lines.add(currentLine)
+            }
+            currentLine = ""
+        }
+        return lines
     }
 
     private fun drawLineChart(
@@ -323,7 +464,11 @@ internal object AnalyticsPdfExporter {
         val total = data.values.sum().coerceAtLeast(1)
         val pieSize = (frameHeight - 24f).coerceAtMost(130f)
         val pieTop = top + (frameHeight - pieSize) / 2f
-        val rect = RectF(left + 8f, pieTop, left + 8f + pieSize, pieTop + pieSize)
+        
+        // Центрируем диаграмму по горизонтали
+        val totalWidth = CONTENT_W
+        val pieLeft = left + (totalWidth - pieSize) / 2f
+        val rect = RectF(pieLeft, pieTop, pieLeft + pieSize, pieTop + pieSize)
 
         var startAngle = -90f
         data.entries.sortedByDescending { it.value }.forEach { (mood, count) ->
@@ -336,25 +481,28 @@ internal object AnalyticsPdfExporter {
             startAngle += sweep
         }
 
-        val legendLeft = left + pieSize + 28f
-        var legendY = top + 20f
-        val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        // Легенда под диаграммой, центрированная
+        val legendTop = pieTop + pieSize + 16f
+        val legendItemWidth = totalWidth / data.size
+        var legendX = left + legendItemWidth / 2f
+        val legendPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = COLOR_TEXT
-            textSize = 10f
+            textSize = 9f
+            textAlign = Paint.Align.CENTER
         }
         val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
 
         data.entries.sortedByDescending { it.value }.forEach { (mood, count) ->
             dotPaint.color = moodColors[mood] ?: COLOR_TEXT_MUTED
-            canvas.drawCircle(legendLeft, legendY - 3f, 4f, dotPaint)
+            canvas.drawCircle(legendX, legendTop - 3f, 3f, dotPaint)
             val percent = count * 100 / total
             canvas.drawText(
                 "${moodLabelRu(mood)}: $count ($percent%)",
-                legendLeft + 10f,
-                legendY,
-                labelPaint
+                legendX,
+                legendTop + 8f,
+                legendPaint
             )
-            legendY += 16f
+            legendX += legendItemWidth
         }
     }
 
@@ -364,16 +512,20 @@ internal object AnalyticsPdfExporter {
         left: Float,
         top: Float,
         width: Float,
-        height: Float
+        height: Float,
+        maxCountOverride: Int? = null
     ) {
         if (data.isEmpty()) return
 
-        val maxCount = data.maxOf { it.count }.coerceAtLeast(1)
-        val axisWidth = 26f
+        val maxCount = maxCountOverride?.toFloat() ?: data.maxOf { it.count }.coerceAtLeast(1).toFloat()
+        val axisWidth = 30f
+        val topPadding = 20f // Отступ сверху для значений
+        val bottomPadding = 24f // Отступ снизу для подписей
         val plotLeft = left + axisWidth
         val plotWidth = width - axisWidth
-        val plotBottom = top + height - 20f
-        val plotHeight = plotBottom - top
+        val plotBottom = top + height - bottomPadding
+        val plotTop = top + topPadding
+        val plotHeight = plotBottom - plotTop
 
         val gridPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = COLOR_GRID
@@ -396,11 +548,11 @@ internal object AnalyticsPdfExporter {
         }
         val xLabelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = COLOR_TEXT_MUTED
-            textSize = 8f
+            textSize = 7f
             textAlign = Paint.Align.CENTER
         }
 
-        for (i in 0..maxCount) {
+        for (i in 0..maxCount.toInt()) {
             val y = plotBottom - (i.toFloat() / maxCount) * plotHeight
             canvas.drawLine(plotLeft, y, plotLeft + plotWidth, y, gridPaint)
             canvas.drawText(i.toString(), plotLeft - 4f, y + 3f, labelPaint)
@@ -409,14 +561,61 @@ internal object AnalyticsPdfExporter {
         val slotWidth = plotWidth / data.size
         data.forEachIndexed { index, item ->
             val barH = (item.count.toFloat() / maxCount) * plotHeight
-            val barW = slotWidth * 0.65f
+            val barW = slotWidth * 0.6f
             val x = plotLeft + index * slotWidth + (slotWidth - barW) / 2f
             val y = plotBottom - barH
             canvas.drawRect(x, y, x + barW, plotBottom, barPaint)
-            canvas.drawText(item.count.toString(), x + barW / 2f, y - 4f, valuePaint)
-            val label = if (item.label.length > 12) item.label.take(11) + "…" else item.label
-            canvas.drawText(label, x + barW / 2f, plotBottom + 12f, xLabelPaint)
+            canvas.drawText(item.count.toString(), x + barW / 2f, y - 5f, valuePaint)
+            val label = if (item.label.length > 10) item.label.take(9) + "…" else item.label
+            canvas.drawText(label, x + barW / 2f, plotBottom + 14f, xLabelPaint)
         }
+    }
+
+    private fun drawBarChartsSplit(
+        doc: PdfDocument,
+        data: List<NamedCount>,
+        title: String,
+        startY: Float,
+        currentPage: PdfDocument.Page,
+        currentPageNum: Int
+    ): Triple<PdfDocument.Page, Int, Float> {
+        var y = startY
+        var page = currentPage
+        var pageNum = currentPageNum
+        val chunkSize = 8 // Количество элементов в одном графике
+        val chunks = data.chunked(chunkSize)
+        
+        // Вычисляем общее максимальное значение для всех графиков
+        val globalMax = data.maxOfOrNull { it.count }?.coerceAtLeast(1) ?: 1
+        // Фиксированная высота для всех графиков для одинаковых шкал
+        val fixedChartHeight = (chunkSize * 28 + 60).toFloat().coerceIn(120f, 300f)
+        
+        chunks.forEachIndexed { index, chunk ->
+            val availableSpace = PAGE_H - y - 40f // 40f для footer
+            
+            // Проверяем, нужно ли переносить на новую страницу
+            if (index > 0 && fixedChartHeight > availableSpace) {
+                // Перенос на новую страницу
+                drawPageFooter(page.canvas, pageNum)
+                doc.finishPage(page)
+                pageNum++
+                val newPageInfo = PdfDocument.PageInfo.Builder(PAGE_W, PAGE_H, pageNum).create()
+                page = doc.startPage(newPageInfo)
+                y = MARGIN + 8f
+            }
+            
+            // Добавляем заголовок "(продолжение)" для всех чанков кроме первого
+            if (index > 0) {
+                y += 20f // Увеличенный отступ между графиками
+                y = drawSectionTitle(page.canvas, "$title (продолжение)", y)
+            }
+            
+            y = drawChartFrame(page.canvas, y, fixedChartHeight) { c, top, h ->
+                drawBarChart(c, chunk, MARGIN + 8f, top, CONTENT_W - 16f, h - 12f, globalMax)
+            }
+        }
+        
+        return Triple(page, pageNum, y)
     }
 
     private fun dominantMoodLabel(analytics: Analytics): String {

@@ -89,19 +89,19 @@ class AnalyticsRepositoryImpl @Inject constructor(
                 AnalyticsExportFormat.CSV -> "text/csv"
                 AnalyticsExportFormat.PDF -> "application/pdf"
             }
-            val content = when (format) {
-                AnalyticsExportFormat.CSV -> buildCsvReport(analytics, moods)
-                AnalyticsExportFormat.PDF -> null
-            }
-            if (format == AnalyticsExportFormat.PDF) {
-                // PDF export not implemented yet
-                return@withContext Result.failure(IllegalStateException("PDF export not implemented"))
-            }
             val uri = createDownloadsFile(fileName, mime) ?: return@withContext Result.failure(
                 IllegalStateException("Не удалось создать файл в каталоге загрузок")
             )
             appContext.contentResolver.openOutputStream(uri, "w")?.use { stream ->
-                OutputStreamWriter(stream, Charsets.UTF_8).use { it.write(content!!) }
+                when (format) {
+                    AnalyticsExportFormat.CSV -> {
+                        val content = buildCsvReport(analytics, moods)
+                        OutputStreamWriter(stream, Charsets.UTF_8).use { it.write(content) }
+                    }
+                    AnalyticsExportFormat.PDF -> {
+                        AnalyticsPdfExporter.write(analytics, stream)
+                    }
+                }
             } ?: return@withContext Result.failure(IllegalStateException("Не удалось открыть поток записи"))
             Result.success(uri)
         } catch (e: Exception) {
@@ -132,12 +132,17 @@ class AnalyticsRepositoryImpl @Inject constructor(
         sb.appendLine("period;${periodLabelRu(analytics.period)}")
         sb.appendLine("total_entries;${analytics.totalEntries}")
         sb.appendLine("average_mood;${analytics.averageMood}")
+        sb.appendLine("average_intensity;${analytics.averageIntensity}")
         sb.appendLine("current_streak;${analytics.currentStreak}")
         sb.appendLine("longest_streak;${analytics.longestStreak}")
         sb.appendLine("trend;${trendTitleRu(analytics.improvementTrend)}")
         sb.appendLine("trend_description;${trendDescRu(analytics.improvementTrend)}")
         sb.appendLine("dominant_mood;${dominantMoodLabel(analytics)}")
         sb.appendLine("good_days_percentage;${analytics.goodDaysPercentage}")
+        sb.appendLine("trend_strength;${analytics.trendStrength}")
+        sb.appendLine("stability_periods;${analytics.stabilityPeriods}")
+        sb.appendLine("volatility_index;${analytics.volatilityIndex}")
+        sb.appendLine("mood_level;${analytics.moodLevel}")
         sb.appendLine()
         sb.appendLine("mood_trend_date;average_score")
         analytics.moodTrendByDate.forEach { p ->
@@ -152,9 +157,12 @@ class AnalyticsRepositoryImpl @Inject constructor(
         sb.appendLine("activity;count")
         analytics.activityCounts.forEach { sb.appendLine("${it.label};${it.count}") }
         sb.appendLine()
-        sb.appendLine("raw_id;date;mood;intensity")
+        sb.appendLine("emotion;count")
+        analytics.emotionCounts.forEach { sb.appendLine("${it.label};${it.count}") }
+        sb.appendLine()
+        sb.appendLine("raw_id;date;mood;intensity;activities;emotions")
         moods.forEach { m ->
-            sb.appendLine("${m.id};${m.date};${m.mood};${m.intensity}")
+            sb.appendLine("${m.id};${m.date};${m.mood};${m.intensity};${m.activities};${m.emotions}")
         }
         return sb.toString()
     }
@@ -202,7 +210,8 @@ class AnalyticsRepositoryImpl @Inject constructor(
         android.util.Log.d("AnalyticsRepository", "buildAnalytics: period=$period, moods.size=${moods.size}")
         val distribution = calculateMoodDistribution(moods)
         val activityCounts = computeActivityCounts(moods)
-        android.util.Log.d("AnalyticsRepository", "buildAnalytics: distribution=$distribution, activityCounts=$activityCounts")
+        val emotionCounts = computeEmotionCounts(moods)
+        android.util.Log.d("AnalyticsRepository", "buildAnalytics: distribution=$distribution, activityCounts=$activityCounts, emotionCounts=$emotionCounts")
         
         val stabilityPeriodsList = calculateStabilityPeriods(moods)
         val trendPeriodsList = calculateTrendPeriods(moods)
@@ -219,6 +228,7 @@ class AnalyticsRepositoryImpl @Inject constructor(
             improvementTrend = calculateTrend(moods),
             moodTrendByDate = computeMoodTrendByDate(moods, period),
             activityCounts = activityCounts,
+            emotionCounts = emotionCounts,
             goodDaysPercentage = calculateGoodDaysPercentage(moods),
             // Комплексный анализ тренда
             trendStrength = calculateTrendStrength(moods),
@@ -269,7 +279,18 @@ class AnalyticsRepositoryImpl @Inject constructor(
         return all.groupingBy { it }.eachCount()
             .entries
             .sortedByDescending { it.value }
-            .take(12)
+            .map { NamedCount(it.key, it.value) }
+    }
+
+    private fun computeEmotionCounts(moods: List<MoodEntryEntity>): List<NamedCount> {
+        val all = moods.flatMap { m ->
+            if (m.emotions.isBlank()) emptyList()
+            else m.emotions.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+        }
+        if (all.isEmpty()) return emptyList()
+        return all.groupingBy { it }.eachCount()
+            .entries
+            .sortedByDescending { it.value }
             .map { NamedCount(it.key, it.value) }
     }
 
