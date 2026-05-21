@@ -44,6 +44,12 @@ class ProfileViewModel @Inject constructor(
     private val _editedEmail = MutableStateFlow("")
     val editedEmail: StateFlow<String> = _editedEmail.asStateFlow()
     
+    private val _bio = MutableStateFlow("")
+    val bio: StateFlow<String> = _bio.asStateFlow()
+    
+    private val _editedBio = MutableStateFlow("")
+    val editedBio: StateFlow<String> = _editedBio.asStateFlow()
+    
     private val _avatar = MutableStateFlow("")
     val avatar: StateFlow<String> = _avatar.asStateFlow()
     
@@ -68,9 +74,11 @@ class ProfileViewModel @Inject constructor(
                 profile?.let {
                     _name.value = it.name
                     _email.value = it.email ?: ""
+                    _bio.value = it.bio ?: ""
                     _avatar.value = it.avatar ?: ""
                     _editedName.value = it.name
                     _editedEmail.value = it.email ?: ""
+                    _editedBio.value = it.bio ?: ""
                     _editedAvatar.value = it.avatar ?: ""
                 }
             }
@@ -109,6 +117,7 @@ class ProfileViewModel @Inject constructor(
         if (profile != null) {
             _editedName.value = profile.name
             _editedEmail.value = profile.email ?: ""
+            _editedBio.value = profile.bio ?: ""
             _editedAvatar.value = profile.avatar ?: ""
         }
     }
@@ -125,6 +134,13 @@ class ProfileViewModel @Inject constructor(
      */
     fun updateEmail(email: String) {
         _editedEmail.value = email
+    }
+    
+    /**
+     * Обновляет информацию о себе
+     */
+    fun updateBio(bio: String) {
+        _editedBio.value = bio
     }
     
     /**
@@ -162,24 +178,25 @@ class ProfileViewModel @Inject constructor(
             _userProfile.value?.avatar.orEmpty()
         }
         
-        android.util.Log.d("ProfileViewModel", "saveProfile: name='$name', email='${_editedEmail.value}'")
+        android.util.Log.d("ProfileViewModel", "saveProfile: name='$name', email='${_editedEmail.value}', bio='${_editedBio.value}'")
         val profile = _userProfile.value
         android.util.Log.d("ProfileViewModel", "saveProfile: currentProfile=$profile")
         
         if (profile == null) {
-            createProfile(name, _editedEmail.value, avatar)
+            createProfile(name, _editedEmail.value, _editedBio.value, avatar)
         } else {
-            updateProfile(profile, name, _editedEmail.value, avatar)
+            updateProfile(profile, name, _editedEmail.value, _editedBio.value, avatar)
         }
     }
     
-    private fun createProfile(name: String, email: String, avatar: String) {
+    private fun createProfile(name: String, email: String, bio: String, avatar: String) {
         executeWithLoading {
             viewModelScope.launch {
                 val profile = UserProfile(
                     userId = "current_user",
                     name = name,
                     email = email,
+                    bio = bio,
                     avatar = avatar,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
@@ -206,12 +223,13 @@ class ProfileViewModel @Inject constructor(
         }
     }
     
-    private fun updateProfile(profile: UserProfile, name: String, email: String, avatar: String) {
+    private fun updateProfile(profile: UserProfile, name: String, email: String, bio: String, avatar: String) {
         executeWithLoading {
             viewModelScope.launch {
                 val updatedProfile = profile.copy(
                     name = name,
                     email = email,
+                    bio = bio,
                     avatar = avatar,
                     updatedAt = System.currentTimeMillis()
                 )
@@ -224,9 +242,11 @@ class ProfileViewModel @Inject constructor(
                         // Обновляем локальные состояния
                         _name.value = updatedProfile.name
                         _email.value = updatedProfile.email ?: ""
+                        _bio.value = updatedProfile.bio ?: ""
                         _avatar.value = updatedProfile.avatar ?: ""
                         _editedName.value = updatedProfile.name
                         _editedEmail.value = updatedProfile.email ?: ""
+                        _editedBio.value = updatedProfile.bio ?: ""
                         _editedAvatar.value = updatedProfile.avatar ?: ""
                         _isEditing.value = false
                         _successMessage.value = "Профиль успешно обновлен"
@@ -255,6 +275,7 @@ class ProfileViewModel @Inject constructor(
                         userId = "current_user",
                         name = "Пользователь",
                         email = "",
+                        bio = "",
                         avatar = "",
                         createdAt = System.currentTimeMillis(),
                         updatedAt = System.currentTimeMillis()
@@ -276,6 +297,7 @@ class ProfileViewModel @Inject constructor(
         
         return _editedName.value != profile.name ||
                _editedEmail.value != (profile.email ?: "") ||
+               _editedBio.value != (profile.bio ?: "") ||
                _editedAvatar.value != (profile.avatar ?: "")
     }
     

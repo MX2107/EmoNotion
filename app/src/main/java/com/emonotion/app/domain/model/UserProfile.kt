@@ -8,6 +8,7 @@ data class UserProfile(
     val name: String,
     val avatar: String? = null, // URI or path
     val email: String? = null,
+    val bio: String? = null, // Информация о себе
     val createdAt: Long,
     val updatedAt: Long
 )

@@ -235,10 +235,12 @@ class EditProfileFragment : Fragment() {
             saveButton.setOnClickListener {
                 val name = nameEditText.text?.toString()?.trim() ?: ""
                 val email = emailEditText.text?.toString()?.trim() ?: ""
+                val bio = bioEditText.text?.toString()?.trim() ?: ""
                 
-                android.util.Log.d("EditProfileFragment", "Сохранение профиля: name='$name', email='$email'")
+                android.util.Log.d("EditProfileFragment", "Сохранение профиля: name='$name', email='$email', bio='$bio'")
                 viewModel.updateName(name)
                 viewModel.updateEmail(email)
+                viewModel.updateBio(bio)
                 
                 if (viewModel.isProfileValid()) {
                     viewModel.saveProfile()
@@ -341,6 +343,14 @@ class EditProfileFragment : Fragment() {
         }
         
         viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.editedBio.collect { bio ->
+                if (binding.bioEditText.text?.toString() != bio) {
+                    binding.bioEditText.setText(bio)
+                }
+            }
+        }
+        
+        viewLifecycleOwner.lifecycleScope.launch {
             viewModel.isLoading.collect { isLoading ->
                 binding.saveButton.isEnabled = !isLoading
                 binding.cancelButton.isEnabled = !isLoading
@@ -376,6 +386,7 @@ class EditProfileFragment : Fragment() {
             if (profile != null) {
                 binding.nameEditText.setText(profile.name)
                 binding.emailEditText.setText(profile.email ?: "")
+                binding.bioEditText.setText(profile.bio ?: "")
 
                 // Сохраняем текущий путь к аватару
                 currentAvatarPath = profile.avatar

@@ -42,4 +42,10 @@ interface CustomTagDao {
     
     @Query("DELETE FROM custom_tags")
     suspend fun deleteAllCustomTags()
+    
+    @Query("SELECT * FROM custom_tags")
+    suspend fun getAllCustomTagsList(): List<CustomTagEntity>
+    
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCustomTags(customTags: List<CustomTagEntity>)
 }

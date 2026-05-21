@@ -6,6 +6,11 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Base64
+import java.io.File
+import com.emonotion.app.data.local.dao.CustomActivityDao
+import com.emonotion.app.data.local.dao.CustomMoodDao
+import com.emonotion.app.data.local.dao.CustomTagDao
 import com.emonotion.app.data.local.dao.MoodDao
 import com.emonotion.app.data.local.dao.NoteDao
 import com.emonotion.app.data.local.dao.TaskDao
@@ -30,20 +35,49 @@ class AppBackupRepositoryImpl @Inject constructor(
     private val noteDao: NoteDao,
     private val taskDao: TaskDao,
     private val userDao: UserDao,
+    private val customTagDao: CustomTagDao,
+    private val customActivityDao: CustomActivityDao,
+    private val customMoodDao: CustomMoodDao,
     private val gson: Gson
 ) : AppBackupRepository {
 
     override suspend fun exportAllToJsonString(): Result<String> = withContext(Dispatchers.IO) {
         runCatching {
+            val profile = userDao.getUserProfile("current_user")
+            android.util.Log.d("BackupExport", "Profile: name=${profile?.name}, avatar=${profile?.avatar}, bio=${profile?.bio}")
+            
+            // Кодируем аватар в base64 если он существует
+            val avatarData = profile?.avatar?.let { avatarPath ->
+                val avatarFile = File(avatarPath)
+                if (avatarFile.exists()) {
+                    try {
+                        val bytes = avatarFile.readBytes()
+                        Base64.encodeToString(bytes, Base64.NO_WRAP)
+                    } catch (e: Exception) {
+                        android.util.Log.e("BackupExport", "Failed to encode avatar: ${e.message}")
+                        null
+                    }
+                } else {
+                    android.util.Log.w("BackupExport", "Avatar file not found: $avatarPath")
+                    null
+                }
+            }
+            
             val payload = EmoNotionBackupPayload(
-                version = 1,
+                version = 3,
                 exportedAt = System.currentTimeMillis(),
                 moods = moodDao.getAllMoodsList(),
                 notes = noteDao.getAllNotesList(),
                 tasks = taskDao.getAllTasksList(),
-                profile = userDao.getUserProfile("current_user")
+                profile = profile,
+                customTags = customTagDao.getAllCustomTagsList().ifEmpty { null },
+                customActivities = customActivityDao.getAllCustomActivitiesList().ifEmpty { null },
+                customMoods = customMoodDao.getAllCustomMoodsList().ifEmpty { null },
+                avatarData = avatarData
             )
-            gson.toJson(payload)
+            val json = gson.toJson(payload)
+            android.util.Log.d("BackupExport", "JSON length: ${json.length}, avatarData included: ${avatarData != null}")
+            json
         }
     }
 
@@ -77,23 +111,74 @@ class AppBackupRepositoryImpl @Inject constructor(
             runCatching {
                 val payload = gson.fromJson(json, EmoNotionBackupPayload::class.java)
                     ?: error("Некорректный JSON")
-                if (payload.version != 1) error("Неподдерживаемая версия бэкапа: ${payload.version}")
+                if (payload.version !in listOf(1, 2, 3)) error("Неподдерживаемая версия бэкапа: ${payload.version}")
                 if (replaceExisting) {
                     moodDao.deleteAllMoods()
                     noteDao.deleteAllNotes()
                     taskDao.deleteAllTasks()
                     userDao.deleteAllUserProfiles()
+                    customTagDao.deleteAllCustomTags()
+                    customActivityDao.deleteAllCustomActivities()
+                    customMoodDao.deleteAllCustomMoods()
                 }
-                if (payload.moods.isNotEmpty()) {
-                    moodDao.insertMoods(payload.moods)
+                payload.moods?.let { if (it.isNotEmpty()) moodDao.insertMoods(it) }
+                payload.notes?.let { if (it.isNotEmpty()) noteDao.insertNotes(it) }
+                payload.tasks?.let { if (it.isNotEmpty()) taskDao.insertTasks(it) }
+                // Импорт профиля с сохранением существующих данных если они отсутствуют в бэкапе
+                payload.profile?.let { backupProfile ->
+                    android.util.Log.d("BackupImport", "Backup profile: name=${backupProfile.name}, avatar=${backupProfile.avatar}, bio=${backupProfile.bio}, email=${backupProfile.email}")
+                    
+                    // Декодируем и сохраняем аватар из base64 (версия 3+)
+                    val avatarPath = if (payload.version >= 3 && payload.avatarData != null) {
+                        try {
+                            val avatarBytes = Base64.decode(payload.avatarData, Base64.NO_WRAP)
+                            val avatarDir = File(context.filesDir, "avatars")
+                            if (!avatarDir.exists()) {
+                                avatarDir.mkdirs()
+                            }
+                            val avatarFile = File(avatarDir, "avatar_current_user.jpg")
+                            avatarFile.writeBytes(avatarBytes)
+                            android.util.Log.d("BackupImport", "Avatar saved to: ${avatarFile.absolutePath}")
+                            avatarFile.absolutePath
+                        } catch (e: Exception) {
+                            android.util.Log.e("BackupImport", "Failed to decode avatar: ${e.message}")
+                            backupProfile.avatar // Fallback to original path
+                        }
+                    } else {
+                        backupProfile.avatar
+                    }
+                    
+                    val existingProfile = userDao.getUserProfile("current_user")
+                    android.util.Log.d("BackupImport", "Existing profile: ${existingProfile != null}")
+                    
+                    if (existingProfile != null && !replaceExisting) {
+                        // Слияние данных: сохраняем существующие avatar и bio если в бэкапе они null
+                        val mergedProfile = existingProfile.copy(
+                            name = backupProfile.name,
+                            email = backupProfile.email,
+                            avatar = avatarPath ?: existingProfile.avatar,
+                            bio = backupProfile.bio,
+                            updatedAt = System.currentTimeMillis()
+                        )
+                        android.util.Log.d("BackupImport", "Merged profile: avatar=${mergedProfile.avatar}, bio=${mergedProfile.bio}")
+                        userDao.updateUserProfile(mergedProfile)
+                    } else {
+                        // Обновляем профиль с новым путём к аватару
+                        val profileWithAvatar = backupProfile.copy(avatar = avatarPath)
+                        android.util.Log.d("BackupImport", "Replacing profile: name=${profileWithAvatar.name}, avatar=${profileWithAvatar.avatar}, bio=${profileWithAvatar.bio}")
+                        userDao.updateUserProfile(profileWithAvatar)
+                    }
+                    
+                    // Проверяем, что профиль сохранился корректно
+                    val savedProfile = userDao.getUserProfile("current_user")
+                    android.util.Log.d("BackupImport", "Saved profile: name=${savedProfile?.name}, avatar=${savedProfile?.avatar}, bio=${savedProfile?.bio}")
                 }
-                if (payload.notes.isNotEmpty()) {
-                    noteDao.insertNotes(payload.notes)
+                // Импорт кастомных данных (версия 2+)
+                if (payload.version >= 2) {
+                    payload.customTags?.let { if (it.isNotEmpty()) customTagDao.insertCustomTags(it) }
+                    payload.customActivities?.let { if (it.isNotEmpty()) customActivityDao.insertCustomActivities(it) }
+                    payload.customMoods?.let { if (it.isNotEmpty()) customMoodDao.insertCustomMoods(it) }
                 }
-                if (payload.tasks.isNotEmpty()) {
-                    taskDao.insertTasks(payload.tasks)
-                }
-                payload.profile?.let { userDao.updateUserProfile(it) }
                 Unit
             }
         }

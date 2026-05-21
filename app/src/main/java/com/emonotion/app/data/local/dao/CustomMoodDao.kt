@@ -42,4 +42,10 @@ interface CustomMoodDao {
     
     @Query("DELETE FROM custom_moods")
     suspend fun deleteAllCustomMoods()
+    
+    @Query("SELECT * FROM custom_moods")
+    suspend fun getAllCustomMoodsList(): List<CustomMoodEntity>
+    
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCustomMoods(customMoods: List<CustomMoodEntity>)
 }

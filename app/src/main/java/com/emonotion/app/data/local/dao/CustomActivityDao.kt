@@ -48,4 +48,10 @@ interface CustomActivityDao {
     
     @Query("DELETE FROM custom_activities")
     suspend fun deleteAllCustomActivities()
+    
+    @Query("SELECT * FROM custom_activities")
+    suspend fun getAllCustomActivitiesList(): List<CustomActivityEntity>
+    
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCustomActivities(customActivities: List<CustomActivityEntity>)
 }

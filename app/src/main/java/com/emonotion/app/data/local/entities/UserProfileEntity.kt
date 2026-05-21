@@ -13,6 +13,7 @@ data class UserProfileEntity(
     val name: String,
     val avatar: String?, // URI or path
     val email: String?,
+    val bio: String? = null, // Информация о себе
     val createdAt: Long,
     val updatedAt: Long
 ) {
@@ -23,6 +24,7 @@ data class UserProfileEntity(
                 name = userProfile.name,
                 avatar = userProfile.avatar,
                 email = userProfile.email,
+                bio = userProfile.bio,
                 createdAt = userProfile.createdAt,
                 updatedAt = userProfile.updatedAt
             )
@@ -35,6 +37,7 @@ data class UserProfileEntity(
             name = name,
             avatar = avatar,
             email = email,
+            bio = bio,
             createdAt = createdAt,
             updatedAt = updatedAt
         )

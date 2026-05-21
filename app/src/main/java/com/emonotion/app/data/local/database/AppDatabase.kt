@@ -24,7 +24,7 @@ import com.emonotion.app.data.local.entities.*
         CustomActivityEntity::class,
         CustomTagEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -53,6 +53,28 @@ abstract class AppDatabase : RoomDatabase() {
                 )
                 .addMigrations(*getAllMigrations())
                 .fallbackToDestructiveMigration()
+                .addCallback(object : RoomDatabase.Callback() {
+                    override fun onCreate(db: SupportSQLiteDatabase) {
+                        super.onCreate(db)
+                        android.util.Log.d("Database", "Database created with version 5")
+                    }
+                    
+                    override fun onOpen(db: SupportSQLiteDatabase) {
+                        super.onOpen(db)
+                        android.util.Log.d("Database", "Database opened, version: ${db.version}")
+                        // Проверяем наличие колонки bio
+                        try {
+                            val cursor = db.query("SELECT sql FROM sqlite_master WHERE type='table' AND name='user_profile'")
+                            if (cursor.moveToFirst()) {
+                                val sql = cursor.getString(0)
+                                android.util.Log.d("Database", "user_profile table schema: $sql")
+                            }
+                            cursor.close()
+                        } catch (e: Exception) {
+                            android.util.Log.e("Database", "Failed to check schema: ${e.message}")
+                        }
+                    }
+                })
                 .build()
                 INSTANCE = instance
                 instance
@@ -121,6 +143,18 @@ abstract class AppDatabase : RoomDatabase() {
                             )
                             """.trimIndent()
                         )
+                    }
+                },
+                // Миграция с версии 4 на 5 - добавляем поле bio в таблицу user_profile
+                object : Migration(4, 5) {
+                    override fun migrate(db: SupportSQLiteDatabase) {
+                        // Проверяем, существует ли колонка bio
+                        try {
+                            db.execSQL("ALTER TABLE user_profile ADD COLUMN bio TEXT")
+                            android.util.Log.d("DatabaseMigration", "Added bio column to user_profile")
+                        } catch (e: Exception) {
+                            android.util.Log.w("DatabaseMigration", "bio column may already exist: ${e.message}")
+                        }
                     }
                 }
             )
