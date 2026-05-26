@@ -11,12 +11,12 @@ interface TaskRepository {
     /**
      * Получить все задачи
      */
-    suspend fun getAllTasks(): Flow<List<Task>>
+    fun getAllTasks(): Flow<List<Task>>
     
     /**
      * Получить задачи за конкретную дату
      */
-    suspend fun getTasksByDate(date: String): Flow<List<Task>>
+    fun getTasksByDate(date: String): Flow<List<Task>>
     
     /**
      * Получить задачу по ID
@@ -26,22 +26,22 @@ interface TaskRepository {
     /**
      * Получить незавершенные задачи
      */
-    suspend fun getIncompleteTasks(): Flow<List<Task>>
+    fun getIncompleteTasks(): Flow<List<Task>>
     
     /**
      * Получить завершенные задачи
      */
-    suspend fun getCompletedTasks(): Flow<List<Task>>
+    fun getCompletedTasks(): Flow<List<Task>>
     
     /**
      * Получить задачи по приоритету
      */
-    suspend fun getTasksByPriority(priority: com.emonotion.app.domain.model.TaskPriority): Flow<List<Task>>
+    fun getTasksByPriority(priority: com.emonotion.app.domain.model.TaskPriority): Flow<List<Task>>
     
     /**
      * Поиск задач по тексту
      */
-    suspend fun searchTasks(query: String): Flow<List<Task>>
+    fun searchTasks(query: String): Flow<List<Task>>
     
     /**
      * Добавить новую задачу

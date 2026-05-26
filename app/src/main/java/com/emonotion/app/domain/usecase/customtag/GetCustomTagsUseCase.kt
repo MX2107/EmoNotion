@@ -21,7 +21,7 @@ class GetCustomTagsUseCase @Inject constructor(
     /**
      * Получает все пользовательские теги (включая неактивные)
      */
-    fun getAll(): Flow<List<CustomTag>> {
+    fun getAllCustomTags(): Flow<List<CustomTag>> {
         return customTagRepository.getAllCustomTags()
     }
 }

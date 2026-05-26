@@ -7,13 +7,11 @@ import com.emonotion.app.R
 import com.emonotion.app.domain.model.AppSettings
 import com.emonotion.app.domain.model.ThemeMode
 import com.emonotion.app.domain.repository.DataLocationRepository
-import com.emonotion.app.domain.repository.GmailSyncRepository
 import com.emonotion.app.domain.usecase.settings.AutoBackupUseCase
 import com.emonotion.app.domain.usecase.settings.ChangeDataLocationUseCase
-import com.emonotion.app.domain.usecase.settings.EnableAutoSyncUseCase
 import com.emonotion.app.domain.usecase.settings.ExportDataUseCase
+import com.emonotion.app.domain.repository.AppBackupRepository
 import com.emonotion.app.domain.usecase.settings.GetSettingsUseCase
-import com.emonotion.app.domain.usecase.settings.GmailSyncUseCase
 import com.emonotion.app.domain.usecase.settings.ImportDataUseCase
 import com.emonotion.app.domain.usecase.settings.UpdateSettingsUseCase
 import com.emonotion.app.presentation.common.BaseViewModel
@@ -35,12 +33,10 @@ class SettingsViewModel @Inject constructor(
     private val updateSettingsUseCase: UpdateSettingsUseCase,
     private val exportDataUseCase: ExportDataUseCase,
     private val importDataUseCase: ImportDataUseCase,
-    private val gmailSyncUseCase: GmailSyncUseCase,
-    private val enableAutoSyncUseCase: EnableAutoSyncUseCase,
     private val autoBackupUseCase: AutoBackupUseCase,
     private val changeDataLocationUseCase: ChangeDataLocationUseCase,
     private val dataLocationRepository: DataLocationRepository,
-    private val gmailSyncRepository: GmailSyncRepository,
+    private val appBackupRepository: AppBackupRepository,
     @ApplicationContext private val appContext: Context
 ) : BaseViewModel() {
 
@@ -68,17 +64,26 @@ class SettingsViewModel @Inject constructor(
     private val _dataDisplayPath = MutableStateFlow("")
     val dataDisplayPath: StateFlow<String> = _dataDisplayPath.asStateFlow()
 
-    private val _lastSyncDisplay = MutableStateFlow("")
-    val lastSyncDisplay: StateFlow<String> = _lastSyncDisplay.asStateFlow()
-
-    private val _gmailAutoSyncEnabled = MutableStateFlow(false)
-    val gmailAutoSyncEnabled: StateFlow<Boolean> = _gmailAutoSyncEnabled.asStateFlow()
-
     private val _busyExportImport = MutableStateFlow(false)
     val busyExportImport: StateFlow<Boolean> = _busyExportImport.asStateFlow()
 
+    private val _busyExport = MutableStateFlow(false)
+    val busyExport: StateFlow<Boolean> = _busyExport.asStateFlow()
+
+    private val _busyImport = MutableStateFlow(false)
+    val busyImport: StateFlow<Boolean> = _busyImport.asStateFlow()
+
+    private val _lastExportPath = MutableStateFlow<String?>(null)
+    val lastExportPath: StateFlow<String?> = _lastExportPath.asStateFlow()
+
+    private val _lastImportPath = MutableStateFlow<String?>(null)
+    val lastImportPath: StateFlow<String?> = _lastImportPath.asStateFlow()
+
     private val _shouldRecreateActivity = MutableStateFlow(false)
     val shouldRecreateActivity: StateFlow<Boolean> = _shouldRecreateActivity.asStateFlow()
+
+    private val _lastBackupDisplay = MutableStateFlow("")
+    val lastBackupDisplay: StateFlow<String> = _lastBackupDisplay.asStateFlow()
 
     fun loadSettings() {
         viewModelScope.launch {
@@ -114,8 +119,30 @@ class SettingsViewModel @Inject constructor(
 
     fun refreshAuxiliaryUi() {
         _dataDisplayPath.value = dataLocationRepository.getDisplayPath()
-        _lastSyncDisplay.value = gmailSyncRepository.getLastSyncDisplay()
-        _gmailAutoSyncEnabled.value = gmailSyncRepository.isAutoSyncEnabled()
+        updateLastBackupDisplay()
+    }
+
+    private fun updateLastBackupDisplay() {
+        viewModelScope.launch {
+            try {
+                val backupDir = java.io.File(appContext.filesDir, "backups")
+                if (backupDir.exists()) {
+                    val files = backupDir.listFiles()?.sortedByDescending { it.lastModified() }
+                    val lastFile = files?.firstOrNull()
+                    if (lastFile != null) {
+                        val timestamp = lastFile.lastModified()
+                        val date = java.text.SimpleDateFormat("dd.MM.yyyy HH:mm", java.util.Locale.getDefault()).format(java.util.Date(timestamp))
+                        _lastBackupDisplay.value = date
+                    } else {
+                        _lastBackupDisplay.value = "никогда"
+                    }
+                } else {
+                    _lastBackupDisplay.value = "никогда"
+                }
+            } catch (e: Exception) {
+                _lastBackupDisplay.value = "ошибка"
+            }
+        }
     }
 
     fun consumeRecreateRequest() {
@@ -170,38 +197,6 @@ class SettingsViewModel @Inject constructor(
         persistCurrentFields()
     }
 
-    fun onGmailAutoSyncSwitch(checked: Boolean, frequencyOrdinal: Int) {
-        viewModelScope.launch {
-            enableAutoSyncUseCase(checked, frequencyOrdinal).fold(
-                onSuccess = {
-                    _gmailAutoSyncEnabled.value = checked
-                    refreshAuxiliaryUi()
-                },
-                onFailure = { e ->
-                    _errorMessage.value = e.message ?: appContext.getString(R.string.error_generic)
-                }
-            )
-        }
-    }
-
-    fun onGmailFrequencyChanged(frequencyOrdinal: Int) {
-        if (!_gmailAutoSyncEnabled.value) return
-        viewModelScope.launch {
-            enableAutoSyncUseCase(true, frequencyOrdinal)
-            refreshAuxiliaryUi()
-        }
-    }
-
-    fun syncNow() {
-        executeWithResult(
-            operation = { gmailSyncUseCase.syncNow() },
-            onSuccess = {
-                refreshAuxiliaryUi()
-                _successMessage.value = appContext.getString(R.string.sync_done_local)
-            }
-        )
-    }
-
     fun onAutoBackupSwitch(checked: Boolean, backupFrequencyPosition: Int) {
         _autoBackupEnabled.value = checked
         if (checked) {
@@ -215,6 +210,25 @@ class SettingsViewModel @Inject constructor(
     fun onBackupFrequencyChanged(position: Int) {
         if (!_autoBackupEnabled.value) return
         autoBackupUseCase.schedule(freqToHours(position))
+    }
+
+    fun createBackupNow() {
+        viewModelScope.launch {
+            executeWithResult(
+                operation = {
+                    val json = appBackupRepository.exportAllToJsonString().getOrThrow()
+                    val backupDir = java.io.File(appContext.filesDir, "backups")
+                    backupDir.mkdirs()
+                    val file = java.io.File(backupDir, "manual_${System.currentTimeMillis()}.json")
+                    file.writeText(json)
+                    Result.success(Unit)
+                },
+                onSuccess = {
+                    updateLastBackupDisplay()
+                    _successMessage.value = "Бэкап создан успешно"
+                }
+            )
+        }
     }
 
     private fun freqToHours(position: Int): Long = when (position.coerceIn(0, 2)) {
@@ -233,13 +247,31 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun exportAllDataToUri(uri: Uri) {
+        viewModelScope.launch {
+            _busyExport.value = true
+            appBackupRepository.exportAllToUri(uri)
+                .onSuccess { _successMessage.value = appContext.getString(R.string.export_data_done) }
+                .onFailure { e -> _errorMessage.value = e.message ?: appContext.getString(R.string.error_generic) }
+            _busyExport.value = false
+        }
+    }
+
+    fun setLastExportPath(path: String) {
+        _lastExportPath.value = path
+    }
+
+    fun setLastImportPath(path: String) {
+        _lastImportPath.value = path
+    }
+
     fun importAllData(json: String, replaceExisting: Boolean) {
         viewModelScope.launch {
-            _busyExportImport.value = true
+            _busyImport.value = true
             importDataUseCase(json, replaceExisting)
                 .onSuccess { _successMessage.value = appContext.getString(R.string.import_done) }
                 .onFailure { e -> _errorMessage.value = e.message ?: appContext.getString(R.string.error_generic) }
-            _busyExportImport.value = false
+            _busyImport.value = false
         }
     }
 
@@ -275,5 +307,4 @@ class SettingsViewModel @Inject constructor(
         else -> languageCode
     }
 
-    fun gmailSyncFrequencyOrdinal(): Int = gmailSyncRepository.getSyncFrequencyOrdinal()
 }

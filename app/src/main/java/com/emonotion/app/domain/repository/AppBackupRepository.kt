@@ -8,5 +8,6 @@ import android.net.Uri
 interface AppBackupRepository {
     suspend fun exportAllToJsonString(): Result<String>
     suspend fun exportAllToDownloads(): Result<Uri>
+    suspend fun exportAllToUri(uri: Uri): Result<Unit>
     suspend fun importAllFromJsonString(json: String, replaceExisting: Boolean): Result<Unit>
 }

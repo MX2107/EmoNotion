@@ -18,13 +18,13 @@ class TaskRepositoryImpl @Inject constructor(
     private val taskDao: TaskDao
 ) : TaskRepository {
     
-    override suspend fun getAllTasks(): Flow<List<Task>> {
+    override fun getAllTasks(): Flow<List<Task>> {
         return taskDao.getAllTasks().map { entities ->
             entities.map { it.toDomain() }
         }
     }
     
-    override suspend fun getTasksByDate(date: String): Flow<List<Task>> {
+    override fun getTasksByDate(date: String): Flow<List<Task>> {
         return taskDao.getTasksByDate(date).map { entities ->
             entities.map { it.toDomain() }
         }
@@ -34,25 +34,25 @@ class TaskRepositoryImpl @Inject constructor(
         return taskDao.getTaskById(id)?.toDomain()
     }
     
-    override suspend fun getIncompleteTasks(): Flow<List<Task>> {
+    override fun getIncompleteTasks(): Flow<List<Task>> {
         return taskDao.getIncompleteTasks().map { entities ->
             entities.map { it.toDomain() }
         }
     }
     
-    override suspend fun getCompletedTasks(): Flow<List<Task>> {
+    override fun getCompletedTasks(): Flow<List<Task>> {
         return taskDao.getCompletedTasks().map { entities ->
             entities.map { it.toDomain() }
         }
     }
     
-    override suspend fun getTasksByPriority(priority: TaskPriority): Flow<List<Task>> {
+    override fun getTasksByPriority(priority: TaskPriority): Flow<List<Task>> {
         return taskDao.getTasksByPriority(priority.name).map { entities ->
             entities.map { it.toDomain() }
         }
     }
     
-    override suspend fun searchTasks(query: String): Flow<List<Task>> {
+    override fun searchTasks(query: String): Flow<List<Task>> {
         return taskDao.searchTasks(query).map { entities ->
             entities.map { it.toDomain() }
         }

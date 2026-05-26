@@ -106,6 +106,17 @@ class AppBackupRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun exportAllToUri(uri: Uri): Result<Unit> = withContext(Dispatchers.IO) {
+        runCatching {
+            val json = exportAllToJsonString().getOrThrow()
+            val resolver = context.contentResolver
+            resolver.openOutputStream(uri, "w")?.use { out ->
+                out.write(json.toByteArray(Charsets.UTF_8))
+            } ?: error("Не удалось записать файл")
+            Unit
+        }
+    }
+
     override suspend fun importAllFromJsonString(json: String, replaceExisting: Boolean): Result<Unit> =
         withContext(Dispatchers.IO) {
             runCatching {

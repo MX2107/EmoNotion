@@ -83,12 +83,6 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindGmailSyncRepository(
-        impl: com.emonotion.app.data.repository.GmailSyncRepositoryStub
-    ): com.emonotion.app.domain.repository.GmailSyncRepository
-
-    @Binds
-    @Singleton
     abstract fun bindDataLocationRepository(
         impl: com.emonotion.app.data.repository.DataLocationRepositoryImpl
     ): com.emonotion.app.domain.repository.DataLocationRepository
