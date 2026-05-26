@@ -55,7 +55,7 @@
                     android:id="@+id/streak_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/primary_foreground"
+                    android:textColor="@color/button_text"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     tools:text="0 дней" />
@@ -97,7 +97,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:text="@string/mood_today"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/button_text"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
@@ -106,7 +106,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="4dp"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/button_text"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     tools:text="Нормально" />
@@ -115,7 +115,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/recorded_today"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/button_text"
                     android:textSize="14sp"
                     android:alpha="0.9" />
 
@@ -154,7 +154,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="4dp"
                     android:text="@string/how_are_you_today"
-                    android:textColor="@color/primary_foreground"
+                    android:textColor="@color/button_text"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -162,7 +162,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/tap_to_record"
-                    android:textColor="@color/primary_foreground"
+                    android:textColor="@color/button_text"
                     android:textSize="14sp"
                     android:alpha="0.9" />
 
@@ -172,7 +172,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/ic_add_circle"
-                app:tint="@color/primary_foreground" />
+                app:tint="@color/button_text" />
 
         </LinearLayout>
 
@@ -211,13 +211,13 @@
                     android:layout_height="28dp"
                     android:layout_marginBottom="12dp"
                     android:src="@drawable/ic_diary"
-                    app:tint="@color/primary_foreground" />
+                    app:tint="@color/button_text" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/diary"
-                    android:textColor="@color/primary_foreground"
+                    android:textColor="@color/button_text"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -241,13 +241,13 @@
                     android:layout_height="28dp"
                     android:layout_marginBottom="12dp"
                     android:src="@drawable/ic_calendar"
-                    app:tint="@color/secondary_foreground" />
+                    app:tint="@color/button_text" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/nav_calendar"
-                    android:textColor="@color/secondary_foreground"
+                    android:textColor="@color/button_text"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -271,13 +271,13 @@
                     android:layout_height="28dp"
                     android:layout_marginBottom="12dp"
                     android:src="@drawable/ic_analytics"
-                    app:tint="@color/primary_foreground" />
+                    app:tint="@color/button_text" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/analytics"
-                    android:textColor="@color/primary_foreground"
+                    android:textColor="@color/button_text"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -301,13 +301,13 @@
                     android:layout_height="28dp"
                     android:layout_marginBottom="12dp"
                     android:src="@drawable/ic_notes"
-                    app:tint="@color/secondary_foreground" />
+                    app:tint="@color/button_text" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/nav_notes"
-                    android:textColor="@color/secondary_foreground"
+                    android:textColor="@color/button_text"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 

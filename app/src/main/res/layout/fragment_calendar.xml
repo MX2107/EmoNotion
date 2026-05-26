@@ -76,7 +76,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="2dp"
                     android:text="@string/streak_days"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/foreground"
                     android:textSize="12sp"
                     android:textStyle="bold"
                     android:alpha="0.8"
@@ -86,7 +86,7 @@
                     android:id="@+id/streak_count_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/foreground"
                     android:textSize="32sp"
                     android:textStyle="bold"
                     android:letterSpacing="0.02"
@@ -97,7 +97,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/foreground"
                     android:textSize="11sp"
                     android:alpha="0.7"
                     android:letterSpacing="0.03"
@@ -130,7 +130,7 @@
                     android:layout_height="48dp"
                     android:background="@drawable/month_nav_button_background"
                     android:src="@drawable/ic_chevron_left"
-                    app:tint="@color/secondary_foreground" />
+                    app:tint="@color/foreground" />
 
                 <TextView
                     android:id="@+id/current_month_text"
@@ -149,7 +149,7 @@
                     android:layout_height="48dp"
                     android:background="@drawable/month_nav_button_background"
                     android:src="@drawable/ic_chevron_right"
-                    app:tint="@color/secondary_foreground" />
+                    app:tint="@color/foreground" />
 
             </LinearLayout>
 
