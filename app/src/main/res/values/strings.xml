@@ -116,23 +116,21 @@
     <string name="data_management">Управление данными</string>
     <string name="export_all_data">Экспортировать все данные</string>
     <string name="import_data">Импортировать данные</string>
-    <string name="sync_settings">Синхронизация</string>
-    <string name="gmail_sync">Синхронизация через Gmail</string>
-    <string name="enable_gmail_sync">Включить синхронизацию</string>
-    <string name="sync_frequency">Частота синхронизации</string>
-    <string name="sync_now">Синхронизировать сейчас</string>
-    <string name="last_sync">Последняя синхронизация: %s</string>
     <string name="auto_backup">Автоматическое резервное копирование</string>
     <string name="backup_frequency">Частота резервного копирования</string>
     <string name="backup_daily">Ежедневно</string>
     <string name="backup_weekly">Еженедельно</string>
     <string name="backup_monthly">Ежемесячно</string>
     <string name="backup_never">Никогда</string>
+    <string name="last_backup">Последний бэкап: %s</string>
+    <string name="create_backup_now">Создать бэкап сейчас</string>
+    <string name="backup_created">Бэкап создан успешно</string>
+    <string name="backup_location">Место сохранения: внутренняя память</string>
     <string name="privacy">Конфиденциальность</string>
     <string name="local_storage_only">Только локальное хранение</string>
     <string name="about">О приложении</string>
     <string name="version">Версия: %s</string>
-    <string name="app_description">EmoNotion - ваш личный эмоциональный дневник</string>
+    <string name="app_description">EmoNotion\nВерсия 1.0.0\n\nРазработчик: студент гр. ПрИ-21 Плеханов М.А.\nНаучный руководитель: доцент, к.т.н. Гавлиевский С.Л.\n\nРепозиторий проекта: \nhttps://github.com/MX2107/EmoNotion</string>
     
     <!-- Сообщения об ошибках -->
     <string name="please_select_mood">Пожалуйста, выберите настроение</string>
@@ -244,20 +242,18 @@
     <string name="reset_settings_title">Сброс настроек</string>
     <string name="reset_settings_message">Восстановить значения по умолчанию?</string>
     <string name="about_licenses_title">Лицензии</string>
-    <string name="about_licenses_body">MPAndroidChart (Apache 2.0), Material Components, Android Jetpack.</string>
+    <string name="about_licenses_body">© ФГБОУ ВО «ПГУТИ», 2026</string>
     <string name="theme_light">Светлая</string>
     <string name="theme_dark">Тёмная</string>
     <string name="theme_system">Как в системе</string>
     <string name="choose_theme">Тема оформления</string>
-    <string name="never_synced">никогда</string>
-    <string name="data_move_hint">При смене каталога сохраняется ссылка (SAF). Перенос файлов Room в эту папку в этой версии не выполняется — используйте экспорт JSON.</string>
+    <string name="data_move_hint">При смене папки для хранения данных старые записи не переносятся автоматически. Чтобы перенести данные, сначала экспортируйте их через кнопку «Экспортировать данные», затем измените папку и импортируйте данные обратно.</string>
     <string name="freq_daily">Ежедневно</string>
     <string name="freq_weekly">Еженедельно</string>
     <string name="freq_monthly">Ежемесячно</string>
     <string name="about_details">О приложении</string>
     <string name="reset_settings">Сбросить настройки</string>
     <string name="error_generic">Произошла ошибка</string>
-    <string name="sync_done_local">Локальная отметка синхронизации обновлена (без отправки в Gmail).</string>
     <string name="reset_done">Настройки сброшены</string>
     <string name="version_label">Версия: %1$s</string>
 </resources>
