@@ -62,14 +62,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
-                    android:text="Изменить фото" />
+                    android:text="Изменить" />
 
                 <Button
                     android:id="@+id/delete_avatar_button"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Удалить фото"
+                    android:text="Удалить"
                     android:textColor="@android:color/holo_red_dark"
                     android:visibility="gone" />
 

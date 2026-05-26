@@ -96,11 +96,41 @@
         android:name="com.emonotion.app.presentation.settings.SettingsFragment"
         android:label="Настройки"
         tools:layout="@layout/fragment_settings">
-        
+
         <action
             android:id="@+id/action_settingsFragment_to_editProfileFragment"
             app:destination="@id/editProfileFragment" />
+
+        <action
+            android:id="@+id/action_settingsFragment_to_customEmotionsFragment"
+            app:destination="@id/customEmotionsFragment" />
+
+        <action
+            android:id="@+id/action_settingsFragment_to_customActivitiesFragment"
+            app:destination="@id/customActivitiesFragment" />
+
+        <action
+            android:id="@+id/action_settingsFragment_to_customTagsFragment"
+            app:destination="@id/customTagsFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/customEmotionsFragment"
+        android:name="com.emonotion.app.presentation.settings.CustomEmotionsFragment"
+        android:label="Редактировать эмоции"
+        tools:layout="@layout/fragment_custom_emotions" />
+
+    <fragment
+        android:id="@+id/customActivitiesFragment"
+        android:name="com.emonotion.app.presentation.settings.CustomActivitiesFragment"
+        android:label="Редактировать активности"
+        tools:layout="@layout/fragment_custom_activities" />
+
+    <fragment
+        android:id="@+id/customTagsFragment"
+        android:name="com.emonotion.app.presentation.settings.CustomTagsFragment"
+        android:label="Редактировать теги"
+        tools:layout="@layout/fragment_custom_tags" />
 
     <fragment
         android:id="@+id/editProfileFragment"
