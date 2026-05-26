@@ -47,14 +47,32 @@
         </LinearLayout>
 
         <!-- Выбор настроения -->
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="Как вы себя чувствуете?"
-            android:textColor="@color/foreground"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Как вы себя чувствуете?"
+                android:textColor="@color/foreground"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <Switch
+                android:id="@+id/toggle_mood_icon_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Эмодзи"
+                android:textColor="@color/muted_foreground"
+                android:textSize="14sp" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -74,11 +92,14 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <ImageView
+                <TextView
+                    android:id="@+id/mood_terrible_icon"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:src="@drawable/ic_mood_terrible"
-                    android:tint="@color/mood_terrible" />
+                    android:gravity="center"
+                    android:textSize="24sp"
+                    android:drawableTop="@drawable/ic_mood_terrible"
+                    android:drawableTint="@color/mood_terrible" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -99,11 +120,14 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <ImageView
+                <TextView
+                    android:id="@+id/mood_bad_icon"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:src="@drawable/ic_mood_bad"
-                    android:tint="@color/mood_bad" />
+                    android:gravity="center"
+                    android:textSize="24sp"
+                    android:drawableTop="@drawable/ic_mood_bad"
+                    android:drawableTint="@color/mood_bad" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -124,11 +148,14 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <ImageView
+                <TextView
+                    android:id="@+id/mood_neutral_icon"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:src="@drawable/ic_mood_neutral"
-                    android:tint="@color/mood_neutral" />
+                    android:gravity="center"
+                    android:textSize="24sp"
+                    android:drawableTop="@drawable/ic_mood_neutral"
+                    android:drawableTint="@color/mood_neutral" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -149,11 +176,14 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <ImageView
+                <TextView
+                    android:id="@+id/mood_good_icon"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:src="@drawable/ic_mood_good"
-                    android:tint="@color/mood_good" />
+                    android:gravity="center"
+                    android:textSize="24sp"
+                    android:drawableTop="@drawable/ic_mood_good"
+                    android:drawableTint="@color/mood_good" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -174,11 +204,14 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <ImageView
+                <TextView
+                    android:id="@+id/mood_great_icon"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:src="@drawable/ic_mood_great"
-                    android:tint="@color/mood_great" />
+                    android:gravity="center"
+                    android:textSize="24sp"
+                    android:drawableTop="@drawable/ic_mood_great"
+                    android:drawableTint="@color/mood_great" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -265,7 +298,8 @@
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/predefined_emotions_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                app:chipStyle="@style/CustomChipStyle" />
 
             <!-- Контейнер для пользовательских эмоций -->
             <com.google.android.material.chip.ChipGroup
@@ -273,7 +307,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                app:chipStyle="@style/CustomChipStyle" />
 
         </LinearLayout>
 
@@ -318,7 +353,8 @@
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/predefined_activities_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                app:chipStyle="@style/CustomChipStyle" />
 
             <!-- Контейнер для пользовательских активностей -->
             <com.google.android.material.chip.ChipGroup
@@ -326,7 +362,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                app:chipStyle="@style/CustomChipStyle" />
 
         </LinearLayout>
 
