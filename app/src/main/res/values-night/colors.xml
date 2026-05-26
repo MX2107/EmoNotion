@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Основные цвета для тёмной темы (тёмно-серые вместо чёрных) -->
+    <color name="background">#1A1D21</color>
+    <color name="foreground">#F3F4F6</color>
+    <color name="card">#25282C</color>
+    <color name="muted">#3D4146</color>
+    <color name="muted_foreground">#B8BCBE</color>
+    <color name="border">#4B5563</color>
+    
+    <!-- Основные брендовые цвета (более насыщенные для тёмной темы) -->
+    <color name="primary">#FF6B6B</color>
+    <color name="primary_foreground">#FFFFFF</color>
+    <color name="secondary">#00B8E6</color>
+    <color name="secondary_foreground">#FFFFFF</color>
+    <color name="accent">#FFB800</color>
+    <color name="accent_foreground">#FFFFFF</color>
+    <color name="accent_light">#6B5A00</color>
+    
+    <!-- Цвета настроений (приглушённые для тёмной темы) -->
+    <color name="mood_great">#34E0A0</color>
+    <color name="mood_good">#4DE3FF</color>
+    <color name="mood_neutral">#FFD966</color>
+    <color name="mood_bad">#FFA856</color>
+    <color name="mood_terrible">#FF5A5A</color>
+    
+    <!-- Дополнительные цвета (более насыщенные для тёмной темы) -->
+    <color name="color_coral">#FF6B6B</color>
+    <color name="color_sky">#00B8E6</color>
+    <color name="color_sunny">#FFB800</color>
+    <color name="color_mint">#00D98C</color>
+    <color name="color_purple">#A855F7</color>
+    <color name="color_pink">#FF6BE4</color>
+    <color name="color_orange">#FF9234</color>
+    <color name="color_red">#FF3838</color>
+    <color name="color_blue">#3B82F6</color>
+    <color name="color_teal">#14B8A6</color>
+    
+    <!-- Цвета иконок тренда (приглушённые для тёмной темы) -->
+    <color name="trend_improving">#34E0A0</color>
+    <color name="trend_stable">#FFD966</color>
+    <color name="trend_declining">#FF5A5A</color>
+    <color name="trend_volatile">#B875FF</color>
+    
+    <!-- Стандартные цвета Android -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- Цвет для кнопок быстрых действий и окошка настроение сегодня -->
+    <color name="button_text">#FF000000</color>
+    
+    <!-- Цвет для текста даты в календаре -->
+    <color name="calendar_day_text">#636E72</color>
+    
+</resources>

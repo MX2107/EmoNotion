@@ -43,4 +43,12 @@
         <item name="android:textSize">10sp</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>
+    
+    <!-- Custom style for Chips -->
+    <style name="CustomChipStyle" parent="Widget.MaterialComponents.Chip.Choice">
+        <item name="chipBackgroundColor">@color/muted</item>
+        <item name="chipStrokeColor">@color/border</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="android:textColor">@color/foreground</item>
+    </style>
 </resources>
