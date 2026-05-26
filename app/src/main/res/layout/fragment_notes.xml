@@ -7,8 +7,8 @@
     android:background="@color/background"
     android:fillViewport="true"
     android:paddingHorizontal="20dp"
-    android:paddingTop="24dp"
-    android:paddingBottom="24dp">
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -29,7 +29,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="12dp"
             android:text="@string/track_thoughts"
             android:textColor="@color/muted_foreground"
             android:textSize="16sp" />
@@ -283,13 +283,13 @@
                             android:id="@+id/predefined_tags_container"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="20dp" />
+                            android:layout_marginBottom="12dp" />
 
                         <com.google.android.material.chip.ChipGroup
                             android:id="@+id/custom_tags_container"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="20dp"
+                            android:layout_marginBottom="12dp"
                             android:visibility="gone" />
 
                     </LinearLayout>
