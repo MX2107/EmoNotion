@@ -14,9 +14,11 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.emonotion.app.R
 import com.emonotion.app.databinding.FragmentSettingsBinding
 import com.emonotion.app.domain.model.ThemeMode
@@ -38,14 +40,16 @@ class SettingsFragment : Fragment() {
     private val viewModel: SettingsViewModel by viewModels()
 
     private var suppressThemeListener = false
-    private var suppressGmailSwitchListener = false
     private var suppressBackupSwitchListener = false
-    private var suppressSyncSpinner = false
     private var suppressBackupSpinner = false
 
     private val importLauncher = registerForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri -> uri?.let { onImportPicked(it) } }
+
+    private val exportLauncher = registerForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri -> uri?.let { onExportPicked(it) } }
 
     private val treeLauncher = registerForActivityResult(
         ActivityResultContracts.OpenDocumentTree()
@@ -104,23 +108,8 @@ class SettingsFragment : Fragment() {
     )
 
     private fun setupSpinners() {
-        val adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_dropdown_item,
-            freqLabels()
-        )
-        binding.syncFrequencySpinner.adapter = adapter
         binding.backupFrequencySpinner.adapter =
             ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, freqLabels())
-
-        binding.syncFrequencySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                if (suppressSyncSpinner) return
-                viewModel.onGmailFrequencyChanged(position)
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
-        }
 
         binding.backupFrequencySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -133,41 +122,61 @@ class SettingsFragment : Fragment() {
     }
 
     private fun syncSpinnerSelectionsFromViewModel() {
-        suppressSyncSpinner = true
-        binding.syncFrequencySpinner.setSelection(viewModel.gmailSyncFrequencyOrdinal().coerceIn(0, 2))
-        suppressSyncSpinner = false
         suppressBackupSpinner = true
         binding.backupFrequencySpinner.setSelection(0)
         suppressBackupSpinner = false
     }
 
     private fun setupThemeRadios() {
-        binding.themeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            if (suppressThemeListener) return@setOnCheckedChangeListener
-            val mode = when (checkedId) {
-                R.id.radio_theme_light -> ThemeMode.LIGHT
-                R.id.radio_theme_dark -> ThemeMode.DARK
-                R.id.radio_theme_system -> ThemeMode.SYSTEM
-                else -> return@setOnCheckedChangeListener
-            }
-            viewModel.onThemeSelected(mode)
+        binding.themeLightCard.setOnClickListener {
+            if (suppressThemeListener) return@setOnClickListener
+            viewModel.onThemeSelected(ThemeMode.LIGHT)
+        }
+
+        binding.themeDarkCard.setOnClickListener {
+            if (suppressThemeListener) return@setOnClickListener
+            viewModel.onThemeSelected(ThemeMode.DARK)
         }
     }
 
     private fun bindThemeRadios(theme: ThemeMode) {
         suppressThemeListener = true
         when (theme) {
-            ThemeMode.LIGHT -> binding.themeRadioGroup.check(R.id.radio_theme_light)
-            ThemeMode.DARK -> binding.themeRadioGroup.check(R.id.radio_theme_dark)
-            ThemeMode.SYSTEM -> binding.themeRadioGroup.check(R.id.radio_theme_system)
+            ThemeMode.LIGHT -> {
+                binding.themeLightCard.strokeWidth = 2
+                binding.themeLightCard.strokeColor = ContextCompat.getColor(requireContext(), R.color.accent)
+                binding.themeDarkCard.strokeWidth = 0
+            }
+            ThemeMode.DARK -> {
+                binding.themeDarkCard.strokeWidth = 2
+                binding.themeDarkCard.strokeColor = ContextCompat.getColor(requireContext(), R.color.accent)
+                binding.themeLightCard.strokeWidth = 0
+            }
+            ThemeMode.SYSTEM -> {
+                binding.themeLightCard.strokeWidth = 2
+                binding.themeLightCard.strokeColor = ContextCompat.getColor(requireContext(), R.color.accent)
+                binding.themeDarkCard.strokeWidth = 0
+            }
         }
         suppressThemeListener = false
     }
 
     private fun setupActions() {
+        binding.editEmotionsButton.setOnClickListener {
+            findNavController().navigate(R.id.action_settingsFragment_to_customEmotionsFragment)
+        }
+
+        binding.editActivitiesButton.setOnClickListener {
+            findNavController().navigate(R.id.action_settingsFragment_to_customActivitiesFragment)
+        }
+
+        binding.editTagsButton.setOnClickListener {
+            findNavController().navigate(R.id.action_settingsFragment_to_customTagsFragment)
+        }
+
         binding.exportDataButton.setOnClickListener {
-            Toast.makeText(requireContext(), R.string.export_data_started, Toast.LENGTH_SHORT).show()
-            viewModel.exportAllData()
+            val timestamp = System.currentTimeMillis()
+            exportLauncher.launch("emonotion_backup_$timestamp.json")
         }
 
         binding.importDataButton.setOnClickListener {
@@ -185,20 +194,14 @@ class SettingsFragment : Fragment() {
             treeLauncher.launch(null)
         }
 
-        binding.syncNowButton.setOnClickListener {
-            viewModel.syncNow()
-        }
-
-        binding.gmailSyncSwitch.setOnCheckedChangeListener { _, checked ->
-            if (suppressGmailSwitchListener) return@setOnCheckedChangeListener
-            binding.gmailSettingsContainer.visibility = if (checked) View.VISIBLE else View.GONE
-            viewModel.onGmailAutoSyncSwitch(checked, binding.syncFrequencySpinner.selectedItemPosition)
-        }
-
         binding.autoBackupSwitch.setOnCheckedChangeListener { _, checked ->
             if (suppressBackupSwitchListener) return@setOnCheckedChangeListener
             binding.backupSettingsContainer.visibility = if (checked) View.VISIBLE else View.GONE
             viewModel.onAutoBackupSwitch(checked, binding.backupFrequencySpinner.selectedItemPosition)
+        }
+
+        binding.backupNowButton.setOnClickListener {
+            viewModel.createBackupNow()
         }
 
         binding.openAboutButton.setOnClickListener {
@@ -232,33 +235,52 @@ class SettingsFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.gmailAutoSyncEnabled.collect { enabled ->
-                suppressGmailSwitchListener = true
-                binding.gmailSyncSwitch.isChecked = enabled
-                binding.gmailSettingsContainer.visibility = if (enabled) View.VISIBLE else View.GONE
-                suppressGmailSwitchListener = false
-            }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
             viewModel.dataDisplayPath.collect { path ->
                 binding.dataDirectoryText.text = path
             }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.lastSyncDisplay.collect { display ->
-                binding.lastSyncText.text = getString(R.string.last_sync, display)
+            viewModel.lastBackupDisplay.collect { display ->
+                binding.lastBackupText.text = "Последний бэкап: $display"
             }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.busyExportImport.collect { busy ->
+            viewModel.busyExport.collect { busy ->
                 val alpha = if (busy) 0.5f else 1f
                 binding.exportDataButton.alpha = alpha
-                binding.importDataButton.alpha = alpha
                 binding.exportDataButton.isClickable = !busy
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.busyImport.collect { busy ->
+                val alpha = if (busy) 0.5f else 1f
+                binding.importDataButton.alpha = alpha
                 binding.importDataButton.isClickable = !busy
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.lastExportPath.collect { path ->
+                path?.let {
+                    val fileName = Uri.parse(it).lastPathSegment ?: "backup.json"
+                    binding.exportPathText.text = "Сохранено: $fileName"
+                } ?: run {
+                    binding.exportPathText.text = "Сохранить в файл"
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.lastImportPath.collect { path ->
+                path?.let {
+                    val fileName = Uri.parse(it).lastPathSegment ?: "backup.json"
+                    binding.importPathText.text = "Загружено: $fileName"
+                } ?: run {
+                    binding.importPathText.text = "Восстановить из файла"
+                }
             }
         }
 
@@ -315,6 +337,7 @@ class SettingsFragment : Fragment() {
             Toast.makeText(requireContext(), R.string.invalid_import_file, Toast.LENGTH_LONG).show()
             return
         }
+        viewModel.setLastImportPath(uri.toString())
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.import_confirm_title)
             .setMessage(R.string.import_confirm_message)
@@ -333,6 +356,11 @@ class SettingsFragment : Fragment() {
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
+    }
+
+    private fun onExportPicked(uri: Uri) {
+        viewModel.setLastExportPath(uri.toString())
+        viewModel.exportAllDataToUri(uri)
     }
 
     private fun readUriAsText(uri: Uri): String? {
