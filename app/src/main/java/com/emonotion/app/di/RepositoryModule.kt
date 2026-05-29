@@ -86,4 +86,10 @@ abstract class RepositoryModule {
     abstract fun bindDataLocationRepository(
         impl: com.emonotion.app.data.repository.DataLocationRepositoryImpl
     ): com.emonotion.app.domain.repository.DataLocationRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDraftRepository(
+        draftRepositoryImpl: DraftRepositoryImpl
+    ): DraftRepository
 }

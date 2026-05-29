@@ -22,9 +22,10 @@ import com.emonotion.app.data.local.entities.*
         AppSettingsEntity::class,
         CustomMoodEntity::class,
         CustomActivityEntity::class,
-        CustomTagEntity::class
+        CustomTagEntity::class,
+        DraftEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -37,6 +38,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun customMoodDao(): CustomMoodDao
     abstract fun customActivityDao(): CustomActivityDao
     abstract fun customTagDao(): CustomTagDao
+    abstract fun draftDao(): DraftDao
     
     companion object {
         const val DATABASE_NAME = "emonotion_database"
@@ -155,6 +157,28 @@ abstract class AppDatabase : RoomDatabase() {
                         } catch (e: Exception) {
                             android.util.Log.w("DatabaseMigration", "bio column may already exist: ${e.message}")
                         }
+                    }
+                },
+                // Миграция с версии 5 на 6 - добавляем таблицу черновиков
+                object : Migration(5, 6) {
+                    override fun migrate(db: SupportSQLiteDatabase) {
+                        // Создаем таблицу для черновиков
+                        db.execSQL(
+                            """
+                            CREATE TABLE IF NOT EXISTS draft_entries (
+                                id TEXT NOT NULL PRIMARY KEY,
+                                mood TEXT NOT NULL,
+                                intensity INTEGER NOT NULL,
+                                emotions TEXT NOT NULL,
+                                activities TEXT NOT NULL,
+                                notes TEXT,
+                                date TEXT NOT NULL,
+                                createdAt INTEGER NOT NULL,
+                                updatedAt INTEGER NOT NULL
+                            )
+                            """.trimIndent()
+                        )
+                        android.util.Log.d("DatabaseMigration", "Created draft_entries table")
                     }
                 }
             )

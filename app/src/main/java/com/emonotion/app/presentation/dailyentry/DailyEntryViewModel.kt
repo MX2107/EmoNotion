@@ -11,11 +11,15 @@ import com.emonotion.app.domain.usecase.custommood.AddCustomMoodUseCase
 import com.emonotion.app.domain.usecase.customactivity.AddCustomActivityUseCase
 import com.emonotion.app.domain.usecase.custommood.GetCustomMoodsUseCase
 import com.emonotion.app.domain.usecase.customactivity.GetCustomActivitiesUseCase
+import com.emonotion.app.domain.usecase.draft.SaveDraftUseCase
+import com.emonotion.app.domain.usecase.draft.GetDraftByDateUseCase
+import com.emonotion.app.domain.usecase.draft.DeleteDraftUseCase
 import com.emonotion.app.presentation.common.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -33,7 +37,10 @@ class DailyEntryViewModel @Inject constructor(
     private val addCustomMoodUseCase: AddCustomMoodUseCase,
     private val addCustomActivityUseCase: AddCustomActivityUseCase,
     private val getCustomMoodsUseCase: GetCustomMoodsUseCase,
-    private val getCustomActivitiesUseCase: GetCustomActivitiesUseCase
+    private val getCustomActivitiesUseCase: GetCustomActivitiesUseCase,
+    private val saveDraftUseCase: SaveDraftUseCase,
+    private val getDraftByDateUseCase: GetDraftByDateUseCase,
+    private val deleteDraftUseCase: DeleteDraftUseCase
 ) : BaseViewModel() {
     
     private val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
@@ -70,13 +77,46 @@ class DailyEntryViewModel @Inject constructor(
     private val _isEditing = MutableStateFlow(false)
     val isEditing: StateFlow<Boolean> = _isEditing.asStateFlow()
     
+    private val _hasDraft = MutableStateFlow(false)
+    val hasDraft: StateFlow<Boolean> = _hasDraft.asStateFlow()
+    
+    private var draftSaveJob: kotlinx.coroutines.Job? = null
+    
+    init {
+        // Автоматическое сохранение черновика при изменении данных
+        viewModelScope.launch {
+            combine(
+                _selectedMoodType,
+                _selectedIntensity,
+                _emotions,
+                _activities,
+                _notes
+            ) { mood, intensity, emotions, activities, notes ->
+                // Сохраняем только если есть изменения
+                Triple(mood, Triple(intensity, emotions, activities), notes)
+            }.collect { (mood, data, notes) ->
+                // Сохраняем только если есть данные (не пустой черновик)
+                if (mood != null || data.second.isNotEmpty() || data.third.isNotEmpty() || notes.isNotBlank()) {
+                    saveDraft()
+                }
+            }
+        }
+    }
+    
     /**
      * Устанавливает дату для записи
      */
     fun setDate(date: String) {
         _selectedDate.value = date
-        loadMoodForDate(date)
         loadCustomElements()
+        // Загружаем черновик и сохраненную запись
+        viewModelScope.launch {
+            // Сначала загружаем черновик
+            loadDraftForDate(date)
+            // Загружаем сохраненную запись для отображения кнопки удаления
+            // Но не перезаписываем данные черновика
+            loadMoodForDateWithoutOverwriting(date)
+        }
     }
     
     /**
@@ -164,6 +204,32 @@ class DailyEntryViewModel @Inject constructor(
     }
     
     /**
+     * Загружает черновик для указанной даты
+     */
+    private suspend fun loadDraftForDate(date: String) {
+        try {
+            val draft = getDraftByDateUseCase(date)
+            _hasDraft.value = draft != null
+            if (draft != null) {
+                // Загружаем данные из черновика
+                android.util.Log.d("DailyEntryViewModel", "Загрузка черновика для даты: $date, mood: ${draft.mood}, emotions: ${draft.emotions}, activities: ${draft.activities}, notes: ${draft.notes}")
+                _selectedMoodType.value = draft.mood
+                _selectedIntensity.value = draft.intensity
+                _emotions.value = draft.emotions
+                _activities.value = draft.activities
+                _notes.value = draft.notes ?: ""
+                android.util.Log.d("DailyEntryViewModel", "Загружен черновик для даты: $date")
+            } else {
+                android.util.Log.d("DailyEntryViewModel", "Черновик не найден для даты: $date")
+            }
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            android.util.Log.d("DailyEntryViewModel", "Загрузка черновика отменена")
+        } catch (e: Exception) {
+            android.util.Log.e("DailyEntryViewModel", "Ошибка загрузки черновика", e)
+        }
+    }
+    
+    /**
      * Загружает настроение для указанной даты
      */
     private fun loadMoodForDate(date: String) {
@@ -172,21 +238,58 @@ class DailyEntryViewModel @Inject constructor(
                 try {
                     getMoodByDateUseCase(date).collect { mood ->
                         if (mood != null) {
+                            // Всегда устанавливаем currentMood для отображения кнопки удаления
                             _currentMood.value = mood
-                            _selectedMoodType.value = mood.mood
-                            _selectedIntensity.value = mood.intensity
-                            _emotions.value = mood.emotions
-                            _activities.value = mood.activities
-                            _notes.value = mood.notes ?: ""
                             _isEditing.value = true
+                            // Если нет черновика, загружаем данные из сохраненной записи
+                            if (!_hasDraft.value) {
+                                _selectedMoodType.value = mood.mood
+                                _selectedIntensity.value = mood.intensity
+                                _emotions.value = mood.emotions
+                                _activities.value = mood.activities
+                                _notes.value = mood.notes ?: ""
+                            }
                         } else {
                             _currentMood.value = null
-                            _selectedMoodType.value = null
-                            _selectedIntensity.value = 3
-                            _emotions.value = emptyList()
-                            _activities.value = emptyList()
-                            _notes.value = ""
-                            _isEditing.value = false
+                            // Если нет черновика, сбрасываем форму
+                            if (!_hasDraft.value) {
+                                _selectedMoodType.value = null
+                                _selectedIntensity.value = 3
+                                _emotions.value = emptyList()
+                                _activities.value = emptyList()
+                                _notes.value = ""
+                            }
+                            // Если есть черновик, загружаем его данные
+                            loadDraftForDate(date)
+                            _isEditing.value = _hasDraft.value
+                        }
+                    }
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    android.util.Log.d("DailyEntryViewModel", "Загрузка настроения отменена")
+                } catch (e: Exception) {
+                    android.util.Log.e("DailyEntryViewModel", "Ошибка загрузки настроения", e)
+                }
+            }
+        }
+    }
+
+    /**
+     * Загружает настроение для указанной даты без перезаписи данных черновика
+     */
+    private fun loadMoodForDateWithoutOverwriting(date: String) {
+        executeWithLoading {
+            viewModelScope.launch {
+                try {
+                    getMoodByDateUseCase(date).collect { mood ->
+                        if (mood != null) {
+                            // Устанавливаем currentMood для отображения кнопки удаления
+                            _currentMood.value = mood
+                            _isEditing.value = true
+                            // НЕ перезаписываем данные черновика
+                        } else {
+                            _currentMood.value = null
+                            // НЕ перезаписываем данные черновика
+                            _isEditing.value = _hasDraft.value
                         }
                     }
                 } catch (e: kotlinx.coroutines.CancellationException) {
@@ -241,8 +344,69 @@ class DailyEntryViewModel @Inject constructor(
             onSuccess = {
                 _isEditing.value = true
                 _successMessage.value = "Запись успешно сохранена"
+                // Удаляем черновик после успешного сохранения
+                viewModelScope.launch {
+                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO + kotlinx.coroutines.NonCancellable) {
+                        try {
+                            deleteDraftUseCase(selectedDate)
+                            _hasDraft.value = false
+                            android.util.Log.d("DailyEntryViewModel", "Черновик удален после сохранения записи для даты: $selectedDate")
+                        } catch (e: Exception) {
+                            android.util.Log.e("DailyEntryViewModel", "Ошибка удаления черновика после сохранения", e)
+                        }
+                    }
+                }
             }
         )
+    }
+    
+    /**
+     * Сохраняет текущее состояние как черновик
+     */
+    fun saveDraft() {
+        val moodType = _selectedMoodType.value
+        // Сохраняем черновик при любом изменении
+        viewModelScope.launch {
+            // Используем NonCancellable чтобы гарантировать сохранение даже при отмене coroutine
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO + kotlinx.coroutines.NonCancellable) {
+                try {
+                    // Сначала удаляем старый черновик для этой даты
+                    deleteDraftUseCase(_selectedDate.value)
+                    // Создаем новый черновик
+                    val draftEntry = MoodEntry(
+                        id = UUID.randomUUID().toString(),
+                        mood = moodType,
+                        intensity = _selectedIntensity.value,
+                        emotions = _emotions.value,
+                        activities = _activities.value,
+                        notes = _notes.value.takeIf { it.isNotBlank() },
+                        timestamp = System.currentTimeMillis(),
+                        date = _selectedDate.value
+                    )
+                    android.util.Log.d("DailyEntryViewModel", "Сохранение черновика для даты: ${_selectedDate.value}, mood: $moodType, emotions: ${_emotions.value}, activities: ${_activities.value}, notes: ${_notes.value}")
+                    saveDraftUseCase(draftEntry)
+                    _hasDraft.value = true
+                    android.util.Log.d("DailyEntryViewModel", "Черновик сохранен для даты: ${_selectedDate.value}")
+                } catch (e: Exception) {
+                    android.util.Log.e("DailyEntryViewModel", "Ошибка сохранения черновика", e)
+                }
+            }
+        }
+    }
+    
+    /**
+     * Удаляет черновик для текущей даты
+     */
+    fun deleteDraft() {
+        viewModelScope.launch {
+            try {
+                deleteDraftUseCase(_selectedDate.value)
+                _hasDraft.value = false
+                android.util.Log.d("DailyEntryViewModel", "Черновик удален для даты: ${_selectedDate.value}")
+            } catch (e: Exception) {
+                android.util.Log.e("DailyEntryViewModel", "Ошибка удаления черновика", e)
+            }
+        }
     }
     
     /**
@@ -272,6 +436,18 @@ class DailyEntryViewModel @Inject constructor(
             },
             onSuccess = {
                 _successMessage.value = "Запись успешно удалена"
+                // Удаляем черновик после успешного удаления записи
+                viewModelScope.launch {
+                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO + kotlinx.coroutines.NonCancellable) {
+                        try {
+                            deleteDraftUseCase(_selectedDate.value)
+                            _hasDraft.value = false
+                            android.util.Log.d("DailyEntryViewModel", "Черновик удален после удаления записи для даты: ${_selectedDate.value}")
+                        } catch (e: Exception) {
+                            android.util.Log.e("DailyEntryViewModel", "Ошибка удаления черновика после удаления записи", e)
+                        }
+                    }
+                }
             },
             onError = { message ->
                 _errorMessage.value = "Ошибка при удалении записи: $message"

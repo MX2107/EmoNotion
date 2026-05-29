@@ -75,6 +75,11 @@ object DatabaseModule {
     }
     
     @Provides
+    fun provideDraftDao(database: AppDatabase): DraftDao {
+        return database.draftDao()
+    }
+    
+    @Provides
     @Singleton
     fun provideConverters(): Converters {
         return Converters()
