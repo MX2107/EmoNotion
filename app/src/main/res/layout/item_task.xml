@@ -55,7 +55,7 @@
             android:textColor="@color/muted_foreground"
             android:textSize="12sp"
             android:textStyle="bold"
-            android:visibility="gone"
+            android:visibility="visible"
             tools:text="" />
 
     </LinearLayout>

@@ -1,5 +1,7 @@
 package com.emonotion.app.presentation.notes
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -54,6 +56,18 @@ class NotesFragment : Fragment() {
     private val selectedTags = mutableSetOf<String>()
     private val allCustomTags = mutableSetOf<String>()
     
+    private lateinit var sharedPreferences: SharedPreferences
+    private companion object {
+        private const val PREFS_NAME = "notes_draft"
+        private const val KEY_NOTE_TITLE = "draft_note_title"
+        private const val KEY_NOTE_CONTENT = "draft_note_content"
+        private const val KEY_NOTE_TAGS = "draft_note_tags"
+        private const val KEY_TASK_TITLE = "draft_task_title"
+        private const val KEY_TASK_DESCRIPTION = "draft_task_description"
+        private const val KEY_NOTE_FORM_VISIBLE = "draft_note_form_visible"
+        private const val KEY_TASK_FORM_VISIBLE = "draft_task_form_visible"
+    }
+    
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -65,12 +79,20 @@ class NotesFragment : Fragment() {
     
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        
+        sharedPreferences = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        
         setupRecyclerView()
-        setupUI()
         observeViewModel()
-        loadCustomTags()
-        viewModel.loadNotes()
-        tasksViewModel.loadTasks()
+        setupUI()
+        // Загружаем данные только при первом создании
+        if (savedInstanceState == null) {
+            viewModel.loadNotes()
+            tasksViewModel.loadTasks()
+        }
+        
+        // Восстанавливаем черновики если есть
+        restoreDrafts()
     }
     
     private fun loadCustomTags() {
@@ -90,6 +112,7 @@ class NotesFragment : Fragment() {
                         allCustomTags.add(tagName)
                     }
                 }
+                displayCustomTags()
             }
         }
     }
@@ -440,7 +463,7 @@ class NotesFragment : Fragment() {
         
         viewLifecycleOwner.lifecycleScope.launch {
             tasksViewModel.tasks.collect { tasks ->
-                tasksAdapter.submitList(tasks)
+                tasksAdapter.submitTasks(tasks, tasksViewModel.sortOrder.value)
                 updateTasksEmptyState(tasks.isEmpty())
             }
         }
@@ -475,7 +498,9 @@ class NotesFragment : Fragment() {
         binding.addNoteForm.visibility = View.VISIBLE
         binding.noteInput.requestFocus()
         displayPredefinedTags()
-        displayCustomTags()
+        // Загружаем custom tags только при открытии формы
+        loadCustomTags()
+        sharedPreferences.edit().putBoolean(KEY_NOTE_FORM_VISIBLE, true).apply()
     }
     
     private fun hideNoteForm() {
@@ -488,6 +513,8 @@ class NotesFragment : Fragment() {
         binding.predefinedTagsContainer.removeAllViews()
         binding.customTagsContainer.removeAllViews()
         binding.customTagsContainer.visibility = View.GONE
+        sharedPreferences.edit().putBoolean(KEY_NOTE_FORM_VISIBLE, false).apply()
+        clearNoteDraft()
     }
     
     private fun toggleTag(tag: String) {
@@ -669,6 +696,7 @@ class NotesFragment : Fragment() {
         binding.addTaskButton.visibility = View.GONE
         binding.addTaskForm.visibility = View.VISIBLE
         binding.taskInput.requestFocus()
+        sharedPreferences.edit().putBoolean(KEY_TASK_FORM_VISIBLE, true).apply()
     }
     
     private fun hideTaskForm() {
@@ -676,6 +704,8 @@ class NotesFragment : Fragment() {
         binding.addTaskForm.visibility = View.GONE
         binding.taskInput.text?.clear()
         binding.taskDescriptionInput.text?.clear()
+        sharedPreferences.edit().putBoolean(KEY_TASK_FORM_VISIBLE, false).apply()
+        clearTaskDraft()
     }
     
     private fun saveTask() {
@@ -1070,5 +1100,93 @@ class NotesFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        saveDrafts()
+    }
+    
+    private fun saveDrafts() {
+        // Сохраняем черновик заметки
+        val noteTitle = binding.noteTitleInput.text?.toString()?.trim() ?: ""
+        val noteContent = binding.noteInput.text?.toString()?.trim() ?: ""
+        val noteFormVisible = binding.addNoteForm.visibility == View.VISIBLE
+        
+        sharedPreferences.edit().apply {
+            putString(KEY_NOTE_TITLE, noteTitle)
+            putString(KEY_NOTE_CONTENT, noteContent)
+            putStringSet(KEY_NOTE_TAGS, selectedTags)
+            putBoolean(KEY_NOTE_FORM_VISIBLE, noteFormVisible)
+        }.apply()
+        
+        // Сохраняем черновик задачи
+        val taskTitle = binding.taskInput.text?.toString()?.trim() ?: ""
+        val taskDescription = binding.taskDescriptionInput.text?.toString()?.trim()
+        val taskFormVisible = binding.addTaskForm.visibility == View.VISIBLE
+        
+        sharedPreferences.edit().apply {
+            putString(KEY_TASK_TITLE, taskTitle)
+            putString(KEY_TASK_DESCRIPTION, taskDescription)
+            putBoolean(KEY_TASK_FORM_VISIBLE, taskFormVisible)
+        }.apply()
+    }
+    
+    private fun restoreDrafts() {
+        // Восстанавливаем черновик заметки
+        val noteTitle = sharedPreferences.getString(KEY_NOTE_TITLE, "")
+        val noteContent = sharedPreferences.getString(KEY_NOTE_CONTENT, "")
+        val noteTags = sharedPreferences.getStringSet(KEY_NOTE_TAGS, null)
+        val noteFormVisible = sharedPreferences.getBoolean(KEY_NOTE_FORM_VISIBLE, false)
+        
+        if (noteTitle?.isNotBlank() == true || noteContent?.isNotBlank() == true || 
+            (noteTags?.isNotEmpty() == true)) {
+            
+            binding.noteTitleInput.setText(noteTitle ?: "")
+            binding.noteInput.setText(noteContent ?: "")
+            
+            noteTags?.forEach { tag ->
+                selectedTags.add(tag)
+            }
+            
+            if (noteFormVisible) {
+                binding.addNoteButton.visibility = View.GONE
+                binding.addNoteForm.visibility = View.VISIBLE
+                displayPredefinedTags()
+                loadCustomTags()
+            }
+        }
+        
+        // Восстанавливаем черновик задачи
+        val taskTitle = sharedPreferences.getString(KEY_TASK_TITLE, "")
+        val taskDescription = sharedPreferences.getString(KEY_TASK_DESCRIPTION, "")
+        val taskFormVisible = sharedPreferences.getBoolean(KEY_TASK_FORM_VISIBLE, false)
+        
+        if (taskTitle?.isNotBlank() == true || taskDescription?.isNotBlank() == true) {
+            binding.taskInput.setText(taskTitle ?: "")
+            binding.taskDescriptionInput.setText(taskDescription ?: "")
+            
+            if (taskFormVisible) {
+                binding.addTaskButton.visibility = View.GONE
+                binding.addTaskForm.visibility = View.VISIBLE
+            }
+        }
+    }
+    
+    private fun clearNoteDraft() {
+        sharedPreferences.edit().apply {
+            remove(KEY_NOTE_TITLE)
+            remove(KEY_NOTE_CONTENT)
+            remove(KEY_NOTE_TAGS)
+            remove(KEY_NOTE_FORM_VISIBLE)
+        }.apply()
+    }
+    
+    private fun clearTaskDraft() {
+        sharedPreferences.edit().apply {
+            remove(KEY_TASK_TITLE)
+            remove(KEY_TASK_DESCRIPTION)
+            remove(KEY_TASK_FORM_VISIBLE)
+        }.apply()
     }
 }

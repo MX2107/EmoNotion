@@ -66,4 +66,10 @@ interface TaskDao {
     
     @Query("SELECT COUNT(*) FROM tasks WHERE date = :date")
     suspend fun getTasksCountByDate(date: String): Int
+    
+    @Query("SELECT * FROM tasks ORDER BY priority DESC, timestamp ASC LIMIT :limit OFFSET :offset")
+    fun getTasksPaginated(limit: Int, offset: Int): Flow<List<TaskEntity>>
+    
+    @Query("SELECT * FROM tasks ORDER BY priority DESC, timestamp ASC LIMIT :limit")
+    fun getRecentTasks(limit: Int): Flow<List<TaskEntity>>
 }

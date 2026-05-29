@@ -45,7 +45,7 @@ class TasksViewModel @Inject constructor(
     val sortOrder: StateFlow<SortOrder> = _sortOrder.asStateFlow()
 
     private var tasksCollectionJob: kotlinx.coroutines.Job? = null
-
+    
     enum class FilterStatus {
         ALL, ACTIVE, COMPLETED
     }
@@ -55,7 +55,7 @@ class TasksViewModel @Inject constructor(
     }
 
     init {
-        // Предварительная загрузка задач при создании ViewModel
+        // Загружаем задачи при создании ViewModel
         loadTasks()
     }
 
@@ -63,14 +63,7 @@ class TasksViewModel @Inject constructor(
      * Загружает задачи
      */
     fun loadTasks() {
-        // Отменяем предыдущую подписку если есть
-        tasksCollectionJob?.cancel()
-
-        tasksCollectionJob = viewModelScope.launch {
-            // Сначала загружаем из базы для кэша
-            val cachedTasks = getTasksUseCase().first()
-            _tasks.value = filterAndSortTasks(cachedTasks)
-            // Затем подписываемся на обновления
+        viewModelScope.launch {
             getTasksUseCase().collect { tasksList ->
                 _tasks.value = filterAndSortTasks(tasksList)
             }
@@ -151,7 +144,7 @@ class TasksViewModel @Inject constructor(
                 addTaskUseCase(newTask)
             },
             onSuccess = {
-                loadTasks() // Обновляем список после добавления
+                loadTasks()
             }
         )
     }

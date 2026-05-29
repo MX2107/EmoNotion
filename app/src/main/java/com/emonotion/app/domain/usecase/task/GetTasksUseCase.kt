@@ -26,4 +26,12 @@ class GetTasksUseCase @Inject constructor(
             taskRepository.getIncompleteTasks()
         }
     }
+    
+    suspend fun getTasksPaginated(limit: Int, offset: Int): Flow<List<Task>> {
+        return taskRepository.getTasksPaginated(limit, offset)
+    }
+    
+    suspend fun getRecentTasks(limit: Int): Flow<List<Task>> {
+        return taskRepository.getRecentTasks(limit)
+    }
 }

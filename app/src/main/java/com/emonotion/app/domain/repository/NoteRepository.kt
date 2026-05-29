@@ -67,4 +67,16 @@ interface NoteRepository {
      * Получить количество заметок за дату
      */
     suspend fun getNotesCountByDate(date: String): Int
+    
+    /**
+     * Получить заметки с пагинацией
+     * @param limit количество элементов на странице
+     * @param offset смещение
+     */
+    suspend fun getNotesPaginated(limit: Int, offset: Int): Flow<List<Note>>
+    
+    /**
+     * Получить последние N заметок (для быстрого отображения)
+     */
+    suspend fun getRecentNotes(limit: Int): Flow<List<Note>>
 }

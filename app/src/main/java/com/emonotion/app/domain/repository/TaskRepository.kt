@@ -87,4 +87,16 @@ interface TaskRepository {
      * Получить количество задач за дату
      */
     suspend fun getTasksCountByDate(date: String): Int
+    
+    /**
+     * Получить задачи с пагинацией
+     * @param limit количество элементов на странице
+     * @param offset смещение
+     */
+    suspend fun getTasksPaginated(limit: Int, offset: Int): Flow<List<Task>>
+    
+    /**
+     * Получить последние N задач (для быстрого отображения)
+     */
+    suspend fun getRecentTasks(limit: Int): Flow<List<Task>>
 }

@@ -63,15 +63,6 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <Switch
-                android:id="@+id/toggle_mood_icon_switch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="Эмодзи"
-                android:textColor="@color/muted_foreground"
-                android:textSize="14sp" />
-
         </LinearLayout>
 
         <LinearLayout
@@ -94,12 +85,12 @@
 
                 <TextView
                     android:id="@+id/mood_terrible_icon"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:gravity="center"
                     android:textSize="24sp"
-                    android:drawableTop="@drawable/ic_mood_terrible"
-                    android:drawableTint="@color/mood_terrible" />
+                    android:includeFontPadding="false"
+                    android:text="😫" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -107,7 +98,7 @@
                     android:layout_marginTop="4dp"
                     android:text="@string/mood_terrible"
                     android:textColor="@color/foreground"
-                    android:textSize="10sp" />
+                    android:textSize="9sp" />
 
             </LinearLayout>
 
@@ -122,12 +113,12 @@
 
                 <TextView
                     android:id="@+id/mood_bad_icon"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:gravity="center"
                     android:textSize="24sp"
-                    android:drawableTop="@drawable/ic_mood_bad"
-                    android:drawableTint="@color/mood_bad" />
+                    android:includeFontPadding="false"
+                    android:text="😔" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -135,7 +126,7 @@
                     android:layout_marginTop="4dp"
                     android:text="@string/mood_bad"
                     android:textColor="@color/foreground"
-                    android:textSize="10sp" />
+                    android:textSize="9sp" />
 
             </LinearLayout>
 
@@ -150,12 +141,12 @@
 
                 <TextView
                     android:id="@+id/mood_neutral_icon"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:gravity="center"
                     android:textSize="24sp"
-                    android:drawableTop="@drawable/ic_mood_neutral"
-                    android:drawableTint="@color/mood_neutral" />
+                    android:includeFontPadding="false"
+                    android:text="😐" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -163,7 +154,7 @@
                     android:layout_marginTop="4dp"
                     android:text="@string/mood_neutral"
                     android:textColor="@color/foreground"
-                    android:textSize="10sp" />
+                    android:textSize="9sp" />
 
             </LinearLayout>
 
@@ -178,12 +169,12 @@
 
                 <TextView
                     android:id="@+id/mood_good_icon"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:gravity="center"
                     android:textSize="24sp"
-                    android:drawableTop="@drawable/ic_mood_good"
-                    android:drawableTint="@color/mood_good" />
+                    android:includeFontPadding="false"
+                    android:text="🙂" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -191,7 +182,7 @@
                     android:layout_marginTop="4dp"
                     android:text="@string/mood_good"
                     android:textColor="@color/foreground"
-                    android:textSize="10sp" />
+                    android:textSize="9sp" />
 
             </LinearLayout>
 
@@ -206,12 +197,12 @@
 
                 <TextView
                     android:id="@+id/mood_great_icon"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:gravity="center"
                     android:textSize="24sp"
-                    android:drawableTop="@drawable/ic_mood_great"
-                    android:drawableTint="@color/mood_great" />
+                    android:includeFontPadding="false"
+                    android:text="😄" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -219,7 +210,7 @@
                     android:layout_marginTop="4dp"
                     android:text="@string/mood_great"
                     android:textColor="@color/foreground"
-                    android:textSize="10sp" />
+                    android:textSize="9sp" />
 
             </LinearLayout>
 

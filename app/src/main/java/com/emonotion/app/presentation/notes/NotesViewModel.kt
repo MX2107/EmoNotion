@@ -47,13 +47,13 @@ class NotesViewModel @Inject constructor(
     val filterTag: StateFlow<String?> = _filterTag.asStateFlow()
 
     private var notesCollectionJob: kotlinx.coroutines.Job? = null
-
+    
     enum class NoteSortOrder {
         NEWEST_FIRST, OLDEST_FIRST, ALPHABETICAL_ASC, ALPHABETICAL_DESC
     }
 
     init {
-        // Предварительная загрузка заметок при создании ViewModel
+        // Загружаем заметки при создании ViewModel
         loadNotes()
     }
 
@@ -61,31 +61,9 @@ class NotesViewModel @Inject constructor(
      * Загружает заметки
      */
     fun loadNotes() {
-        // Отменяем предыдущую подписку если есть
-        notesCollectionJob?.cancel()
-
-        notesCollectionJob = viewModelScope.launch {
-            if (_searchQuery.value.isNotEmpty()) {
-                // Поиск заметок
-                getNotesUseCase.searchNotes(_searchQuery.value).collect { notesList ->
-                    _notes.value = filterAndSortNotes(notesList)
-                }
-            } else if (_showAllNotes.value) {
-                // Все заметки - сначала загружаем из базы для кэша
-                val cachedNotes = getNotesUseCase().first()
-                _notes.value = filterAndSortNotes(cachedNotes)
-                // Затем подписываемся на обновления
-                getNotesUseCase().collect { notesList ->
-                    _notes.value = filterAndSortNotes(notesList)
-                }
-            } else {
-                // Заметки за сегодня - сначала загружаем из базы для кэша
-                val cachedNotes = getNotesUseCase.getNotesByDate(today).first()
-                _notes.value = filterAndSortNotes(cachedNotes)
-                // Затем подписываемся на обновления
-                getNotesUseCase.getNotesByDate(today).collect { notesList ->
-                    _notes.value = filterAndSortNotes(notesList)
-                }
+        viewModelScope.launch {
+            getNotesUseCase().collect { notesList ->
+                _notes.value = filterAndSortNotes(notesList)
             }
         }
     }

@@ -54,4 +54,10 @@ interface NoteDao {
     
     @Query("SELECT COUNT(*) FROM notes WHERE date = :date")
     suspend fun getNotesCountByDate(date: String): Int
+    
+    @Query("SELECT * FROM notes ORDER BY isPinned DESC, timestamp DESC LIMIT :limit OFFSET :offset")
+    fun getNotesPaginated(limit: Int, offset: Int): Flow<List<NoteEntity>>
+    
+    @Query("SELECT * FROM notes ORDER BY isPinned DESC, timestamp DESC LIMIT :limit")
+    fun getRecentNotes(limit: Int): Flow<List<NoteEntity>>
 }

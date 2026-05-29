@@ -74,4 +74,16 @@ class NoteRepositoryImpl @Inject constructor(
     override suspend fun getNotesCountByDate(date: String): Int {
         return noteDao.getNotesCountByDate(date)
     }
+    
+    override suspend fun getNotesPaginated(limit: Int, offset: Int): Flow<List<Note>> {
+        return noteDao.getNotesPaginated(limit, offset).map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
+    
+    override suspend fun getRecentNotes(limit: Int): Flow<List<Note>> {
+        return noteDao.getRecentNotes(limit).map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
 }

@@ -93,4 +93,16 @@ class TaskRepositoryImpl @Inject constructor(
     override suspend fun getTasksCountByDate(date: String): Int {
         return taskDao.getTasksCountByDate(date)
     }
+    
+    override suspend fun getTasksPaginated(limit: Int, offset: Int): Flow<List<Task>> {
+        return taskDao.getTasksPaginated(limit, offset).map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
+    
+    override suspend fun getRecentTasks(limit: Int): Flow<List<Task>> {
+        return taskDao.getRecentTasks(limit).map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
 }

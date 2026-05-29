@@ -22,4 +22,12 @@ class GetNotesUseCase @Inject constructor(
     suspend fun searchNotes(query: String): Flow<List<Note>> {
         return noteRepository.searchNotes(query)
     }
+    
+    suspend fun getNotesPaginated(limit: Int, offset: Int): Flow<List<Note>> {
+        return noteRepository.getNotesPaginated(limit, offset)
+    }
+    
+    suspend fun getRecentNotes(limit: Int): Flow<List<Note>> {
+        return noteRepository.getRecentNotes(limit)
+    }
 }
