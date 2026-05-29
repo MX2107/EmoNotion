@@ -23,7 +23,7 @@ data class MoodEntryEntity(
         fun fromDomain(moodEntry: com.emonotion.app.domain.model.MoodEntry): MoodEntryEntity {
             return MoodEntryEntity(
                 id = moodEntry.id,
-                mood = moodEntry.mood.name,
+                mood = moodEntry.mood?.name ?: "",
                 intensity = moodEntry.intensity,
                 emotions = moodEntry.emotions.joinToString(","),
                 activities = moodEntry.activities.joinToString(","),
@@ -37,7 +37,7 @@ data class MoodEntryEntity(
     fun toDomain(): com.emonotion.app.domain.model.MoodEntry {
         return com.emonotion.app.domain.model.MoodEntry(
             id = id,
-            mood = MoodType.valueOf(mood),
+            mood = if (mood.isEmpty()) null else MoodType.valueOf(mood),
             intensity = intensity,
             emotions = if (emotions.isEmpty()) emptyList() else emotions.split(","),
             activities = if (activities.isEmpty()) emptyList() else activities.split(","),

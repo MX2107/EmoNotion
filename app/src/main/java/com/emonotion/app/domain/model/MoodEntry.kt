@@ -5,7 +5,7 @@ package com.emonotion.app.domain.model
  */
 data class MoodEntry(
     val id: String,
-    val mood: MoodType,
+    val mood: MoodType?,
     val intensity: Int, // 1-5
     val emotions: List<String> = emptyList(),
     val activities: List<String> = emptyList(),

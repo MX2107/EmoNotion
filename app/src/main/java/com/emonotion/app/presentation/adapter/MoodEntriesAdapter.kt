@@ -25,25 +25,25 @@ class MoodEntriesAdapter(
         
         fun bind(mood: MoodEntry, onItemClick: (MoodEntry) -> Unit, onItemLongClick: (MoodEntry) -> Unit) {
             binding.apply {
-                tvMoodType.text = mood.mood.displayName
+                tvMoodType.text = mood.mood?.displayName ?: "Не указано"
                 tvIntensity.text = "${mood.intensity}/5"
                 tvDate.text = mood.date
                 tvActivities.text = mood.activities.joinToString(", ")
                 tvNotes.text = mood.notes ?: ""
                 tvNotes.visibility = if (mood.notes != null) View.VISIBLE else View.GONE
-                
+
                 // Цветовая индикация настроения
                 cardMood.setCardBackgroundColor(getMoodColor(mood.mood))
-                
+
                 root.setOnClickListener { onItemClick(mood) }
-                root.setOnLongClickListener { 
+                root.setOnLongClickListener {
                     onItemLongClick(mood)
-                    true 
+                    true
                 }
             }
         }
-        
-        private fun getMoodColor(mood: MoodType): Int {
+
+        private fun getMoodColor(mood: MoodType?): Int {
             return when (mood) {
                 MoodType.HAPPY -> Color.parseColor("#4CAF50")
                 MoodType.SAD -> Color.parseColor("#2196F3")
@@ -54,6 +54,7 @@ class MoodEntriesAdapter(
                 MoodType.GOOD -> Color.parseColor("#8BC34A")
                 MoodType.BAD -> Color.parseColor("#F44336")
                 MoodType.TERRIBLE -> Color.parseColor("#D32F2F")
+                null -> Color.parseColor("#9E9E9E")
             }
         }
     }

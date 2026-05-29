@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.content.Context
 import android.widget.Button
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -14,7 +13,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.emonotion.app.R
 import com.emonotion.app.databinding.FragmentDailyEntryBinding
-import com.emonotion.app.domain.model.MoodEmoji
 import com.emonotion.app.domain.model.MoodType
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
@@ -33,11 +31,6 @@ class DailyEntryFragment : Fragment() {
     
     private val viewModel: DailyEntryViewModel by viewModels()
     
-    private var useEmojiIcons = false
-    
-    private val PREFS_NAME = "mood_icon_prefs"
-    private val KEY_USE_EMOJI = "use_emoji_icons"
-    
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -51,15 +44,6 @@ class DailyEntryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupUI()
         observeViewModel()
-        
-        // Загружаем сохранённый выбор режима
-        loadMoodIconPreference()
-        
-        // Инициализируем отображение иконок
-        updateMoodIconsDisplay()
-        
-        // Устанавливаем начальное состояние переключателя
-        binding.toggleMoodIconSwitch.isChecked = useEmojiIcons
         
         // Получаем дату из аргументов навигации
         arguments?.getString("date")?.let { date ->
@@ -146,24 +130,7 @@ class DailyEntryFragment : Fragment() {
             binding.dateText.setOnClickListener {
                 showDatePickerDialog()
             }
-            
-            // Обработчик переключателя иконок/эмодзи
-            binding.toggleMoodIconSwitch.setOnCheckedChangeListener { _, isChecked ->
-                useEmojiIcons = isChecked
-                updateMoodIconsDisplay()
-                saveMoodIconPreference()
-            }
         }
-    }
-    
-    private fun saveMoodIconPreference() {
-        val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit().putBoolean(KEY_USE_EMOJI, useEmojiIcons).apply()
-    }
-    
-    private fun loadMoodIconPreference() {
-        val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        useEmojiIcons = prefs.getBoolean(KEY_USE_EMOJI, false)
     }
     
     private fun observeViewModel() {
@@ -424,64 +391,11 @@ class DailyEntryFragment : Fragment() {
     
     private fun updateMoodTypeSelection(selectedMood: MoodType?) {
         binding.apply {
-            moodTerrible.alpha = if (selectedMood == MoodType.TERRIBLE) 1.0f else 0.5f
-            moodBad.alpha = if (selectedMood == MoodType.BAD) 1.0f else 0.5f
-            moodNeutral.alpha = if (selectedMood == MoodType.NEUTRAL) 1.0f else 0.5f
-            moodGood.alpha = if (selectedMood == MoodType.GOOD) 1.0f else 0.5f
-            moodGreat.alpha = if (selectedMood == MoodType.GREAT) 1.0f else 0.5f
-        }
-    }
-    
-    private fun updateMoodIconsDisplay() {
-        binding.apply {
-            if (useEmojiIcons) {
-                // Режим эмодзи
-                moodTerribleIcon.text = MoodEmoji.TERRIBLE
-                moodTerribleIcon.setCompoundDrawables(null, null, null, null)
-                
-                moodBadIcon.text = MoodEmoji.BAD
-                moodBadIcon.setCompoundDrawables(null, null, null, null)
-                
-                moodNeutralIcon.text = MoodEmoji.NEUTRAL
-                moodNeutralIcon.setCompoundDrawables(null, null, null, null)
-                
-                moodGoodIcon.text = MoodEmoji.GOOD
-                moodGoodIcon.setCompoundDrawables(null, null, null, null)
-                
-                moodGreatIcon.text = MoodEmoji.GREAT
-                moodGreatIcon.setCompoundDrawables(null, null, null, null)
-            } else {
-                // Режим иконок
-                moodTerribleIcon.text = ""
-                moodTerribleIcon.setCompoundDrawablesWithIntrinsicBounds(
-                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_mood_terrible),
-                    null, null, null
-                )
-                
-                moodBadIcon.text = ""
-                moodBadIcon.setCompoundDrawablesWithIntrinsicBounds(
-                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_mood_bad),
-                    null, null, null
-                )
-                
-                moodNeutralIcon.text = ""
-                moodNeutralIcon.setCompoundDrawablesWithIntrinsicBounds(
-                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_mood_neutral),
-                    null, null, null
-                )
-                
-                moodGoodIcon.text = ""
-                moodGoodIcon.setCompoundDrawablesWithIntrinsicBounds(
-                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_mood_good),
-                    null, null, null
-                )
-                
-                moodGreatIcon.text = ""
-                moodGreatIcon.setCompoundDrawablesWithIntrinsicBounds(
-                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_mood_great),
-                    null, null, null
-                )
-            }
+            moodTerrible.alpha = if (selectedMood == MoodType.TERRIBLE) 1.0f else 0.4f
+            moodBad.alpha = if (selectedMood == MoodType.BAD) 1.0f else 0.4f
+            moodNeutral.alpha = if (selectedMood == MoodType.NEUTRAL) 1.0f else 0.4f
+            moodGood.alpha = if (selectedMood == MoodType.GOOD) 1.0f else 0.4f
+            moodGreat.alpha = if (selectedMood == MoodType.GREAT) 1.0f else 0.4f
         }
     }
     
@@ -510,6 +424,7 @@ class DailyEntryFragment : Fragment() {
                     MoodType.SAD -> moodBad.performClick()
                     MoodType.ANGRY -> moodTerrible.performClick()
                     MoodType.ANXIOUS -> moodBad.performClick()
+                    null -> { /* Настроение не выбрано */ }
                 }
             }
         }
@@ -643,6 +558,12 @@ class DailyEntryFragment : Fragment() {
         } catch (e: Exception) {
             dateString
         }
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        // Автоматически сохраняем черновик при уходе со страницы
+        viewModel.saveDraft()
     }
     
     override fun onDestroyView() {

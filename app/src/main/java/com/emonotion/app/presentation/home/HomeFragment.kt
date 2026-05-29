@@ -46,7 +46,10 @@ class HomeFragment : Fragment() {
         setupRecyclerView()
         setupUI()
         observeViewModel()
-        viewModel.loadHomeData()
+        // Загружаем данные только при первом создании
+        if (savedInstanceState == null) {
+            viewModel.loadHomeData()
+        }
     }
     
     private fun setupRecyclerView() {
@@ -152,10 +155,10 @@ class HomeFragment : Fragment() {
                 // Показываем карточку настроения
                 moodCard.visibility = View.VISIBLE
                 addMoodButton.visibility = View.GONE
-                moodText.text = mood.mood.displayName
-                
+                moodText.text = mood.mood?.displayName ?: "Не указано"
+
                 // Устанавливаем эмодзи в зависимости от настроения
-                val emoji = MoodEmoji.fromMoodType(mood.mood)
+                val emoji = if (mood.mood != null) MoodEmoji.fromMoodType(mood.mood) else "😐"
                 moodEmoji.text = emoji
                 
                 // Добавляем обработчик клика на карточку настроения
