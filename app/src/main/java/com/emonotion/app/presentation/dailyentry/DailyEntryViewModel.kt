@@ -80,6 +80,8 @@ class DailyEntryViewModel @Inject constructor(
     private val _hasDraft = MutableStateFlow(false)
     val hasDraft: StateFlow<Boolean> = _hasDraft.asStateFlow()
     
+    private val _preventDraftSaving = MutableStateFlow(false)
+    
     private var draftSaveJob: kotlinx.coroutines.Job? = null
     
     init {
@@ -90,13 +92,22 @@ class DailyEntryViewModel @Inject constructor(
                 _selectedIntensity,
                 _emotions,
                 _activities,
-                _notes
-            ) { mood, intensity, emotions, activities, notes ->
-                // Сохраняем только если есть изменения
-                Triple(mood, Triple(intensity, emotions, activities), notes)
-            }.collect { (mood, data, notes) ->
-                // Сохраняем только если есть данные (не пустой черновик)
-                if (mood != null || data.second.isNotEmpty() || data.third.isNotEmpty() || notes.isNotBlank()) {
+                _notes,
+                _preventDraftSaving
+            ) { array ->
+                val mood = array[0] as MoodType?
+                @Suppress("UNCHECKED_CAST")
+                val emotions = array[2] as List<String>
+                @Suppress("UNCHECKED_CAST")
+                val activities = array[3] as List<String>
+                val notes = array[4] as String
+                val preventSaving = array[5] as Boolean
+                // Сохраняем только если есть данные (не пустой черновик) и не запрещено сохранение
+                val hasData = mood != null || emotions.isNotEmpty() || activities.isNotEmpty() || notes.isNotBlank()
+                val shouldSave = !preventSaving && hasData
+                shouldSave
+            }.collect { shouldSave ->
+                if (shouldSave) {
                     saveDraft()
                 }
             }
@@ -344,6 +355,8 @@ class DailyEntryViewModel @Inject constructor(
             onSuccess = {
                 _isEditing.value = true
                 _successMessage.value = "Запись успешно сохранена"
+                // Предотвращаем сохранение черновика после сохранения записи
+                _preventDraftSaving.value = true
                 // Удаляем черновик после успешного сохранения
                 viewModelScope.launch {
                     kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO + kotlinx.coroutines.NonCancellable) {
@@ -355,6 +368,9 @@ class DailyEntryViewModel @Inject constructor(
                             android.util.Log.e("DailyEntryViewModel", "Ошибка удаления черновика после сохранения", e)
                         }
                     }
+                    // Разрешаем сохранение черновика через 1 секунду
+                    kotlinx.coroutines.delay(1000)
+                    _preventDraftSaving.value = false
                 }
             }
         )
@@ -436,7 +452,9 @@ class DailyEntryViewModel @Inject constructor(
             },
             onSuccess = {
                 _successMessage.value = "Запись успешно удалена"
-                // Удаляем черновик после успешного удаления записи
+                // Предотвращаем сохранение черновика после удаления
+                _preventDraftSaving.value = true
+                // Сначала удаляем черновик
                 viewModelScope.launch {
                     kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO + kotlinx.coroutines.NonCancellable) {
                         try {
@@ -447,6 +465,14 @@ class DailyEntryViewModel @Inject constructor(
                             android.util.Log.e("DailyEntryViewModel", "Ошибка удаления черновика после удаления записи", e)
                         }
                     }
+                }
+                // Затем сбрасываем форму
+                resetForm()
+                _currentMood.value = null
+                // Разрешаем сохранение черновика через 1 секунду
+                viewModelScope.launch {
+                    kotlinx.coroutines.delay(1000)
+                    _preventDraftSaving.value = false
                 }
             },
             onError = { message ->
