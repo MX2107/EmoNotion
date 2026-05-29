@@ -43,37 +43,45 @@ class MainActivity : AppCompatActivity() {
                     when (item.itemId) {
                         R.id.navigation_home -> {
                             if (currentDestinationId == R.id.navigation_home) {
-                                // Если уже на главной, очищаем бэкстек
-                                navController.popBackStack(R.id.navigation_home, false)
+                                // Если уже на главной, не делаем ничего
+                                true
                             } else {
-                                // Если не на главной, переходим на нее
-                                navController.navigate(R.id.navigation_home)
+                                // Если не на главной, переходим на нее с очисткой бэкстека
+                                navController.navigate(R.id.navigation_home, null, navOptions {
+                                    popUpTo(R.id.navigation_home) { inclusive = false }
+                                })
+                                true
                             }
-                            true
                         }
                         R.id.navigation_calendar -> {
                             if (currentDestinationId == R.id.navigation_calendar) {
-                                navController.popBackStack(R.id.navigation_calendar, false)
+                                true
                             } else {
-                                navController.navigate(R.id.navigation_calendar)
+                                navController.navigate(R.id.navigation_calendar, null, navOptions {
+                                    popUpTo(R.id.navigation_calendar) { inclusive = false }
+                                })
+                                true
                             }
-                            true
                         }
                         R.id.navigation_notes -> {
                             if (currentDestinationId == R.id.navigation_notes) {
-                                navController.popBackStack(R.id.navigation_notes, false)
+                                true
                             } else {
-                                navController.navigate(R.id.navigation_notes)
+                                navController.navigate(R.id.navigation_notes, null, navOptions {
+                                    popUpTo(R.id.navigation_notes) { inclusive = false }
+                                })
+                                true
                             }
-                            true
                         }
                         R.id.navigation_profile -> {
                             if (currentDestinationId == R.id.navigation_profile) {
-                                navController.popBackStack(R.id.navigation_profile, false)
+                                true
                             } else {
-                                navController.navigate(R.id.navigation_profile)
+                                navController.navigate(R.id.navigation_profile, null, navOptions {
+                                    popUpTo(R.id.navigation_profile) { inclusive = false }
+                                })
+                                true
                             }
-                            true
                         }
                         else -> false
                     }
