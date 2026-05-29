@@ -43,7 +43,10 @@ class ProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupUI()
         observeViewModel()
-        viewModel.loadUserProfile()
+        // Загружаем данные только при первом создании
+        if (savedInstanceState == null) {
+            viewModel.loadUserProfile()
+        }
     }
 
     override fun onResume() {

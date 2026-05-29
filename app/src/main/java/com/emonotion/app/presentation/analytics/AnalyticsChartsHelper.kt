@@ -67,12 +67,14 @@ object AnalyticsChartsHelper {
         chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
         chart.xAxis.setDrawGridLines(false)
         chart.xAxis.granularity = 1f
+        chart.xAxis.textColor = ContextCompat.getColor(chart.context, R.color.foreground)
         chart.axisLeft.axisMinimum = 0.15f
         chart.axisLeft.axisMaximum = 5.75f
         chart.axisLeft.setDrawGridLines(true)
         chart.axisLeft.granularity = 1f
         chart.axisLeft.setLabelCount(5, false)
         chart.axisLeft.textSize = 20f
+        chart.axisLeft.textColor = ContextCompat.getColor(chart.context, R.color.foreground)
         chart.axisLeft.valueFormatter = emojiAxisFormatter()
         chart.setExtraOffsets(8f, 12f, 8f, 8f)
 
@@ -119,8 +121,8 @@ object AnalyticsChartsHelper {
         chart.description.isEnabled = false
         chart.setUsePercentValues(false)
         chart.setDrawEntryLabels(false)
-        chart.setHoleRadius(42f)
-        chart.setTransparentCircleRadius(46f)
+        chart.setHoleRadius(0f)
+        chart.setTransparentCircleRadius(0f)
         chart.setExtraOffsets(8f, 8f, 8f, 8f)
 
         val filtered = MOOD_ORDER.mapNotNull { mood ->
@@ -151,7 +153,7 @@ object AnalyticsChartsHelper {
                     return "$count ($percent%)"
                 }
             }
-            sliceSpace = 2f
+            sliceSpace = 0f
             selectionShift = 4f
         }
 
@@ -160,6 +162,7 @@ object AnalyticsChartsHelper {
         chart.legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
         chart.legend.orientation = Legend.LegendOrientation.HORIZONTAL
         chart.legend.textSize = 11f
+        chart.legend.textColor = ContextCompat.getColor(chart.context, R.color.foreground)
         chart.legend.form = Legend.LegendForm.CIRCLE
         chart.legend.xEntrySpace = 12f
 
@@ -195,6 +198,7 @@ object AnalyticsChartsHelper {
         chart.axisLeft.axisMaximum = (maxCount * 1.1f).coerceAtLeast(5f)
         chart.axisLeft.granularity = if (maxCount > 10) 2f else 1f
         chart.axisLeft.setLabelCount(3, false)
+        chart.axisLeft.textColor = ContextCompat.getColor(chart.context, R.color.foreground)
         chart.axisLeft.valueFormatter = integerAxisFormatter(0, maxCount)
 
         val entries = counts.mapIndexed { index, nc -> BarEntry(index.toFloat(), nc.count.toFloat()) }
@@ -203,12 +207,14 @@ object AnalyticsChartsHelper {
             color = ContextCompat.getColor(chart.context, R.color.secondary)
             setDrawValues(true)
             valueTextSize = 10f
+            valueTextColor = ContextCompat.getColor(chart.context, R.color.foreground)
             valueFormatter = object : com.github.mikephil.charting.formatter.ValueFormatter() {
                 override fun getFormattedValue(value: Float): String = value.toInt().toString()
             }
         }
         chart.xAxis.valueFormatter = IndexAxisValueFormatter(labels)
         chart.xAxis.labelRotationAngle = if (counts.size > 4) -35f else 0f
+        chart.xAxis.textColor = ContextCompat.getColor(chart.context, R.color.foreground)
 
         chart.setExtraOffsets(16f, 8f, if (counts.size > VISIBLE_BARS.toInt()) 16f else 8f, if (counts.size > 4) 20f else 8f)
         chart.data = BarData(set).apply { barWidth = 0.55f }

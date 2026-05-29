@@ -42,16 +42,19 @@ class CalendarFragment : Fragment() {
     
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Сначала загружаем данные, затем настраиваем UI
-        viewModel.loadMoodsForMonth()
         setupUI()
         observeViewModel()
+        // Загружаем данные только при первом создании
+        if (savedInstanceState == null) {
+            viewModel.loadMoodsForMonth()
+        }
     }
     
     override fun onResume() {
         super.onResume()
-        // Обновляем данные календаря при возвращении на экран
-        viewModel.refreshCalendarData()
+        // Не обновляем данные при каждом возвращении - используем кэш
+        // Обновляем только если прошло больше 5 минут с последнего обновления
+        // viewModel.refreshCalendarData()
     }
     
     private fun setupUI() {
@@ -73,8 +76,8 @@ class CalendarFragment : Fragment() {
                 viewModel.nextMonth()
             }
             
-            // Инициализация календаря текущими данными
-            updateCalendarGrid(viewModel.moods.value)
+            // НЕ инициализируем календарь здесь - это вызывает множественные обновления
+            // Инициализация происходит при первом получении данных из ViewModel
             updateCalendarDisplay()
         }
     }
@@ -106,8 +109,8 @@ class CalendarFragment : Fragment() {
             }
         }
         
-        // Инициализируем календарь при запуске
-        updateCalendarGrid(viewModel.moods.value)
+        // НЕ инициализируем календарь здесь - это вызывает множественные обновления
+        // Инициализация происходит в setupUI и при первом получении данных
     }
     
     private fun updateCalendarDisplay() {

@@ -55,6 +55,13 @@ class AnalyticsRepositoryImpl @Inject constructor(
         "Суббота"
     )
 
+    // Кэш для streak значений
+    private var cachedCurrentStreak: Int? = null
+    private var cachedLongestStreak: Int? = null
+    private var cachedMoodsHash: Int? = null
+    private var lastCacheTime: Long = 0
+    private val CACHE_DURATION_MS = 1 * 60 * 1000 // 1 минута
+
     override suspend fun getAnalytics(period: AnalyticsPeriod): Analytics {
         val allMoods = moodDao.getAllMoodsList()
         val filtered = filterMoodsByPeriod(allMoods, period)
@@ -72,6 +79,73 @@ class AnalyticsRepositoryImpl @Inject constructor(
         return moodDao.getAllMoods().map { moods ->
             calculateUserStats(moods)
         }
+    }
+
+    private fun calculateUserStats(moods: List<MoodEntryEntity>): UserStats {
+        val currentStreak = getCachedCurrentStreak(moods)
+        val longestStreak = getCachedLongestStreak(moods)
+        
+        val uniqueDays = moods.map { it.date }.toSet().size
+        val today = dateFormat.format(Calendar.getInstance().time)
+        val hasEntryToday = moods.any { it.date == today }
+        val averageMood = calculateAverageMoodScore(moods)
+        val mostFrequentMood = getMostFrequentMood(moods)
+
+        return UserStats(
+            totalEntries = moods.size,
+            currentStreak = currentStreak,
+            longestStreak = longestStreak,
+            averageMood = averageMood,
+            mostFrequentMood = mostFrequentMood,
+            totalDaysTracked = uniqueDays,
+            hasEntryToday = hasEntryToday
+        )
+    }
+
+    private fun getCachedCurrentStreak(moods: List<MoodEntryEntity>): Int {
+        val currentTime = System.currentTimeMillis()
+        val currentHash = moods.hashCode()
+        
+        // Проверяем кэш (более агрессивное кэширование)
+        if (cachedCurrentStreak != null && 
+            (currentTime - lastCacheTime) < CACHE_DURATION_MS) {
+            android.util.Log.d("AnalyticsRepository", "getCachedCurrentStreak: using cache=$cachedCurrentStreak (time-based)")
+            return cachedCurrentStreak!!
+        }
+        
+        // Вычисляем заново
+        val result = calculateCurrentStreak(moods)
+        android.util.Log.d("AnalyticsRepository", "getCachedCurrentStreak: computed=$result")
+        
+        // Обновляем кэш
+        cachedCurrentStreak = result
+        cachedMoodsHash = currentHash
+        lastCacheTime = currentTime
+        
+        return result
+    }
+
+    private fun getCachedLongestStreak(moods: List<MoodEntryEntity>): Int {
+        val currentTime = System.currentTimeMillis()
+        val currentHash = moods.hashCode()
+        
+        // Проверяем кэш (более агрессивное кэширование)
+        if (cachedLongestStreak != null && 
+            (currentTime - lastCacheTime) < CACHE_DURATION_MS) {
+            android.util.Log.d("AnalyticsRepository", "getCachedLongestStreak: using cache=$cachedLongestStreak (time-based)")
+            return cachedLongestStreak!!
+        }
+        
+        // Вычисляем заново
+        val result = calculateLongestStreak(moods)
+        android.util.Log.d("AnalyticsRepository", "getCachedLongestStreak: computed=$result")
+        
+        // Обновляем кэш
+        cachedLongestStreak = result
+        cachedMoodsHash = currentHash
+        lastCacheTime = currentTime
+        
+        return result
     }
 
     override suspend fun exportAnalytics(
@@ -222,8 +296,8 @@ class AnalyticsRepositoryImpl @Inject constructor(
             averageIntensity = calculateAverageIntensity(moods),
             averageMood = calculateAverageMoodScore(moods),
             totalEntries = moods.size,
-            currentStreak = calculateCurrentStreak(moods),
-            longestStreak = calculateLongestStreak(moods),
+            currentStreak = getCachedCurrentStreak(moods),
+            longestStreak = getCachedLongestStreak(moods),
             mostCommonActivities = getMostCommonActivities(moods),
             improvementTrend = calculateTrend(moods),
             moodTrendByDate = computeMoodTrendByDate(moods, period),
@@ -305,27 +379,6 @@ class AnalyticsRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun calculateUserStats(moods: List<MoodEntryEntity>): UserStats {
-        val totalEntries = moods.size
-        val uniqueDays = moods.map { it.date }.toSet().size
-        val today = dateFormat.format(Calendar.getInstance().time)
-        val hasEntryToday = moods.any { it.date == today }
-        val currentStreak = calculateCurrentStreak(moods)
-        val longestStreak = calculateLongestStreak(moods)
-        val averageMood = calculateAverageMoodScore(moods)
-        val mostFrequentMood = getMostFrequentMood(moods)
-
-        return UserStats(
-            totalEntries = totalEntries,
-            currentStreak = currentStreak,
-            longestStreak = longestStreak,
-            averageMood = averageMood,
-            mostFrequentMood = mostFrequentMood,
-            totalDaysTracked = uniqueDays,
-            hasEntryToday = hasEntryToday
-        )
-    }
-
     private fun calculateCurrentStreak(moods: List<MoodEntryEntity>): Int {
         if (moods.isEmpty()) {
             android.util.Log.d("AnalyticsRepository", "calculateCurrentStreak: moods is empty")
@@ -335,35 +388,37 @@ class AnalyticsRepositoryImpl @Inject constructor(
         val calendar = Calendar.getInstance()
         val today = dateFormat.format(calendar.time)
 
-        val validMoods = moods.filter { it.date <= today }
-        val sortedDates = validMoods.map { it.date }.distinct().sortedDescending()
+        // Оптимизация: используем HashSet для быстрого поиска
+        val dateSet = moods.asSequence()
+            .map { it.date }
+            .filter { it <= today }
+            .toSet()
 
-        android.util.Log.d("AnalyticsRepository", "calculateCurrentStreak: today=$today, sortedDates=$sortedDates")
-
-        if (sortedDates.isEmpty()) return 0
+        if (dateSet.isEmpty()) return 0
 
         val checkCalendar = Calendar.getInstance()
+        checkCalendar.add(Calendar.DAY_OF_YEAR, -1)
+        val yesterday = dateFormat.format(checkCalendar.time)
 
-        if (sortedDates[0] != today) {
-            checkCalendar.add(Calendar.DAY_OF_YEAR, -1)
-            val yesterday = dateFormat.format(checkCalendar.time)
-
-            if (sortedDates[0] != yesterday) {
-                android.util.Log.d("AnalyticsRepository", "calculateCurrentStreak: no entry today or yesterday, streak=0")
-                return 0
-            }
+        // Проверяем, есть ли запись сегодня или вчера
+        if (!dateSet.contains(today) && !dateSet.contains(yesterday)) {
+            android.util.Log.d("AnalyticsRepository", "calculateCurrentStreak: no entry today or yesterday, streak=0")
+            return 0
         }
 
-        var streak = 0
+        // Начинаем с сегодняшнего дня или вчерашнего
         var currentDate = Calendar.getInstance()
-
-        if (sortedDates[0] != today) {
+        if (!dateSet.contains(today)) {
             currentDate.add(Calendar.DAY_OF_YEAR, -1)
         }
 
-        for (dateStr in sortedDates) {
+        var streak = 0
+        // Ограничиваем цикл разумным количеством итераций
+        val maxIterations = 365 // Максимум год
+        
+        for (i in 0 until maxIterations) {
             val dateStrFormatted = dateFormat.format(currentDate.time)
-            if (dateStr == dateStrFormatted) {
+            if (dateSet.contains(dateStrFormatted)) {
                 streak++
                 currentDate.add(Calendar.DAY_OF_YEAR, -1)
             } else {
@@ -383,15 +438,22 @@ class AnalyticsRepositoryImpl @Inject constructor(
 
         val calendar = Calendar.getInstance()
         val today = dateFormat.format(calendar.time)
-        val validMoods = moods.filter { it.date <= today }
+        
+        // Оптимизация: используем HashSet для быстрого поиска
+        val dateSet = moods.asSequence()
+            .map { it.date }
+            .filter { it <= today }
+            .toSet()
 
-        val sortedDates = validMoods.map { it.date }.distinct().sorted()
-        android.util.Log.d("AnalyticsRepository", "calculateLongestStreak: sortedDates=$sortedDates")
-
-        if (sortedDates.size == 1) {
+        if (dateSet.isEmpty()) return 0
+        if (dateSet.size == 1) {
             android.util.Log.d("AnalyticsRepository", "calculateLongestStreak: only one date, streak=1")
             return 1
         }
+
+        // Сортируем даты для вычисления longest streak
+        val sortedDates = dateSet.sorted()
+        android.util.Log.d("AnalyticsRepository", "calculateLongestStreak: sortedDates size=${sortedDates.size}")
 
         var longestStreak = 1
         var currentStreak = 1

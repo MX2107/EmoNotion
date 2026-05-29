@@ -49,6 +49,7 @@ class CalendarViewModel @Inject constructor(
     
     // Кэш для загруженных данных
     private val cachedMoods = mutableMapOf<String, List<MoodEntry>>()
+    private var isCalendarLoading = false
     
     init {
         // Инициализация при создании ViewModel
@@ -114,6 +115,14 @@ class CalendarViewModel @Inject constructor(
             return
         }
         
+        // Предотвращаем множественные загрузки
+        if (isCalendarLoading) {
+            Log.d("CalendarViewModel", "Загрузка уже выполняется, пропускаем")
+            return
+        }
+        
+        isCalendarLoading = true
+        
         executeWithLoading {
             viewModelScope.launch {
                 val calendar = Calendar.getInstance()
@@ -137,7 +146,6 @@ class CalendarViewModel @Inject constructor(
                 // Переходим к последнему дню месяца
                 calendar.add(Calendar.MONTH, 1)
                 calendar.add(Calendar.DAY_OF_MONTH, -1)
-                val lastDayOfMonth = calendar.timeInMillis
                 
                 // Добавляем дни до конца недели (до 42 дней = 6 недель)
                 val daysInMonth = calendar.get(Calendar.DAY_OF_MONTH)
@@ -156,10 +164,12 @@ class CalendarViewModel @Inject constructor(
                         _moods.value = moodList
                         cachedMoods[cacheKey] = moodList
                         Log.d("CalendarViewModel", "Загружено и закэшировано записей: ${moodList.size}")
+                        isCalendarLoading = false
                     }
                 } catch (e: Exception) {
                     Log.e("CalendarViewModel", "Ошибка загрузки данных за период: $firstDayStr - $lastDayStr", e)
                     _moods.value = emptyList()
+                    isCalendarLoading = false
                 }
             }
         }
