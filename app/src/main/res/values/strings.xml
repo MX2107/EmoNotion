@@ -130,7 +130,7 @@
     <string name="local_storage_only">Только локальное хранение</string>
     <string name="about">О приложении</string>
     <string name="version">Версия: %s</string>
-    <string name="app_description">EmoNotion\nВерсия 1.0.0\n\nРазработчик: студент гр. ПрИ-21 Плеханов М.А.\nНаучный руководитель: доцент, к.т.н. Гавлиевский С.Л.\n\nРепозиторий проекта: \nhttps://github.com/MX2107/EmoNotion</string>
+    <string name="app_description">EmoNotion\nВерсия 1.0.0\n\nРазработчик: студент гр. ПрИ-21 Плеханов М.А.\nНаучный руководитель: профессор, д.т.н. Гавлиевский С.Л.\n\nРепозиторий проекта: \nhttps://github.com/MX2107/EmoNotion</string>
     
     <!-- Сообщения об ошибках -->
     <string name="please_select_mood">Пожалуйста, выберите настроение</string>
