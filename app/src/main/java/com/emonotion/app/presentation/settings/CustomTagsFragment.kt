@@ -49,6 +49,9 @@ class CustomTagsFragment : Fragment() {
         adapter = CustomTagsAdapter(
             onDeleteClick = { customTag ->
                 showDeleteConfirmationDialog(customTag)
+            },
+            onEditClick = { customTag ->
+                showEditTagDialog(customTag)
             }
         )
         binding.recyclerView.apply {
@@ -134,6 +137,44 @@ class CustomTagsFragment : Fragment() {
         dialog.show()
 
         tagInput.requestFocus()
+        val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+        imm.showSoftInput(tagInput, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+    }
+
+    private fun showEditTagDialog(customTag: com.emonotion.app.domain.model.CustomTag) {
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_add_tag, null)
+
+        val tagInput = dialogView.findViewById<TextInputEditText>(R.id.tag_input)
+        tagInput.setText(customTag.name)
+
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Редактировать тег")
+            .setView(dialogView)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        dialogView.findViewById<android.widget.Button>(R.id.cancel_button).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        val addButton = dialogView.findViewById<android.widget.Button>(R.id.add_button)
+        addButton.text = "Сохранить"
+        addButton.setOnClickListener {
+            val tagName = tagInput.text.toString().trim()
+            if (tagName.isNotBlank()) {
+                viewModel.updateCustomTag(customTag.copy(name = tagName))
+                dialog.dismiss()
+            } else {
+                tagInput.error = "Введите название тега"
+            }
+        }
+
+        dialog.show()
+
+        tagInput.requestFocus()
+        tagInput.setSelection(tagInput.text?.length ?: 0)
         val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
         imm.showSoftInput(tagInput, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
     }

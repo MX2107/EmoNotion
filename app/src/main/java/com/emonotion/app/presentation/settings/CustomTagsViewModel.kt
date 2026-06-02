@@ -5,6 +5,7 @@ import com.emonotion.app.domain.model.CustomTag
 import com.emonotion.app.domain.usecase.customtag.AddCustomTagUseCase
 import com.emonotion.app.domain.usecase.customtag.DeleteCustomTagUseCase
 import com.emonotion.app.domain.usecase.customtag.GetCustomTagsUseCase
+import com.emonotion.app.domain.usecase.customtag.UpdateCustomTagUseCase
 import com.emonotion.app.presentation.common.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +22,8 @@ import javax.inject.Inject
 class CustomTagsViewModel @Inject constructor(
     private val addCustomTagUseCase: AddCustomTagUseCase,
     private val deleteCustomTagUseCase: DeleteCustomTagUseCase,
-    private val getCustomTagsUseCase: GetCustomTagsUseCase
+    private val getCustomTagsUseCase: GetCustomTagsUseCase,
+    private val updateCustomTagUseCase: UpdateCustomTagUseCase
 ) : BaseViewModel() {
 
     private val _customTags = MutableStateFlow<List<CustomTag>>(emptyList())
@@ -71,6 +73,20 @@ class CustomTagsViewModel @Inject constructor(
             },
             onError = { message ->
                 _errorMessage.value = "Ошибка при удалении тега: $message"
+            }
+        )
+    }
+
+    fun updateCustomTag(customTag: CustomTag) {
+        executeWithResult(
+            operation = {
+                updateCustomTagUseCase(customTag)
+            },
+            onSuccess = {
+                _successMessage.value = "Тег '${customTag.name}' обновлен"
+            },
+            onError = { message ->
+                _errorMessage.value = "Ошибка при обновлении тега: $message"
             }
         )
     }

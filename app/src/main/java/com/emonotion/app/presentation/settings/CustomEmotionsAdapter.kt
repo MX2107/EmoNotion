@@ -15,7 +15,8 @@ import java.util.Locale
  * Adapter для отображения списка пользовательских эмоций
  */
 class CustomEmotionsAdapter(
-    private val onDeleteClick: (CustomMood) -> Unit
+    private val onDeleteClick: (CustomMood) -> Unit,
+    private val onEditClick: (CustomMood) -> Unit
 ) : ListAdapter<CustomMood, CustomEmotionsAdapter.EmotionViewHolder>(EmotionDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EmotionViewHolder {
@@ -37,13 +38,17 @@ class CustomEmotionsAdapter(
 
         fun bind(customMood: CustomMood) {
             binding.nameText.text = customMood.name
-            
+
             val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
             val createdDate = dateFormat.format(Date(customMood.createdAt))
             binding.dateText.text = "Создано: $createdDate"
 
             binding.deleteButton.setOnClickListener {
                 onDeleteClick(customMood)
+            }
+
+            binding.root.setOnClickListener {
+                onEditClick(customMood)
             }
         }
     }

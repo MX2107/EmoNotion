@@ -48,6 +48,9 @@ class CustomActivitiesFragment : Fragment() {
         adapter = CustomActivitiesAdapter(
             onDeleteClick = { customActivity ->
                 showDeleteConfirmationDialog(customActivity)
+            },
+            onEditClick = { customActivity ->
+                showEditActivityDialog(customActivity)
             }
         )
         binding.recyclerView.apply {
@@ -133,6 +136,44 @@ class CustomActivitiesFragment : Fragment() {
         dialog.show()
 
         activityInput.requestFocus()
+        val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+        imm.showSoftInput(activityInput, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+    }
+
+    private fun showEditActivityDialog(customActivity: com.emonotion.app.domain.model.CustomActivity) {
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_add_activity, null)
+
+        val activityInput = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.activity_input)
+        activityInput.setText(customActivity.name)
+
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Редактировать активность")
+            .setView(dialogView)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        dialogView.findViewById<android.widget.Button>(R.id.cancel_button).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        val addButton = dialogView.findViewById<android.widget.Button>(R.id.add_button)
+        addButton.text = "Сохранить"
+        addButton.setOnClickListener {
+            val activityName = activityInput.text.toString().trim()
+            if (activityName.isNotBlank()) {
+                viewModel.updateCustomActivity(customActivity.copy(name = activityName))
+                dialog.dismiss()
+            } else {
+                activityInput.error = "Введите название активности"
+            }
+        }
+
+        dialog.show()
+
+        activityInput.requestFocus()
+        activityInput.setSelection(activityInput.text?.length ?: 0)
         val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
         imm.showSoftInput(activityInput, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
     }

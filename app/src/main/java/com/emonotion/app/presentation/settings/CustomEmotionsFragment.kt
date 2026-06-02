@@ -49,6 +49,9 @@ class CustomEmotionsFragment : Fragment() {
         adapter = CustomEmotionsAdapter(
             onDeleteClick = { customMood ->
                 showDeleteConfirmationDialog(customMood)
+            },
+            onEditClick = { customMood ->
+                showEditEmotionDialog(customMood)
             }
         )
         binding.recyclerView.apply {
@@ -134,6 +137,44 @@ class CustomEmotionsFragment : Fragment() {
         dialog.show()
 
         emotionInput.requestFocus()
+        val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+        imm.showSoftInput(emotionInput, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+    }
+
+    private fun showEditEmotionDialog(customMood: com.emonotion.app.domain.model.CustomMood) {
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_add_emotion, null)
+
+        val emotionInput = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.emotion_input)
+        emotionInput.setText(customMood.name)
+
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Редактировать эмоцию")
+            .setView(dialogView)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        dialogView.findViewById<android.widget.Button>(R.id.cancel_button).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        val addButton = dialogView.findViewById<android.widget.Button>(R.id.add_button)
+        addButton.text = "Сохранить"
+        addButton.setOnClickListener {
+            val emotionName = emotionInput.text.toString().trim()
+            if (emotionName.isNotBlank()) {
+                viewModel.updateCustomEmotion(customMood.copy(name = emotionName))
+                dialog.dismiss()
+            } else {
+                emotionInput.error = "Введите название эмоции"
+            }
+        }
+
+        dialog.show()
+
+        emotionInput.requestFocus()
+        emotionInput.setSelection(emotionInput.text?.length ?: 0)
         val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
         imm.showSoftInput(emotionInput, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
     }

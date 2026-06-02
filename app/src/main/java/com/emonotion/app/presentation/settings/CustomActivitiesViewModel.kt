@@ -5,6 +5,7 @@ import com.emonotion.app.domain.model.CustomActivity
 import com.emonotion.app.domain.usecase.customactivity.AddCustomActivityUseCase
 import com.emonotion.app.domain.usecase.customactivity.DeleteCustomActivityUseCase
 import com.emonotion.app.domain.usecase.customactivity.GetCustomActivitiesUseCase
+import com.emonotion.app.domain.usecase.customactivity.UpdateCustomActivityUseCase
 import com.emonotion.app.presentation.common.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +22,8 @@ import javax.inject.Inject
 class CustomActivitiesViewModel @Inject constructor(
     private val addCustomActivityUseCase: AddCustomActivityUseCase,
     private val deleteCustomActivityUseCase: DeleteCustomActivityUseCase,
-    private val getCustomActivitiesUseCase: GetCustomActivitiesUseCase
+    private val getCustomActivitiesUseCase: GetCustomActivitiesUseCase,
+    private val updateCustomActivityUseCase: UpdateCustomActivityUseCase
 ) : BaseViewModel() {
 
     private val _customActivities = MutableStateFlow<List<CustomActivity>>(emptyList())
@@ -71,6 +73,20 @@ class CustomActivitiesViewModel @Inject constructor(
             },
             onError = { message ->
                 _errorMessage.value = "Ошибка при удалении активности: $message"
+            }
+        )
+    }
+
+    fun updateCustomActivity(customActivity: CustomActivity) {
+        executeWithResult(
+            operation = {
+                updateCustomActivityUseCase(customActivity)
+            },
+            onSuccess = {
+                _successMessage.value = "Активность '${customActivity.name}' обновлена"
+            },
+            onError = { message ->
+                _errorMessage.value = "Ошибка при обновлении активности: $message"
             }
         )
     }

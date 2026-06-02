@@ -15,7 +15,8 @@ import java.util.Locale
  * Adapter для отображения списка пользовательских активностей
  */
 class CustomActivitiesAdapter(
-    private val onDeleteClick: (CustomActivity) -> Unit
+    private val onDeleteClick: (CustomActivity) -> Unit,
+    private val onEditClick: (CustomActivity) -> Unit
 ) : ListAdapter<CustomActivity, CustomActivitiesAdapter.ActivityViewHolder>(ActivityDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActivityViewHolder {
@@ -37,13 +38,17 @@ class CustomActivitiesAdapter(
 
         fun bind(customActivity: CustomActivity) {
             binding.nameText.text = customActivity.name
-            
+
             val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
             val createdDate = dateFormat.format(Date(customActivity.createdAt))
             binding.dateText.text = "Создано: $createdDate"
 
             binding.deleteButton.setOnClickListener {
                 onDeleteClick(customActivity)
+            }
+
+            binding.root.setOnClickListener {
+                onEditClick(customActivity)
             }
         }
     }

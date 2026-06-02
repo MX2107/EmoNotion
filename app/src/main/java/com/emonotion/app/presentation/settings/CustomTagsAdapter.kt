@@ -15,7 +15,8 @@ import java.util.Locale
  * Adapter для отображения списка пользовательских тегов
  */
 class CustomTagsAdapter(
-    private val onDeleteClick: (CustomTag) -> Unit
+    private val onDeleteClick: (CustomTag) -> Unit,
+    private val onEditClick: (CustomTag) -> Unit
 ) : ListAdapter<CustomTag, CustomTagsAdapter.TagViewHolder>(TagDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TagViewHolder {
@@ -37,13 +38,17 @@ class CustomTagsAdapter(
 
         fun bind(customTag: CustomTag) {
             binding.nameText.text = customTag.name
-            
+
             val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
             val createdDate = dateFormat.format(Date(customTag.createdAt))
             binding.dateText.text = "Создано: $createdDate"
 
             binding.deleteButton.setOnClickListener {
                 onDeleteClick(customTag)
+            }
+
+            binding.root.setOnClickListener {
+                onEditClick(customTag)
             }
         }
     }

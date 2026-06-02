@@ -5,6 +5,7 @@ import com.emonotion.app.domain.model.CustomMood
 import com.emonotion.app.domain.usecase.custommood.AddCustomMoodUseCase
 import com.emonotion.app.domain.usecase.custommood.DeleteCustomMoodUseCase
 import com.emonotion.app.domain.usecase.custommood.GetCustomMoodsUseCase
+import com.emonotion.app.domain.usecase.custommood.UpdateCustomMoodUseCase
 import com.emonotion.app.presentation.common.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +22,8 @@ import javax.inject.Inject
 class CustomEmotionsViewModel @Inject constructor(
     private val addCustomMoodUseCase: AddCustomMoodUseCase,
     private val deleteCustomMoodUseCase: DeleteCustomMoodUseCase,
-    private val getCustomMoodsUseCase: GetCustomMoodsUseCase
+    private val getCustomMoodsUseCase: GetCustomMoodsUseCase,
+    private val updateCustomMoodUseCase: UpdateCustomMoodUseCase
 ) : BaseViewModel() {
 
     private val _customMoods = MutableStateFlow<List<CustomMood>>(emptyList())
@@ -71,6 +73,20 @@ class CustomEmotionsViewModel @Inject constructor(
             },
             onError = { message ->
                 _errorMessage.value = "Ошибка при удалении эмоции: $message"
+            }
+        )
+    }
+
+    fun updateCustomEmotion(customMood: CustomMood) {
+        executeWithResult(
+            operation = {
+                updateCustomMoodUseCase(customMood)
+            },
+            onSuccess = {
+                _successMessage.value = "Эмоция '${customMood.name}' обновлена"
+            },
+            onError = { message ->
+                _errorMessage.value = "Ошибка при обновлении эмоции: $message"
             }
         )
     }
