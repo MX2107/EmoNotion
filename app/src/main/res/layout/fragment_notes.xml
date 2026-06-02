@@ -428,28 +428,17 @@
 
                 <LinearLayout
                     android:id="@+id/sort_button"
-                    android:layout_width="wrap_content"
+                    android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:background="@drawable/tab_inactive_background"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="14dp">
+                    android:gravity="center">
 
                     <ImageView
                         android:id="@+id/sort_icon"
                         android:layout_width="16dp"
                         android:layout_height="16dp"
-                        android:layout_marginEnd="6dp"
                         android:src="@drawable/ic_sort_desc"
                         app:tint="@color/muted_foreground" />
-
-                    <TextView
-                        android:id="@+id/sort_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/sort_newest"
-                        android:textColor="@color/muted_foreground"
-                        android:textSize="13sp" />
 
                 </LinearLayout>
 

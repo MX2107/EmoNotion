@@ -299,28 +299,20 @@ class NotesFragment : Fragment() {
                 when (which) {
                     0 -> {
                         tasksViewModel.setSortOrder(TasksViewModel.SortOrder.NEWEST_FIRST)
-                        updateSortText(getString(R.string.sort_newest))
                     }
                     1 -> {
                         tasksViewModel.setSortOrder(TasksViewModel.SortOrder.OLDEST_FIRST)
-                        updateSortText(getString(R.string.sort_oldest))
                     }
                     2 -> {
                         tasksViewModel.setSortOrder(TasksViewModel.SortOrder.ALPHABETICAL_ASC)
-                        updateSortText(getString(R.string.sort_alphabetical_asc))
                     }
                     3 -> {
                         tasksViewModel.setSortOrder(TasksViewModel.SortOrder.ALPHABETICAL_DESC)
-                        updateSortText(getString(R.string.sort_alphabetical_desc))
                     }
                 }
                 dialog.dismiss()
             }
             .show()
-    }
-    
-    private fun updateSortText(text: String) {
-        binding.sortText.text = text
     }
     
     private fun showNotesSortDialog() {
