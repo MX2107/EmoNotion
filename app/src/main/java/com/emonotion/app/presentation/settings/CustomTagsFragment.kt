@@ -148,8 +148,9 @@ class CustomTagsFragment : Fragment() {
         val tagInput = dialogView.findViewById<TextInputEditText>(R.id.tag_input)
         tagInput.setText(customTag.name)
 
+        dialogView.findViewById<android.widget.TextView>(R.id.dialog_title).text = "Редактировать тег"
+
         val dialog = MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Редактировать тег")
             .setView(dialogView)
             .create()
 

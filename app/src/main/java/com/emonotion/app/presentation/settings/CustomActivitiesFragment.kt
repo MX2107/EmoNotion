@@ -147,8 +147,9 @@ class CustomActivitiesFragment : Fragment() {
         val activityInput = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.activity_input)
         activityInput.setText(customActivity.name)
 
+        dialogView.findViewById<android.widget.TextView>(R.id.dialog_title).text = "Редактировать активность"
+
         val dialog = MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Редактировать активность")
             .setView(dialogView)
             .create()
 

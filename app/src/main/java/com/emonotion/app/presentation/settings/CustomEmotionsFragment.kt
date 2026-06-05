@@ -148,8 +148,9 @@ class CustomEmotionsFragment : Fragment() {
         val emotionInput = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.emotion_input)
         emotionInput.setText(customMood.name)
 
+        dialogView.findViewById<android.widget.TextView>(R.id.dialog_title).text = "Редактировать эмоцию"
+
         val dialog = MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Редактировать эмоцию")
             .setView(dialogView)
             .create()
 
